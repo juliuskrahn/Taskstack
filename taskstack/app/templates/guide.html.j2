@@ -1,0 +1,36 @@
+{% extends 'base.html.j2' %}
+
+{% block head %}
+  <link rel="stylesheet" href={{ static_url("css/document.css") }} type="text/css">
+  <title>Taskstack | {{ lex["Basics"] }}</title>
+{% endblock %}
+
+{% block content %}
+<div class="document">
+  <h1>{{ lex["Taskstack basics"] }}</h1>
+  <div class="documentContent">
+    <p>{{ lex["The core element of Taskstack are projects. A taskstack project can be used e.g. for planning, information "
+      "exchange or as a cloud. Here everything is about lists and cards. Lists can stand for a process: To Do, "
+      "In Progress, Done or for dates... and cards for tasks. To create a Taskstack project, go to the homepage and "
+      "click on New in the project list (left) or enter taskstack/new in the browser search bar."] }}
+    </p>
+    <h2>{{ lex["Project creation"] }}</h2>
+    <p>{{ lex["Choose a name that fits your project (e.g. holidays, meeting-04-7-2020, ...)."] }}</p>
+    <p>{{ lex["Optionally you can give your project a description."] }}</p>
+    <p>{{ lex["Set who can see your project."] }}</p>
+    <p>{{ lex["To discuss and make decisions faster, you can create a linked chat group for your project."] }}</p>
+    <h2>{{ lex["Adding lists"] }}</h2>
+    <img src={{ static_url("video/create_list.gif") }} alt="gif">
+    <p>{{ lex["To add a list to your project, click \"New list\" in the project menu. A list can represent a process or a step."] }}</p>
+    <p>{{ lex["You can give lists a detailed description and attach files.  Lists can be moved around with Drag and Drop "
+      "like cards."]}}</p>
+    <h2>{{ lex["Adding cards"] }}</h2>
+    <img src={{ static_url("video/create_card.gif") }} alt="gif">
+    <p>{{ lex["Click \"Add card\" to add a card to a list. A card can represent a task. If you have organized your project "
+      "by processes, you can drag a card to the next process list as soon as it has gone through a process. You can "
+      "give cards detailed descriptions and attach files. To make it clear who is responsible for what, you can also "
+      "assign members to a card."] }}
+    </p>
+  </div>
+</div>
+{% endblock %}

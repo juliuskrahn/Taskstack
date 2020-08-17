@@ -1,0 +1,12 @@
+{% extends 'base.html.j2' %}
+
+{% block head %}
+  <link rel="stylesheet" href={{ static_url("css/error.css") }}>
+  <title>Taskstack | Error 404</title>
+{% endblock %}
+
+{% block content %}
+  <h1>Error 404</h1>
+  <p>{{ lex["The content you are looking for does not exist/ has been moved/ requires authentication."] }}</p>
+  <p><a href="/">{{ lex["Take me home"] }}</a></p>
+{% endblock %}

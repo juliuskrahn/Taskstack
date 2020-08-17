@@ -1,0 +1,11 @@
+{% extends 'base.html.j2' %}
+
+{% block head %}
+  <link rel="stylesheet" href={{ static_url("css/error.css") }}>
+  <title>Taskstack | Error 400</title>
+{% endblock %}
+
+{% block content %}
+  <h1>Error 400</h1>
+  <p>{{ lex["Bad Request. Your browser sent a request that this server could not understand."] }}</p>
+{% endblock %}

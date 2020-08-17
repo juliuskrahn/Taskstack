@@ -1,0 +1,59 @@
+.document {
+  margin: 0 auto;
+  max-width: 90%;
+}
+
+@media (min-width:833px) {
+  .document {
+    max-width: 750px;
+  }
+}
+
+@media (max-width:450px) {
+  .document {
+    max-width: 96%;
+  }
+}
+
+.documentContent {
+  padding: 8px 16px 20px 16px;
+  border-radius: 2px;
+  border-top: 2px solid #e84855;
+  box-shadow: 0 2px 4px 1px rgba(0,0,0,.1)
+}
+
+.document h1 {
+  font-size: 28px;
+  margin: 4px 0 12px 16px;
+}
+
+.document h2, h3, h4 {
+  margin: 16px 0 0 0;
+}
+
+.document h2 {
+  font-size: 24px;
+}
+
+.document h3 {
+  font-size: 20px;
+}
+
+.document h4 {
+  font-size: 16px;
+}
+
+.document p {
+  margin-top: 6px;
+}
+
+.document li {
+  list-style: disc;
+  margin-left: 32px;
+}
+
+.document img {
+  border: 1px solid #eee;
+  width: 90%;
+  margin: 8px 0;
+}

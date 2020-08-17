@@ -1,0 +1,104 @@
+{% extends 'base.html.j2' %}
+
+{% block head %}
+    <script src="https://kit.fontawesome.com/ba20bc93cc.js" crossorigin="anonymous"></script>
+    {% if username == current_user.name %}
+    <link  rel="stylesheet" href={{ static_url("css/cropper.min.css") }}>
+    <script src={{ static_url("js/cropper.min.js") }}></script>
+    <script src={{ static_url("js/he.min.js") }}></script>
+    <script>
+      const token = "{{ token }}";
+    </script>
+    {% endif %}
+    <script>
+      const username = "{{ username }}";
+      const userId = {{ user_id }};
+    </script>
+    <script src={{ static_url("js/user_profile.js") }}></script>
+    <link rel="stylesheet" href={{ static_url("css/user_profile.css") }} type="text/css">
+    {% block _head %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+  <div class="mainGridContainer">
+    <section class="profileLeft">
+      <div class="profileLeftContainer">
+        <div class="profilePicContainer">
+          <img id="profilePic" data-initial-src="{{ user_profile_pic_url }}" data-changed="false" src="{{ user_profile_pic_url }}" alt="img">
+        </div>
+        <input id="profilePicInput" type="file" accept=".jpg, .JPG, .jpeg, .JPEG, .jfif, .JFIF, .png, .PNG" onchange="loadNewProfilePic();" style="display: none;" autocomplete="off">
+        <section>
+          <section class="info">
+            <h1 id="profileName">{{ username }}</h1>
+            <div class="ellipsisOptions userInteractions">
+              <i class="fas fa-ellipsis-h" onclick="DomHelpers.activate(this.parentElement);"></i>
+              <ul>
+                {% if current_user.is_authenticated() %}
+                  {% if current_user_is_friend_with_user %}
+                  <li><a href="/chat?with={{username}}">{{ lex["Go to chat"] }}</a></li>
+                  <li data-modal-target="removeFriendModal" onclick="Modal.show(this);">{{ lex["Remove friend"] }}</li>
+                  {% elif current_user.id != user_id %}
+                  <li><a href="/new-friend?name={{username}}&continue=%2F{{username}}">{{ lex["Send friendship request"] }}</a></li>
+                  {% endif %}
+                {% endif %}
+              </ul>
+            </div>
+            <hr>
+            <p id="profileEmail"><a href="mailto:{{useremail}}">{{ useremail }}</a></p>
+            <p id="profileDesc">{{ userprofile_desc }}</p>
+            {% if username == current_user.name %}
+            <p class="errorText" id="profileDescErrorText">{{ lex["The profile description may only be 256 characters long"] }}</p>
+            <button id="editProfileBtn" onclick="editProfile();" class="subtle" type="button" name="button">{{  lex["Edit Profile"] }}</button>
+            <div class="textareaContainer" id="profileDescInputContainer">
+              <textarea data-orig-value="{{ user_profile_desc }}" id="profileDescInput" name="profileDescInput" maxlength="256" placeholder="&nbsp" rows="4" cols="32"></textarea>
+              <label for="profileDescInput">{{ lex["Enter a profile description"] }}</label>
+            </div>
+            <div id="editProfileBtnGroup" class="btnGroup">
+            <button class="secondary" onclick="cancelEditProfile();" type="button" name="button">{{ lex["Cancel"] }}</button>
+            <button onclick="submitEditProfile();">{{ lex["Save"] }}</button>
+            </div>
+            {% endif %}
+          </section>
+        </section>
+      </div>
+    </section>
+    <section class="profileRight">
+      <div class="profileRightContainer">
+        <nav>
+          <ul class="navBarWithTextUl">
+            <li><a {% if url_for(request.endpoint, username=username) == "/" + username + "/projects" %}id="currentTab"{% endif %} href="/{{ username }}/projects">{{ lex["Projects"] }}</a></li><li><a {% if url_for(request.endpoint, username=username) == "/" + username + "/friends" %}id="currentTab"{% endif %} href="/{{ username }}/friends">{{ lex["Friends"] }}</a></li>{% if current_user.name == username %}<li><a {% if url_for(request.endpoint, username=username) == "/" + username + "/settings" %}id="currentTab"{% endif %} href="/{{ username }}/settings">{{ lex["Settings"] }}</a></li>{% endif %}
+          </ul>
+          <ul class="navBarWithIconsUl">
+            <li><a {% if url_for(request.endpoint, username=username) == "/" + username + "/projects" %}id="currentTab"{% endif %} href="/{{ username }}/projects"><i class="fas fa-list"></i></a></li><li><a {% if url_for(request.endpoint, username=username) == "/" + username + "/friends" %}id="currentTab"{% endif %} href="/{{ username }}/friends"><i class="fas fa-users"></i></a></li>{% if current_user.name == username %}<li><a {% if url_for(request.endpoint, username=username) == "/" + username + "/settings" %}id="currentTab"{% endif %} href="/{{ username }}/settings"><i class="fas fa-cog"></i></a></li>{% endif %}
+          </ul>
+        </nav>
+        <section class="profileRightContent">
+          {% block _content %}{% endblock %}
+        </section>
+      </div>
+    </section>
+  </div>
+{% endblock %}
+
+{% block modals %}
+  {% if username == current_user.name %}
+    <div id="invalidTokenMsg" class="modal {% if invalid_token %}active{% endif %}">
+      <p>{{ lex["Invalid token. Reload the page and try again."] }}</p>
+      <section class="btnGroup centerH">
+        <button type="button" onclick="Modal.hideAll();">Ok</button>
+      </section>
+    </div>
+    <div class="overlay {% if invalid_token or change_username_invalid or change_email_invalid or change_password_invalid or delete_account_invalid %}active{% endif %}"></div>
+  {% endif %}
+  <div id="removeFriendModal" class="modal">
+      <h2>{{ lex["Remove friend"] }}</h2>
+      <section class="centerH" style="max-width: 360px; border-radius: 6px; box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.2); padding: 12px;">
+        {{ lex["Are you sure that you want to remove this friend?"] }}
+      </section>
+      <section class="btnGroup centerH">
+        <button onclick="removeFriend();">{{ lex["Remove"] }}</button>
+        <button class="secondary" type="button" onclick="Modal.hideAll();">{{ lex["Cancel"] }}</button>
+      </section>
+  </div>
+  {% block _modals %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "email/base.txt.j2" %}
+{% block content %}
+{{ lex["Almost done"] }}, @{{username}}! 
+{{ lex["To complete your Taskstack sign up, we just need to verify your email address"] }}: {{email}}.
+{{ lex["Once verified, you can start using all of Taskstack's features to explore, build, and share projects."] }}
+
+{{ lex["Your email verification code"] }}:
+    {{code}}
+
+{{link}}
+
+{{ lex["You’re receiving this email because you recently created a new Taskstack account. If this wasn’t you, please ignore this email."] }}
+{% endblock %}

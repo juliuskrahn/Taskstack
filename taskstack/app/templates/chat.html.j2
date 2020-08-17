@@ -1,0 +1,139 @@
+{% extends "base.html.j2" %}
+
+{% block head %}
+<script src={{ static_url("js/he.min.js") }}></script>
+<script src="https://kit.fontawesome.com/ba20bc93cc.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href={{ static_url("css/chat.css") }}>
+<script src={{ static_url("js/chat.js") }}></script>
+<script src={{ static_url("js/anchorme.min.js") }}></script>
+<script>
+    const currentUserId = {{ current_user.id }};
+    var chats = {{chats}};
+    const chatToOpen = {% if chat_to_open %}{{chat_to_open}}{% else %}false{% endif %};
+</script>
+<title>Taskstack | Chat</title>
+{% endblock %}
+
+{% block body_classes %}fluid{% endblock %}
+
+{% block content %}
+<div class="main">
+    <div id="contacts" class="closed">
+        <div class="add">
+            <div class="iconContainer">
+                <div class="circle"></div>
+                <i class="fas fa-plus plusIcon"></i>
+            </div>
+            <a href="/new-friend?continue=%2Fchat">{{ lex["New friend"] }}</a>
+            <a onclick="newGroupWin.open();">{{ lex["New group"] }}</a>
+        </div>
+        <section id="contactsList">
+        </section>
+        <div class="bottomBar" onclick="chatWin.close(); contactsWin.open();">
+            <a href="/"><i class="fas fa-arrow-left goBackIcon"></i></a>
+        </div>
+    </div>
+    <div id="chat" class="closed">
+        <div class="topBar">
+            <i class="fas fa-arrow-left goBackIcon clickable" onclick="chatWin.close(); contactsWin.open();"></i>
+            <div id="currentContact">
+                <a href="" id="currentContactLink"><img id="currentContactImg" src=""></a>
+                <p class="name" id="currentContactName"></p>
+            </div>
+        </div>
+        <div id="msgs">
+        </div>
+        <div class="bottomBar">
+            <section class="container">
+                <textarea id="input" maxlength="2048‬" onfocus="chatWin.enlargeInput();" onblur="chatWin.shrinkInput();" placeholder="&nbsp" rows="64" cols="32" value="" autocomplete="off"></textarea>
+                <div class="buttons">
+                    <i class="fas fa-paper-plane" onclick="chatWin.send();"></i>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<div id="w-newGroupWin" class="modal">
+    <div class="loadingBarBox" id="newGroupWinLoadingBarBox">
+        <div class="loadingBar"></div>
+    </div>
+    <section class="head">
+        <h2>{{ lex["New group"] }}</h2>
+    </section>
+    <section>
+        <div class="inputContainer">
+            <input id="newGroupNameInput" type="text" name="newGroupNameInput" value="" placeholder="&nbsp" autocomplete="off">
+            <label for="newGroupNameInput">{{ lex["Group name"] }}</label>
+        </div>
+        <p id="newGroupNameInputErrorText" class="errorText"></p>
+    </section>
+    <section class="btnGroup centerH">
+        <button type="button" onclick="newGroupWin.submit();">{{ lex["Create group"] }}</button>
+        <button type="button" class="secondary" onclick="newGroupWin.close();">{{ lex["Cancel"] }}</button>
+    </section>
+</div>
+
+<div id="w-groupWin" class="modal">
+    <div class="loadingBarBox" id="groupWinLoadingBarBox">
+        <div class="loadingBar"></div>
+    </div>
+    <section class="head">
+      <h2 id="groupWinTitle"></h2>
+    </section>
+    <section id="groupWinMembersSection" class="stretchBox">
+        
+    </section>
+    <section class="btnGroup centerH">
+      <button type="button" onclick="groupWin.close();">{{ lex["Close"] }}</button>
+      <button id="groupWinAddFriendButton" type="button" class="new" onclick="addFriendToGroupWin.openAndCloseGroupWin(groupWin.chatGroupId, groupWin.chatGroupType);">{{ lex["Add friend"] }}</button>
+      <button id="groupWinEditButton" type="button" class="new" onclick="editGroupWin.openAndCloseGroupWin(groupWin.chatGroupId, groupWin.chatGroupType);">{{ lex["Edit"] }}</button>
+      <button id="groupWinLeaveButton" type="button" class="delete" onclick="groupWin.leaveGroup();">{{ lex["Leave group"] }}</button>
+    </section>
+</div>
+
+<div id="w-editGroupWin" class="modal">
+    <div class="loadingBarBox" id="editGroupWinLoadingBarBox">
+        <div class="loadingBar"></div>
+    </div>
+    <section class="head">
+        <h2 id="editGroupWinTitle"></h2>
+    </section>
+    <section>
+        <div class="inputContainer">
+            <input id="groupNameInput" type="text" name="groupNameInput" value="" placeholder="&nbsp" autocomplete="off">
+            <label for="groupNameInput">{{ lex["Group name"] }}</label>
+        </div>
+        <p id="groupNameInputErrorText" class="errorText"></p>
+    </section>
+    <section class="btnGroup centerH">
+        <button type="button" onclick="editGroupWin.submit();">{{ lex["Apply"] }}</button>
+        <button type="button" class="secondary" onclick="editGroupWin.closeAndOpenGroupWin();">{{ lex["Cancel"] }}</button>
+        <button type="button" class="delete" onclick="editGroupWin.deleteGroup();">{{ lex["Delete group"] }}</button>
+    </section>
+</div>
+
+<div id="w-addFriendToGroupWin" class="modal">
+    <div class="loadingBarBox" id="addFriendToGroupWinLoadingBarBox">
+        <div class="loadingBar"></div>
+    </div>
+    <section class="head">
+      <h2 id="addFriendToGroupWinTitle"></h2>
+    </section>
+    <section>
+        <div class="inputContainer">
+            <input id="addUserToGroupNameOrEmailInput" type="text" name="addUserToGroupNameOrEmailInput" value="" placeholder="&nbsp" autocomplete="off">
+            <label for="addUserToGroupNameOrEmailInput">{{ lex["Friend name/ email"] }}</label>
+        </div>
+        <p id="addUserToGroupNameOrEmailInputErrorText" class="errorText"></p>
+    </section>
+    <section class="btnGroup centerH">
+      <button type="button" onclick="addFriendToGroupWin.submit();">{{ lex["Add"] }}</button>
+      <button type="button" class="secondary" onclick="addFriendToGroupWin.closeAndOpenGroupWin();">{{ lex["Cancel"] }}</button>
+    </section>
+</div>
+
+<div class="loadingOverlay"></div>
+{% endblock %}

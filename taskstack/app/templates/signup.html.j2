@@ -1,0 +1,58 @@
+{% extends 'base_light.html.j2' %}
+
+{% block head %}
+  <script src={{ static_url("js/validation.js") }}></script>
+  <script src={{ static_url("js/signup.js") }}></script>
+  <title>Taskstack | {{ lex["Sign up"] }}</title>
+  <script> const invalidNames = {{ invalid_names }};</script>
+{% endblock %}
+
+{% block content %}
+  <form class="boxForm" id="signUpForm" onsubmit="return submitSignUpForm();" action="{{ post_to }}" method="POST" autocomplete="off">
+    <div class="loadingBarBox" id="loadingBarBox">
+      <div class="loadingBar"></div>
+    </div>
+    <h1>{{ lex["Create your Taskstack Account"] }}</h1>
+    <section class="centerH">
+      <div class="inputContainer">
+        <input id="nameInput" type="text" name="username" value="{{username}}" placeholder="&nbsp" autofocus>
+        <label for="username">{{ lex["Username"] }}</label>
+      </div>
+      <p class="errorText active" id="nameErrorText">{{name_error_text}}</p>
+      <p>{{ lex["You can use letters of the latin alphabet, numbers, dashes and underscores"] }}</p>
+    </section>
+    <section class="centerH">
+      <div class="inputContainer">
+        <input id="emailInput" type="text" name="useremail" value="{{useremail}}" placeholder="&nbsp">
+        <label for="useremail">{{ lex["Email address"] }}</label>
+      </div>
+      <p class="errorText active" id="mailErrorText">{{email_error_text}}</p>
+    </section>
+    <section class="twoInputsNextToEachOther centerH">
+      <div class="inputContainer" style="grid-area:a;">
+        <input id="passwordInput" type="password" name="password" value="" placeholder="&nbsp">
+        <label for="password">{{ lex["Password"] }}</label>
+      </div>
+      <div class="inputContainer" style="grid-area:b;">
+        <input id="passwordConfirmInput" type="password" name="password_confirm" value="" placeholder="&nbsp">
+        <label for="password_confirm">{{ lex["Confirm"] }}</label>
+      </div>
+      <p class="errorText active" id="passwordErrorText" style="grid-area:c;">{{password_error_text}}</p>
+      <p style="grid-area:d;">{{ lex["password_guide"] }}</p>
+    </section>
+    <section class="centerH">
+      <div class="checkBoxContainer">
+        <p>{{ lex["keep me logged in"] }}</p>
+        <input name="keepUserLoggedIn" id="keepUserLoggedIn" type="checkbox" class="checkBoxInput">
+        <div class="checkBox"></div>
+      </div>
+    </section>
+    <section class="centerH">
+      <p><a href="/login">{{ lex["Log in instead"] }}</a></p>
+      <div class="btnGroup">
+        <button type="submit" style="margin-top: 15px;" autofocus>{{ lex["Next"] }}</button>
+      </div>
+    </section>
+  </form>
+  <div class="loadingOverlay"></div>
+{% endblock %}

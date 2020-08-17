@@ -1,0 +1,44 @@
+{% extends 'base_light.html.j2' %}
+
+{% block head %}
+  <script src={{ static_url("js/login.js") }}></script>
+  <title>Taskstack | {{ lex["Login"] }}</title>
+{% endblock %}
+
+{% block content %}
+  <form class="boxForm" id="logInForm" onsubmit="return submitLogInForm();" action="{{ post_to }}" method="POST" autocomplete="off">
+    <div class="loadingBarBox" id="loadingBarBox">
+      <div class="loadingBar"></div>
+    </div>
+    <h1>{{ lex["Login"] }}</h1>
+    <section class="centerH">
+      <div class="inputContainer">
+        <input id="nameInput" type="text" name="username" value="{{username}}" placeholder="&nbsp" autofocus>
+        <label for="username">{{ lex["Username or email"] }}</label>
+      </div>
+      <p class="errorText active" id="nameErrorText">{% if invalidLogin %}{{ lex["Wrong username/ email or password"] }}{% endif %}</p>
+    </section>
+    <section class="centerH">
+      <div class="inputContainer">
+        <input id="passwordInput" type="password" name="password" value="" placeholder="&nbsp">
+        <label for="password">{{ lex["Password"] }}</label>
+      </div>
+      <p class="errorText active" id="passwordErrorText">{% if invalidLogin %}{{ lex["Wrong username/ email or password"] }}{% endif %}</p>
+    </section>
+    <section class="centerH">
+      <div class="checkBoxContainer">
+        <p>{{ lex["keep me logged in"] }}</p>
+        <input name="keepUserLoggedIn" id="keepUserLoggedIn" type="checkbox" class="checkBoxInput">
+        <div class="checkBox"></div>
+      </div>
+    </section>
+    <section class="centerH">
+      <p><a href="{{ forgot_password_link }}">{{ lex["Forgot your password?"] }}</a></p>
+      <p><a href="/signup">{{ lex["Create an account instead"] }}</a></p>
+      <div class="btnGroup">
+        <button type="submit" style="margin-top: 18px;">{{ lex["Login"] }}</button>
+      </div>
+    </section>
+  </form>
+  <div class="loadingOverlay"></div>
+{% endblock %}

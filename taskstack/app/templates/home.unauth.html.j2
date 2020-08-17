@@ -1,0 +1,63 @@
+{% extends 'base.html.j2' %}
+
+{% block head %}
+  <link rel="stylesheet" href={{ static_url("css/home.unauth.css") }} type="text/css">
+  <title>Taskstack</title>
+{% endblock %}
+
+{% block body_classes %}fluid{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="siblingsContainer">
+    <div>
+      <h1>{{ lex["Get more done with Taskstack"] }}</h1>
+      <h2>{{ lex["Whether you work with a large team or just plan something on your own, Taskstack's effective Kanban project management is right for you."]}}</h2>
+    </div>
+    <div>
+      <img src={{ static_url("img/hero.svg") }}>
+    </div>
+  </div>
+</section>
+<section>
+  <div class="siblingsContainer">
+    <div class="prev">
+      <img src={{ static_url("img/prev_project.png") }} class="project">
+      <img src={{ static_url("img/prev_chat_small.png") }} class="chat">
+    </div>
+    <div>
+      <h2>{{ lex["Taskstack's features on any device"] }}</h2>
+      <h3>{{ lex["Intuitive kanban project management - easy list and card creation... </br> Attach files, assign users... </br> Move \"things\" arround with drag and drop."]}}</h3>
+      <h3>{{ lex["Discuss and make decisions faster with user to user chat, custom chat groups and project linked chat groups."]}}</h3>
+      <h3>{{ lex["All this in real time! Work on a project with an unlimited number of people at the same time... "
+        "Changes are automatically synchronized in a fraction of a second."] }} </h3>
+    </div>
+  </div>
+</section>
+<section>
+  <div class="siblingsContainer">
+    <div>
+      <h2>{{ lex["Taskstack is currently still in Beta"] }}</h2>
+      <h3>{{ lex["Does that mean, many bugs and unclean UI are to be expected?"] }}</h3>
+      <h3>{{ lex["No. That just means that Taskstack is still in very active development and many features will be added over time."]}}</h3>
+    </div>
+    <div>
+      <img src={{ static_url("img/dev.svg") }}>
+    </div>
+  </div>
+</section>
+<section class="callToActionSection">
+  <div class="siblingsContainer callToAction">
+    <div>
+      <img src={{ static_url("img/party.svg") }}>
+    </div>
+    <div>
+      <h2>{{ lex["Taskstack is 100% free!"] }}</h2>
+      <h3>{{ lex["No ads, no data sold to third party companies."] }}</h3>
+      <h3>{{ lex["How can Taskstack be free?"] }}</h3>
+      <h3>{{ lex["Taskstack is developed as a hobby project. You can even view the source code."] }}</h3>
+      <a href="/signup" class="linkBtn new">{{ lex["Start doing awesome stuff now"] }}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

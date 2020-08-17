@@ -1,0 +1,261 @@
+.mainGridContainer {
+  display: grid;
+  grid-template-columns: auto 350px 650px auto;
+  grid-template-rows: auto;
+}
+
+.profileLeft {
+  grid-column: 2;
+}
+
+.profileLeftContainer {
+  width: 80%;
+  margin: 0 10% 0 10%;
+}
+
+.profilePicContainer {
+  margin: 8px 0 18px 0;
+}
+
+#profilePic {
+  border-radius: 4px;
+  border: 1px solid #eee;
+  width: 100%;
+  transition: box-shadow .1s ease;
+}
+
+#profilePic.edit {
+  cursor: pointer;
+}
+
+#profilePic.edit:hover {
+  border: 1px rgba(16,16,16,.3);
+  box-shadow: 0 0 5px 1px rgba(16,16,16,.25);
+}
+
+#profileName {
+  font-size: 32px;
+}
+
+.info hr {
+  margin: 0 0 24px 0;
+}
+
+#profileEmail {
+  font-size: 18px;
+}
+
+#profileDesc {
+  margin: 12px 0;
+  font-style: italic;
+  color: #616163;
+}
+
+#profileDescInputContainer {
+  display: none;
+  margin-top: 24px;
+}
+
+#editProfileBtn {
+  display: block;
+  margin: 38px auto;
+}
+
+#editProfileBtnGroup {
+  margin: 32px auto 38px auto;
+  display: none;
+}
+
+.friendActions {
+  margin-top: 16px;
+  display: none;
+  flex-direction: column;
+}
+
+.friendActions.active {
+  display: flex;
+}
+
+.friendActions button, .friendActions a {
+  margin: 8px 0;
+}
+
+.profileRight {
+  grid-column: 3 / -2;
+}
+
+.profileRightContainer {
+  width: 90%;
+  margin: 0 auto;
+}
+
+.navBarWithTextUl {
+  border-bottom: 3px solid #ccc;
+  padding-bottom: 37px;
+}
+
+.navBarWithTextUl li {
+  margin: 0 48px 0 0;
+  float: left;
+}
+
+.navBarWithTextUl a {
+  font-size: 18px;
+  color: #354153;
+}
+
+.navBarWithTextUl a::before{
+  content: "";
+  display: block;
+  height: 3px;
+  width: 0;
+  background-color: #e84855;
+  position: relative;
+  top: 37px;
+  transition: width ease .4s;
+}
+
+.navBarWithTextUl a:hover::before {
+  width: 100%;
+}
+
+#currentTab {
+  color: rgb(0,0,0);
+}
+#currentTab:hover {
+  opacity: 1;
+}
+#currentTab::before {
+  width: 100%;
+  background-color: #f9dc5c;
+}
+
+.navBarWithIconsUl {
+  border-bottom: 3px solid #ccc;
+  padding-bottom: 8px;
+}
+
+.navBarWithIconsUl {
+  display: none;
+}
+
+.navBarWithIconsUl i {
+  font-size: 20px;
+  padding: 12px;
+}
+
+.profileRightContent {
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  padding: 28px 42px;
+  box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width:1080px) {
+  .mainGridContainer {
+    grid-template-columns: auto 30% 70% auto;
+  }
+}
+
+@media (max-width:850px) {
+  .mainGridContainer {
+    display: block;
+  }
+
+  .profileLeftContainer {
+    width: 100%;
+    margin: 32px 0;
+    display: grid;
+    grid-template-columns: 160px auto;
+    grid-gap: 16px;
+    align-items: center;
+    padding: 0 4%;
+  }
+
+  .profilePicContainer {
+    margin: 0;
+  }
+
+  .profileLeftContainer .info {
+    margin: 0;
+  }
+
+  .profileRightContainer {
+    margin: 0 auto;
+    width: 92%;
+  }
+
+  .profileRight nav li {
+    margin: 0 32px 0 0;
+  }
+
+  .friendActions button, .friendActions a {
+    margin: 8px auto 8px 0;
+  }
+}
+
+@media (max-width:500px) {
+  .profileLeftContainer {
+    display: block;
+    width: 92%;
+    margin: 32px auto 64px auto;
+  }
+
+  .profilePicContainer {
+    width: 70%;
+    margin: 8px auto 22px auto;
+  }
+
+  .navBarWithTextUl {
+    display: none;
+  }
+
+  .navBarWithIconsUl {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 32px;
+    place-items: center;
+  }
+}
+
+@media (max-width:430px) {
+  .profileRight nav li {
+    margin-right: 20px;
+  }
+
+  .profileRightContent {
+    padding: 28px 16px;
+  }
+}
+
+.project {
+  padding: 8px 0;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 8px;
+}
+
+.project h3 {
+  font-size: 18px;
+}
+
+.friend {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.friend a {
+  display: grid;
+  grid-template-columns: 42px auto;
+  column-gap: 12px;
+  align-items: center;
+}
+
+.friend a img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+
+.friend a p {
+  font-size: 16px;
+}

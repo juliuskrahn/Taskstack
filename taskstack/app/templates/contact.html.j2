@@ -1,0 +1,18 @@
+{% extends 'base.html.j2' %}
+
+{% block head %}
+  <link rel="stylesheet" href={{ static_url("css/document.css") }} type="text/css">
+  <title>Taskstack | {{ lex["Contact"] }}</title>
+{% endblock %}
+
+{% block content %}
+<div class="document">
+  <h1>{{ lex["Contact"] }}</h1>
+  <div class="documentContent">
+    <h2>Email</h2>
+    <p><a href="mailto:contact@taskstack.org">contact@taskstack.org</a></p>
+    <p><a href="mailto:feedback@taskstack.org">feedback@taskstack.org</a></p>
+    <p><a href="mailto:help@taskstack.org">help@taskstack.org</a></p>
+  </div>
+</div>
+{% endblock %}

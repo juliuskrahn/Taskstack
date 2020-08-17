@@ -1,0 +1,11 @@
+(*)
+
+.env
+.venv
+.idea
+__pycache__
+*.pyc
+
+temp
+output
+templates_production

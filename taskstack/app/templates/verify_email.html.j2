@@ -1,0 +1,38 @@
+{% extends 'base_light.html.j2' %}
+
+{% block head %}
+  <script src={{ static_url("js/verify_email.js") }}></script>
+  <title>Taskstack | {{ lex["Verify email address"] }}</title>
+{% endblock %}
+
+{% block content %}
+  <form class="boxForm" id="verifyEmailForm" onsubmit="return submitVerifyEmailForm();" action="{{ post_to }}" method="POST" autocomplete="off" style="max-width:420px;">
+    <div class="loadingBarBox" id="loadingBarBox">
+        <div class="loadingBar"></div>
+    </div>
+    {% if not sign_up_complete %}
+    <h1>{{ lex["Verify your email address"] }}</h1>
+    <section style="color: #616163;">
+        <p>{{ lex["Almost done"] }}, @{{username}}! {{ lex["To complete your Taskstack sign up, we just need to verify your email address"] }}: {{email}}.</p>
+        <p>{{ lex["Please enter the code you have received from us below."] }}</p>
+    </section>
+    {% else %}
+    <h1>{{ lex["Verify your new email address"] }}</h1>
+    <section style="color: #616163;">
+        <p>{{ lex["We have sent you an email to"] }}: {{email}} {{ lex["ger_sent"] }}.</p>
+        <p>{{ lex["Please enter the code you have received from us below."] }}</p>
+    </section>
+    {% endif %}
+    <section class="centerH">
+      <div class="inputContainer">
+        <input id="code" type="text" name="code" placeholder="&nbsp" value="{{ code }}" autofocus>
+        <label for="code">{{ lex["Your email verification code"] }}</label>
+      </div>
+      <p class="errorText {% if wrong_code %}active{% endif %}" id="codeErrorText">{% if wrong_code %}{{ lex["Wrong code"] }}{% endif %}</p>
+    </section>
+    <div class="btnGroup">
+        <button type="submit">{{ lex["Verify"] }}</button>
+    </div>
+  </form>
+  <div class="loadingOverlay"></div>
+{% endblock %}

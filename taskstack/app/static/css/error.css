@@ -1,0 +1,20 @@
+#content h1, #content p {
+  text-align: center;
+  color: var(--dim-grey);
+  margin: 0 auto;
+  padding: 0 4px;
+}
+
+#content h1 { 
+  font-size: 128px; 
+}
+
+@media(max-width: 720px) {
+  #content h1 { 
+    font-size: 64px; 
+  }
+}
+
+#content p {
+  max-width: 550px;
+}

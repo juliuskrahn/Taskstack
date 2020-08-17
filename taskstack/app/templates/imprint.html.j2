@@ -1,0 +1,46 @@
+{% extends 'base.html.j2' %}
+
+{% block head %}
+  <link rel="stylesheet" href={{ static_url("css/document.css") }} type="text/css">
+  <title>Taskstack | {{ lex["Imprint"] }}</title>
+{% endblock %}
+
+{% block content %}
+<div class="document">
+  <h1>{{ lex["Imprint"] }}</h1>
+  <div class="documentContent">
+    <h2>{{ lex["Liability for contents"] }}</h2>
+    <p>{{ lex["As a service provider, we are responsible for our own content on these pages according to § 7 para.1 TMG "
+      "(German Telemedia Act) and general laws. According to §§ 8 to 10 TMG we are not obliged to monitor "
+      "transmitted or stored information from third parties or to investigate circumstances that indicate illegal "
+      "activity. Obligations to remove or block the use of information according to general laws remain unaffected "
+      "by this. However, liability in this respect is only possible from the time of knowledge of a concrete "
+      "infringement. If we become aware of any such legal infringements, we will remove the content in question "
+      "immediately."] }}</p>
+    <h4>{{ lex["Liability for links"] }}</h3>
+    <p>{{ lex["Our website contains links to external websites of third parties, on whose contents we have no influence. "
+      "Therefore we cannot assume any liability for these external contents. The respective provider or operator of "
+      "the sites is always responsible for the contents of the linked sites. The linked pages were checked for "
+      "possible legal violations at the time of linking. Illegal contents were not identified at the time of "
+      "linking. However, a permanent control of the contents of the linked pages is not reasonable without concrete "
+      "evidence of a violation of the law. If we become aware of any infringements, we will remove such links "
+      "immediately."] }}</p>
+    <h2>{{ lex["Copyright"] }}</h2>
+    <p>{{ lex['Taskstack is licensed under a <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0 license</a>.'] }}</p>
+    <p>{{ lex["Insofar as the content on this site was not created by the operator, the copyrights of third parties are respected. Should you become aware of a copyright infringement, please inform us accordingly. If we become aware of any infringements, we will remove such contents immediately."]}}</p>
+    <h2>{{ lex["Contact"] }}</h2>
+    <p><a href="/contact">{{ lex["Contact page"] }}</a></p>
+    <h2>{{ lex["Responsible"] }}</h2>
+    <p>Julius Krahn</p>
+    <h2>Source Code</h2>
+    <p><a href="https://github.com/juliuskrahn/taskstack" target="_blank">Taskstack GitHub Repository</a></p>
+    <h2>Credits</h2>
+    <p>
+      {{ lex["Taskstack's illustrations are based on illustrations by"] }}
+      <a href="https://stories.freepik.com/web" target="_blank">Stories by Freepik</a>
+      {{ lex["and"] }}
+      <a href="https://de.freepik.com/fotos-vektoren-kostenlos/hintergrund" target="_blank">d3images {{ lex["on"] }} Freepik</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

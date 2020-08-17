@@ -1,0 +1,58 @@
+{% extends 'base.html.j2' %}
+
+{% block head %}
+  <script src={{ static_url("js/validation.js") }}></script>
+  <script src={{ static_url("js/new_project.js") }}></script>
+  <title>Taskstack | {{ lex["New Project"] }}</title>
+  <script> const invalidNames = {{ invalid_names }};</script>
+{% endblock %}
+
+{% block content %}
+  <div class="cohesiveContainer">
+    <form action="/new" method="POST" onsubmit="return submitNewProjectForm();" autocomplete="off">
+      <h1>{{ lex["Create a new project"] }}</h1>
+      <p>{{ lex["and realize your ideas"] }}</p>
+      <hr style="margin-top:12px;">
+      <section style="margin:16px 0;">
+        <div style="display: inline-flex; align-items: center;">
+          <p style="margin-right: 8px; font-size: 18px; color: var(--dim-grey); line-height: 20px;">{{ current_user.name }} /</p>
+          <div class="inputContainer" style="width:180px; margin: 0;">
+            <input id="name" type="text" name="name" value="" placeholder="&nbsp" autofocus>
+            <label for="name">{{ lex["Project name"] }}</label>
+          </div>
+        </div>
+        <p class="errorText {% if owner_has_already_project_with_that_name %}active{% endif %}" id="nameErrorText">{% if owner_has_already_project_with_that_name %}{{ lex["Owner already has a project with that name"] }}{% endif %}</p>
+        <p>{{ lex["You can use letters of the latin alphabet, numbers, dashes and underscores"] }}</p>
+      </section>
+      <section style="margin:16px 0;">
+        <div class="inputContainer">
+          <input id="desc" type="text" name="desc" value="" placeholder="&nbsp">
+          <label for="desc">{{ lex["Project description (optional)"] }}</label>
+        </div>
+        <p class="errorText" id="descErrorText"></p>
+      </section>
+      <hr>
+      <section style="margin: 16px 0;">
+        <div class="checkBoxContainer">
+          <p>{{ lex["Private project"] }}</p>
+          <input name="project_private" id="project_private" type="checkbox" class="checkBoxInput" checked>
+          <div class="checkBox"></div>
+        </div>
+        <p class="explain">{{ lex["If your project is private, only the you and added contributors can view the project (you can change this later on)."] }}</p>
+      </section>
+      <section style="margin: 16px 0;">
+        <div class="checkBoxContainer">
+          <p>{{ lex["Create a linked chat group"] }}</p>
+          <input name="create_project_chat_group" id="create_project_chat_group" type="checkbox" class="checkBoxInput">
+          <div class="checkBox"></div>
+        </div>
+        <p class="explain">{{ lex["You and every collaborator will be member of this group. Actions like changing the project name will also be applied to this chat group."] }}</p>
+      </section>
+      <hr>
+      <div class="btnGroup">
+        <a href="/" class="linkBtn secondary">{{ lex["Cancel"] }}</a>
+        <button class="new" type="submit" name="button">{{ lex["Create project"] }}</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

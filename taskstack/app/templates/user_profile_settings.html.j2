@@ -1,0 +1,170 @@
+{% extends 'user_profile.html.j2' %}
+
+{% block _head %}
+  <script src={{ static_url("js/validation.js") }}></script>
+  <script src={{ static_url("js/user_profile_settings.js") }}></script>
+  <link rel="stylesheet" href={{ static_url("css/user_profile_settings.css") }} type="text/css">
+  <title>Taskstack | {{ username }} | {{ lex["Settings"] }}</title>
+  <script> const invalidNames = {{ invalid_names }};</script>
+{% endblock %}
+
+{% block _content %}
+  <section class="settings">
+    <section>
+      <h2>Account</h2>
+      <section class="switchContainer switchRight">
+        <p>{{ lex["Keep me logged in"] }}</p>
+        <div class="switch">
+          <input id="keepUserLoggedIn" name="keepUserLoggedIn" type="checkbox" class="switchInput" {% if current_user.stay_logged_in %}checked{% endif %}>
+          <label for="keepUserLoggedIn" class="switchLabel"></label>
+        </div>
+      </section>
+      <section>
+        <a data-modal-target="changeUsernameModal" onclick="Modal.show(this);">{{ lex["Change my username"] }}</a>
+      </section>
+      <section>
+        <a data-modal-target="changeEmailModal" onclick="Modal.show(this);">{{ lex["Change my email address"] }}</a>
+      </section>
+      <section>
+        <a data-modal-target="changePasswordModal" onclick="Modal.show(this);">{{ lex["Change my password"] }}</a>
+      </section>
+      <section>
+        <a data-modal-target="deleteAccountModal" onclick="Modal.show(this);">{{ lex["Delete my account"] }}</a>
+      </section>
+    </section>
+    <section>
+      <h2>{{ lex["Interaction with other users"] }}</h2>
+      <section class="switchContainer switchRight">
+        <p>{{ lex["Set my account to private"] }}</p>
+        <div class="switch">
+          <input id="userprofilePrivate" name="userprofilePrivate" type="checkbox" class="switchInput" {% if current_user.private %}checked{% endif %}>
+          <label for="userprofilePrivate" class="switchLabel"></label>
+        </div>
+      </section>
+      <section class="switchContainer switchRight">
+        <p>{{ lex["Hide my email address"] }}</p>
+        <div class="switch">
+          <input id="useremailPrivate" name="useremailPrivate" type="checkbox" class="switchInput" {% if current_user.email_private %}checked{% endif %}>
+          <label for="useremailPrivate" class="switchLabel"></label>
+        </div>
+      </section>
+      <section class="switchContainer switchRight">
+        <p>{{ lex["Automatically block all friendship requests"] }}</p>
+        <div class="switch">
+          <input id="blockAllFriendshipRequests" name="blockAllFriendshipRequests" type="checkbox" class="switchInput" {% if current_user.block_all_friendship_requests %}checked{% endif %}>
+          <label for="blockAllFriendshipRequests" class="switchLabel"></label>
+        </div>
+      </section>
+    </section>
+    <input class="hide" type="text" name="token" value="{{token}}">
+  </section>
+{% endblock %}
+
+{% block _modals %}
+  <form class="boxForm modal {% if change_username_invalid %}active{% endif %}" id="changeUsernameModal" onsubmit="return submitChangeUsername(this);" action="/{{username}}/settings" method="POST" autocomplete="off">
+    <div class="loadingBarBox" id="changeUsernameLoadingBarBox">
+      <div class="loadingBar"></div>
+    </div>
+    <h2>{{ lex["Change my username"] }}</h2>
+    <section class="centerH">
+      <div class="inputContainer">
+        <input id="changeUsernameNewusernameInput" type="text" name="newUsername" value="{{new_username}}" placeholder="&nbsp">
+        <label for="newUsername">{{ lex["New username"] }}</label>
+      </div>
+      <p id="changeUsernameUsernameErrorText" class="errorText active">{{ change_username_username_error_text }}</p>
+      <p>{{ lex["You can use letters of the latin alphabet, numbers, dashes and underscores"] }}</p>
+    </section>
+    <section class="centerH">
+      <div class="inputContainer">
+        <input id="changeUsernamePasswordInput" type="password" name="password" value="" placeholder="&nbsp">
+        <label for="password">{{ lex["Password"] }}</label>
+      </div>
+      <p id="changeUsernamePasswordErrorText" class="errorText active">{{ change_username_password_error_text }}</p>
+    </section>
+    <section class="btnGroup centerH">
+      <button name="submit" value="changeUsername" type="submit">{{ lex["Apply"] }}</button>
+      <button class="secondary" type="button" onclick="Modal.hideAll();">{{ lex["Cancel"] }}</button>
+    </section>
+    <input class="hide" type="text" name="token" value="{{token}}">
+  </form>
+
+  <form class="boxForm modal {% if change_email_invalid %}active{% endif %}" id="changeEmailModal" onsubmit="return submitChangeEmail(this);" action="/{{username}}/settings" method="POST" autocomplete="off">
+    <div class="loadingBarBox" id="changeEmailLoadingBarBox">
+      <div class="loadingBar"></div>
+    </div>
+    <h2>{{ lex["Change my email address"] }}</h2>
+    <section class="centerH">
+      <div class="inputContainer">
+        <input id="changeEmailNewUserEmailInput" type="text" name="newEmail" value="{{new_email}}" placeholder="&nbsp">
+        <label for="newEmail">{{ lex["New email address"] }}</label>
+      </div>
+      <p id="changeEmailEmailErrorText" class="errorText active">{{ change_email_email_error_text }}</p>
+    </section>
+    <section class="centerH">
+      <div class="inputContainer">
+        <input id="changeEmailPasswordInput" type="password" name="password" value="" placeholder="&nbsp">
+        <label for="password">{{ lex["Password"] }}</label>
+      </div>
+      <p id="changeEmailPasswordErrorText" class="errorText active">{{ change_email_password_error_text }}</p>
+    </section>
+    <section class="btnGroup centerH">
+      <button name="submit" value="changeEmail" type="submit">{{ lex["Apply"] }}</button>
+      <button class="secondary" type="button" onclick="Modal.hideAll();">{{ lex["Cancel"] }}</button>
+    </section>
+    <input class="hide" type="text" name="token" value="{{token}}">
+  </form>
+
+  <form class="boxForm modal {% if change_password_invalid %}active{% endif %}" id="changePasswordModal" onsubmit="return submitChangePassword(this);" action="/{{username}}/settings" method="POST" autocomplete="off">
+    <div class="loadingBarBox" id="changePasswordLoadingBarBox">
+      <div class="loadingBar"></div>
+    </div>
+    <h2>{{ lex["Change my password"] }}</h2>
+    <section class="centerH">
+      <div class="inputContainer">
+        <input id="changePasswordOldPasswordInput" type="password" name="old_password" value="" placeholder="&nbsp">
+        <label for="old_password">{{ lex["Old password"] }}</label>
+      </div>
+      <p id="changePasswordPasswordErrorText" class="errorText active">{{ change_password_password_error_text }}</p>
+    </section>
+    <section class="twoInputsNextToEachOther centerH">
+      <div class="inputContainer">
+        <input id="changePasswordNewPasswordInput" type="password" name="newPassword" value="" placeholder="&nbsp">
+        <label for="newPassword">{{ lex["New password"] }}</label>
+      </div>
+      <div class="inputContainer">
+        <input id="changePassword_newPasswordConfirmInput" type="password" name="changePassword_newPasswordConfirmInput" value="" placeholder="&nbsp">
+        <label for="changePassword_newPasswordConfirmInput">{{ lex["Apply"] }}</label>
+      </div>
+      <p id="changePasswordNewPasswordErrorText" class="errorText active">{{ change_password_new_password_error_text }}</p>
+    </section>
+    <section class="btnGroup centerH">
+      <button name="submit" value="changePassword" type="submit">{{ lex["Apply"] }}</button>
+      <button class="secondary" type="button" onclick="Modal.hideAll();">{{ lex["Cancel"] }}</button>
+    </section>
+    <input class="hide" type="text" name="token" value="{{token}}">
+  </form>
+
+  <form class="boxForm modal {% if delete_account_invalid %}active{% endif %}" id="deleteAccountModal" onsubmit="return submitDeleteAccount(this);" action="/{{username}}/settings" method="POST" autocomplete="off">
+    <div class="loadingBarBox" id="deleteAccountLoadingBarBox">
+      <div class="loadingBar"></div>
+    </div>
+    <h2>{{ lex["Delete my account"] }}</h2>
+    <section class="accountDelWarning centerH">
+      {{ lex["Are you sure that you want to delete your account permanently?"] }}
+    </section>
+    <section class="centerH">
+      <div class="inputContainer">
+        <input id="deleteAccountPasswordInput" type="password" name="password" value="" placeholder="&nbsp">
+        <label for="password">{{ lex["Password"] }}</label>
+      </div>
+      <p id="deleteAccountPasswordErrorText" class="errorText active">{{ delete_account_password_error_text }}</p>
+    </section>
+    <section class="btnGroup centerH">
+      <button name="submit" value="deleteAccount" type="submit">{{ lex["Apply"] }}</button>
+      <button class="secondary" type="button" onclick="Modal.hideAll();">{{ lex["Cancel"] }}</button>
+    </section>
+    <input class="hide" type="text" name="token" value="{{token}}">
+  </form>
+
+  <div class="loadingOverlay"></div>
+{% endblock %}

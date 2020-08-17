@@ -1,0 +1,44 @@
+{% macro static_url(string) %}
+  "https://taskstack-static.s3.eu-central-1.amazonaws.com/{{string}}"
+{% endmacro %}
+
+{% macro a(txt, url) %}
+  <a href="{{url}}"target="_blank"style="font-family:Tahoma,Verdana,Segoe,sans-serif;font-size:16px;letter-spacing:.2px;line-height:20px;font-weight:400;color:#1a73e8;text-decoration:none;">{{txt}}</a>
+{% endmacro %}
+
+{% macro h(txt) %}
+  <h2 style="font-family:Tahoma,Verdana,Segoe,sans-serif;letter-spacing:.2px;line-height:24px;font-weight:300;color:#333f50;font-size:24x;">{{txt}}</h2>
+{% endmacro %}
+
+{% macro btn(txt, url) %}
+  <table width="100%"cellspacing="0"cellpadding="0">
+    <tr>
+        <td>
+            <table cellspacing="0"cellpadding="0">
+                <tr>
+                    <td style="border-radius:2px;"bgcolor="#1a73e8">
+                        <a href="{{url}}"target="_blank"style="padding:6px 8px;border:1px solid #1a73e8;font-size:16px;color:white;text-decoration:none;display:inline-block;">
+                          {{txt}}             
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+  </table>
+{% endmacro %}
+
+<div style="width:90%;max-width:640px;margin:16px auto 0 auto;padding:16px;font-family:Tahoma,Verdana,Segoe,sans-serif;font-size:16px;letter-spacing:.2px;line-height:20px;font-weight:400;color:rgba(0,0,0,0.87);box-sizing:border-box;">
+  <a href="https://taskstack.org">
+    <img class="logo"src={{ static_url("img/logo.png") }}alt="Taskstack"style="width:280px;max-width:95%;height:auto;margin-bottom:8px;">
+  </a>
+  <div>
+    {% block content %}
+    {% endblock %}
+  </div>
+  <hr style="color:#ccc;margin-top:32px;">
+  <div>
+    <a href="https://taskstack.org"style="color:#616163;font-size:16px;">taskstack.org</a><br>
+    Copyright © 2020 <a href="https://creativecommons.org/licenses/by-nc/4.0/"style="color:#616163;font-size:16px;">CC BY-NC</a>
+  </div>
+</div>

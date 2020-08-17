@@ -1,0 +1,14 @@
+{% extends 'user_profile.html.j2' %}
+
+{% block _head %}
+  <title>Taskstack | {{ username }} | {{ lex["Projects"] }}</title>
+{% endblock %}
+
+{% block _content %}
+{% for project in projects %}
+  <div class="project">
+    <h3><a href="{{project['link']}}">{{project["name"]}}</a></h3>
+    <p>{{project["desc"]}}</p>
+  </div>
+{% endfor %}
+{% endblock %}

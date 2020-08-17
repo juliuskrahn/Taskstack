@@ -1,0 +1,20 @@
+.profileRightContent > .settings > section {
+  margin: 12px 0 38px 0;
+}
+
+.profileRightContent > .settings > section > section {
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.1);
+  margin: 22px 0;
+}
+
+.accountDelWarning {
+  border-radius: 6px;
+  box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.2);
+  padding: 12px;
+}
+
+#deleteAccountModal {
+  max-width: 400px;
+}

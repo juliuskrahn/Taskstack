@@ -1,0 +1,700 @@
+/* body
+============================================================================= */
+
+body {
+    min-width: 400px;
+    overflow-x: auto;
+}
+
+
+/* header
+============================================================================= */
+
+header {
+    position: relative;
+    margin: 0;
+    z-index: 50;
+}
+
+
+/* top, content, general
+============================================================================= */
+
+#top {
+    padding: 0;
+    margin: 0;
+}
+
+#content {
+    padding: 0 !important;
+    min-height: calc(100vh - 60px - 78.4px - 35px - 64px - 40px) !important;
+}
+
+#content.pageHeadHidden {
+    min-height: calc(100vh - 60px - 35px - 64px - 40px) !important;
+}
+  
+@media (max-width:640px) {
+    #content {
+        min-height: calc(100vh - 60px - 78.4px - 35px - 64px) !important;
+    }
+
+    #content.pageHeadHidden {
+        min-height: calc(100vh - 60px - 35px - 64px) !important;
+    }
+}
+
+body > section, #top section, #content > section {
+    padding: 16px 24px 10px 24px;
+}
+
+@media (max-width:500px) {
+    body > section, #top section, #content > section {
+        padding: 16px 18px 12px 18px;
+    }
+}
+
+
+/* page head
+============================================================================= */
+
+#pageHead {
+    background-color: #fafbfc;
+    height: 78.4px;
+    cursor: default;
+    position: relative;
+    z-index: 30;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+#pageHead.hidden {
+    display: none;
+}
+
+#pageHead h1 {
+    font-size: 24px;
+    line-height: 26.4px;
+    font-weight: 500;
+    color: rgb(51,63,80);
+    margin-bottom: 2px;
+}
+
+#pageHead p {
+    font-style: italic;
+    color: #616163;
+}
+
+
+/* toggle page head
+============================================================================= */
+
+.togglePageHead:hover, #pageHead:hover ~ .togglePageHead, header:hover ~ .togglePageHead {
+    opacity: 1 !important;
+}
+
+.togglePageHead {
+    opacity: 0 !important;
+    transition: opacity .2s ease-out;
+    position: absolute;
+    width: 100%;
+    min-width: 400px;
+    height: 4px;
+    background-color: #e1e4e8;
+    z-index: 40;
+}
+
+.togglePageHead .halfCircle {
+    display: block;
+    position: absolute;
+    top: calc(100%);
+    left: calc(50% - 18px);
+    fill: #e1e4e8;
+}
+
+.togglePageHead #hideIcon, .togglePageHead #showIcon {
+    display: none;
+    position: absolute;
+    top: calc(100% - 4px);
+    font-size: 18px;
+    color: #616163;
+    text-align: center;
+    left: calc(50% - 18px);
+    width: 36px;
+    padding: 2px 0;
+}
+
+.togglePageHead #hideIcon:hover, .togglePageHead #showIcon:hover {
+    cursor: pointer;
+}
+
+.togglePageHead #hideIcon.active, .togglePageHead #showIcon.active {
+    display: block;
+}
+
+
+/* menu bar
+============================================================================= */
+
+#menuBar {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    padding: 0 24px;
+    z-index: 10;
+    cursor: default;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width:500px) {
+    #menuBar {
+        padding: 0 18px;
+    }
+}
+
+#menuBar .menu, #menuBar .subMenu {
+    position: relative;
+}
+
+#menuBar .menu {
+    font-size: 14px;
+    font-weight: 400;
+    color: #616163;
+    padding: 7px 0 8px 0;
+    margin-right: 12px;
+    border-top: 3px solid transparent;
+    transition: border .2s ease-in-out;
+}
+
+#menuBar .menu.reactToHover:hover, #menuBar .menu.active {
+    border-top: 3px solid #E84855;
+}
+
+#menuBar .menu span {
+    text-decoration: underline;
+}
+
+#menuBar .menu ul {
+    display: none;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 0 4px 1px rgba(0, 0, 0, .1);
+    border-radius: 2px;
+    color: #616163 !important;
+    width: auto;
+    min-width: 100%;
+    top: 100%;
+}
+
+#menuBar .menu.hidden ul {
+    display: none !important;
+}
+
+#menuBar .menu ul li.disabled {
+    color: #BFC0C1 !important;
+}
+
+#menuBar .menu ul li {
+    padding: 4px 8px;
+    white-space: nowrap;
+}
+
+#menuBar .menu ul li:not(.disabled):hover {
+    background-color: #e1e4e8;
+}
+
+#menuBar .subMenu ul {
+    box-shadow: 0 0 4px 2px rgba(0, 0, 0, .15);
+    left: 100%;
+    top: 0;
+}
+
+#menuBar .menu.reactToHover:hover > ul, #menuBar .menu.active > ul,
+#menuBar .menu .subMenu.reactToHover:not(.disabled):hover > ul, #menuBar .menu .subMenu:not(.disabled).active > ul {
+    display: block;
+}
+
+#menuBar .menu ul li {
+    cursor: pointer;
+}
+
+#menuBar .menu ul li.disabled {
+    cursor: default;
+}
+
+#menuBar a {
+    font-size: 14px;
+    font-weight: 400;
+    color: #616163;
+    opacity: 1 !important;
+}
+
+
+/* list
+============================================================================= */
+
+#listsContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    overflow-x: auto;
+    height: auto;
+    width: auto;
+    padding: 32px 24px 64px 24px !important;
+}
+
+.list {
+    border-radius: 2px;
+    margin: 0 12px;
+    width: 300px;
+    box-shadow: 0 0 4px 1px rgba(10, 10, 10, .1);
+    padding: 8px 12px;
+    background-color: #fafbfc;
+    flex-shrink: 0;
+    cursor: default;
+}
+
+.list:first-child {
+    margin-left: 0;
+}
+
+.list .head {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.list .head h2 {
+    display: inline-block;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 22px;
+    width: calc(100% - 32px);
+}
+
+.list .head .ecclipseIcon {
+    position: absolute;
+    display: inline-block;
+    left: calc(100% - 20px);
+    top: 0;
+    color: #616163;
+    cursor: pointer;
+    padding: 2px;
+    line-height: 18px;
+}
+
+.list .head .ecclipseIcon:hover {
+    opacity: .7;
+}
+
+.list.dragging { 
+    background-color: #616163;
+    opacity: .1;
+}
+
+.list.dragging section, .list.dragging div {
+    opacity: 0;
+}
+
+
+/* card 
+============================================================================= */
+
+.card {
+    position: relative;
+    background-color: white;
+    box-shadow: 0 0 3px 1px rgba(60, 60, 60, .1);
+    padding: 8px;
+    margin: 8px auto;
+    cursor: default;
+    transition: background-color .2s ease-out;
+}
+
+.card:first-child {
+    margin-top: 0;
+}
+
+.card h3 {
+    font-weight: 400;
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+.card > i, .card .paperclipIcon {
+    color: #616163;
+    padding: 2px;
+    cursor: pointer;
+    margin-right: 6px;
+}
+
+.card > i:last-child, .card > .filesToolTip:last-child .paperclipIcon {
+    margin-right: 0;
+}
+
+.card > i:hover {
+    opacity: .7;
+}
+
+.card.dragImg {
+    transform: rotate(-8deg);
+}
+
+.card.dragging {
+    background-color: #616163;
+    opacity: .05;
+}
+
+.card .filesToolTip {
+    position: relative;
+    display: inline-block;
+}
+
+.card .filesToolTip > i:after {
+    content: "";
+    position: absolute;
+    display: block;
+    height: 4px;
+    top: 100%;
+    left: 0;
+    width: 100%;
+}
+
+.card .filesToolTip .container {
+    z-index: 50;
+    display: flex;
+    position: absolute;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    background-color: white;
+    box-shadow: 0 0 4px 2px rgba(0, 0, 0, .1);
+    width: auto;
+    border-radius: 4px;
+    top: calc(100% + 4px);
+    left: -50%;
+    visibility: hidden;
+    transition: visibility .25s ease;
+}
+
+.card .filesToolTip:hover .container, .card .filesToolTip .container.active {
+    visibility: visible;
+}
+
+.card .filesToolTip:hover .paperclipIcon {
+    opacity: .7;
+}
+
+.addedUsers {
+    border: 1px solid #ccc;
+    border-radius: 2px;
+}
+
+.addedUsersList {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    overflow-x: auto;
+    padding: 4px;
+}
+
+.addedUsersList  > *:not(:last-child) {
+    margin-right: 6px;
+}
+
+.addedUsersList .addedUser img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    position: relative;
+    z-index: -1;
+}
+
+.addedUsersList .addedUser {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: block;
+    position: relative;
+}
+
+.addedUsersList .addedUser .name {
+    position: absolute;
+    left: 16px;
+    top: 0;
+    padding: 2px 4px;
+    border: 1px solid #eee;
+    background-color: white;
+    display: none;
+}
+
+.addedUsersList .addedUser:hover .name, .addedUsersList .addedUser .name.active {
+    display: block;
+    opacity: 1;
+}
+
+.addedUsersTitle {
+    color: #616163;
+    padding: 8px;
+    border-bottom: 1px solid #cacaca;
+    background-color: #fafbfc;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    overflow: visible;
+}
+
+.addedUsersTitle > p {
+    margin-right: 12px;
+}
+
+
+/* files
+============================================================================= */
+
+.files {
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    align-items: flex-start;
+    overflow-x: auto;
+    padding: 8px;
+}
+
+.files .file {
+    min-height: 57px;
+    width: 64px;
+    padding: 6px 4px 4px 4px;
+    text-align: center;
+    border-radius: 2px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color .1s ease-in-out;
+}
+
+.files .file:not(:last-child) {
+    margin-right: 2px;
+}
+
+.files .file .fileIcon {
+    font-size: 32px;
+    color: #F9DC5C;
+    text-align: center;
+    transition: color .2s ease;
+}
+
+.files .file p {
+    display: block;
+    font-size: 11px;
+    color: #616163;
+    margin: 0;
+    padding: 4px 0 2px 0;
+    text-align: center;
+    line-height: 11px;
+    transition: color .1s ease-in-out;
+}
+
+.files a.file:hover {
+    background-color: #cce8ff;
+}
+
+.files a.file:hover .fileIcon, .files a.file:hover p {
+    color: #1A73E8;
+}
+
+.files .file .fileIcon:hover {
+    opacity: 1;
+}
+
+
+/* listWin/ cardWin
+============================================================================= */
+
+#w-listWin .files, #w-cardWin .files {
+    display: flex;
+    border-radius: 2px;
+    border-top: 3px solid #ddd;
+    background-color: #fafbfc;
+    box-shadow: 0 2px 3px 1px rgba(0,0,0,.1);
+}
+
+#w-listWin h2, #w-cardWin h2, #w-editListWin h2, #w-editCardWin h2 {
+    display: inline-block;
+}
+
+#w-listWin h2, #w-cardWin h2 {
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+#w-listWin #listWinDesc, #w-cardWin #cardWinDesc {
+    line-height: 20px;
+}
+
+#w-listWin .listIcon, #w-cardWin .cardIcon, #w-editListWin .listIcon, #w-editCardWin .cardIcon {
+    color: #616163;
+    display: inline-block;
+    font-size: 16px;
+    line-height: 24px;
+    margin-right: 10px;
+}
+
+#listWinDesc, #cardWinDesc {
+    max-width: 360px;
+}
+
+#listWinFilesSection, #cardWinFilesSection, #cardWinAddedUsersSection {
+    display: none;
+}
+
+#listWinFilesSection.active, #cardWinFilesSection.active, #cardWinAddedUsersSection.active {
+    display: block;
+}
+
+
+/* fileUploadBox
+============================================================================= */
+
+.fileUploadBox {
+    width: 100%;
+    border-radius: 2px;
+}
+
+.fileUploadBox.dragover {
+    box-shadow: 0 0 4px 1px rgba(78,208,105,.5);
+}
+
+.fileUploadBox .files {
+    display: flex;
+    position: relative;
+    min-height: 74px;
+    padding: 8px 0 6px 8px;
+    border: 1px solid #ccc;
+    border-bottom: unset;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    box-shadow: inset 0 0 2px 1px rgba(0, 0, 0, .1);
+    overflow-x: auto;
+}
+
+.fileUploadBox .file {
+    position: relative;
+    cursor: default;
+}
+
+.fileUploadBox .file .cancelIcon {
+    opacity: 0;
+    position: absolute;
+    font-size: 16px;
+    color: #616163;
+    transition: color .1s ease;
+    left: calc(100% - 16px);
+    bottom: calc(100% - 12px);
+    cursor: pointer;
+    transition: color .2s ease, opacity .2s ease;
+}
+
+.fileUploadBox .file:hover .cancelIcon, .fileUploadBox .file .cancelIcon.active {
+    opacity: 1;
+}
+
+.fileUploadBox .file .cancelIcon:hover, .fileUploadBox .file .cancelIcon.active {
+    color: #E84855;
+}
+
+.fileUploadBox .bottom {
+    position: relative;
+    min-height: 42px;
+    background-color: #fafbfc;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    border: 1px dashed #bbb;
+    border-top: unset;
+    padding: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: default;
+}
+
+.fileUploadBox .bottom p {
+    line-height: 14px;
+    font-size: 12px;
+    color: #616163;
+    cursor: default;
+    padding: 4px;
+}
+
+.fileUploadBox .bottom input {
+    display: block;
+    position: absolute;
+    z-index: 100;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: default;
+}
+
+.fileUploadBoxErrorText {
+    line-height: 14px;
+    margin-top: 4px;
+    font-size: 13px;
+    letter-spacing: .15px;
+    color: #E84855;
+}
+
+.modal .fileUploadBoxErrorText {
+    position: relative;
+    bottom: 8px;
+}
+
+
+/* modals
+============================================================================= */
+
+/* collabs win */
+
+#collabsSection {
+    padding: 0 16px;
+}
+
+#collabsSection .collab {
+    display: grid;
+    grid-template-columns: 16px auto;
+    column-gap: 8px;
+    align-items: center;
+}
+
+#collabsSection .collab a {
+    display: grid;
+    grid-template-columns: 28px auto;
+    column-gap: 8px;
+    align-items: center;
+    color: var(--dim-grey);
+    padding: 8px 4px;
+    transition: background-color .2s ease, opacity .2s ease;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+#collabsSection .collab:first-child a {
+    border-top: 1px solid #f5f5f5;
+}
+
+#collabsSection .collab a:hover {
+    background-color: #f5f5f5;
+}
+
+#collabsSection .collab a img {
+    width: 28px;
+    border-radius: 50%;
+}
+
+/* warning section */
+
+.warning {
+    border-radius: 6px; 
+    box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.2);
+    padding: 12px;
+}

@@ -1,0 +1,27 @@
+{% extends 'base.html.j2' %}
+
+{% block head %}
+  <script src={{ static_url("js/new_friend.js") }}></script>
+  <title>Taskstack | {{ lex["Add friend"] }}</title>
+{% endblock %}
+
+{% block content %}
+  <div class="cohesiveContainer">
+    <form action="{{post_to}}" method="POST" onsubmit="return submitNewFriendForm();" autocomplete="off">
+      <h1>{{ lex["Add friend"] }}</h1>
+      <hr style="margin-top:12px;">
+      <section style="margin:16px 0;max-width: 320px;">
+        <div class="inputContainer">
+          <input id="name" type="text" name="name" value="{{name}}" placeholder="&nbsp" autofocus>
+          <label for="name">{{ lex["Username or email"] }}</label>
+        </div>
+        <p class="errorText {% if name_does_not_exist or invalid_target %}active{% endif %}" id="nameErrorText">{% if name_does_not_exist %}{{ lex["There is no user with this name or email"] }}{% endif %}{% if invalid_target %}{{ lex["Invalid target"] }}{% endif %}</p>
+      </section>
+      <hr>
+      <div class="btnGroup">
+        <a href="{{continue_to}}" class="linkBtn secondary">{{ lex["Cancel"] }}</a>
+        <button class="new" type="submit" name="button">{{ lex["Send friendship request"] }}</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

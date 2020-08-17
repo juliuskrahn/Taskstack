@@ -1,0 +1,31 @@
+version: "3.8"
+
+services: 
+
+    taskstack:
+        build: ./taskstack
+        container_name: taskstack
+        restart: always
+        expose:
+            - "5000"
+            - "5001"
+            - "5002"
+            - "5003"
+
+    redis:
+        build: ./redis
+        container_name: redis
+        restart: always
+        expose:
+            - "6379"
+
+    nginx:
+        build: ./nginx
+        container_name: nginx
+        restart: always
+        ports:
+            - "80:80"
+            - "443:443"
+        expose:
+            - "80"
+            - "443"

@@ -1,0 +1,143 @@
+#content {
+    padding-bottom: 99px;
+}
+
+#content > section {
+    padding: 64px 32px;
+}
+
+#content > section .siblingsContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 64px;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#content > section .siblingsContainer div:not(.prev) img {
+    max-height: 360px;
+    width: auto;
+    display: block;
+}
+
+#content > section .siblingsContainer div:not(.prev):first-child img {
+    margin-right: auto;
+}
+
+#content > section .siblingsContainer div:not(.prev):last-child img {
+    margin-left: auto;
+}
+
+#content > section h1 {
+    color: #263238;
+    font-size: 55px;
+    margin-bottom: 20px;
+}
+
+#content > section h2 {
+    color: #263238;
+    font-size: 26px;
+    font-weight: 400;
+    margin-bottom: 10px;
+}
+
+#content > section h3 {
+    font-size: 18px;
+    font-weight: 400;
+    margin-bottom: 5px;
+}
+
+h1 a, h2 a, h3 a {
+    text-decoration: underline;
+    color: inherit;
+    white-space: nowrap;
+}
+
+.hero {
+    background-color: #f6f8fa;
+    margin-bottom: 32px;
+}
+
+.prev {
+    position: relative;
+}
+
+.prev .project {
+    width: 80%;
+}
+
+.prev .chat {
+    position: absolute;
+    width: 20%;
+    top: 12%;
+    left: 60%;
+}
+
+.callToAction {
+    box-shadow: 0 8px 24px rgba(149,157,165,.2);
+    border-radius: 6px;
+    padding: 32px;
+}
+
+.callToAction .linkBtn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 12px 14px;
+}
+
+
+/* media queries
+============================================================================= */
+
+@media(max-width: 1000px) {
+    #content > section .siblingsContainer {
+        column-gap: 32px;
+    }
+}
+
+@media(max-width: 800px) {
+    h1 a, h2 a, h3 a {
+        white-space: normal;
+    }
+
+    #content > section {
+        text-align: center;
+    }
+
+    #content > section .siblingsContainer {
+        display: block;
+    }
+
+    #content > section .siblingsContainer div:not(.prev) img {
+        margin: 0 auto;
+    }
+
+    .prev {
+        padding: 0 13% 16px 13%;
+    }
+
+    .prev .project {
+        width: 60% !important;
+    }
+    
+    .prev .chat {
+        width: 10%;
+        top: 15%;
+    }
+
+    .callToAction {
+        box-shadow: 0 8px 24px rgba(149,157,165,.2);
+        border-radius: 6px;
+    }
+}
+
+@media(max-width: 640px) { 
+    #content > section {
+        padding: 64px 14px;
+    }
+
+    .callToAction {
+        padding: 32px 14px;
+    }
+}

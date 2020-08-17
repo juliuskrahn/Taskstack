@@ -1,0 +1,13 @@
+{% extends 'email/base.html.j2' %}
+
+{% block content %}
+    {{ h(lex["Almost done"] + ", @" + username + "! " + lex["To complete your Taskstack sign up, we just need to verify your email address"] + ": " + email + ".") }}
+    <p>{{ lex["Once verified, you can start using all of Taskstack's features to explore, build, and share projects."] }}</p>
+    <p>{{ lex["Your email verification code"] }}: {{code}}</p>
+    {{ btn(lex["Verify email address"], link) }}
+    <p>
+        {{ lex["Button not working? Paste the following URL into your browser"] }}: <br> 
+        {{ a(link) }}
+    </p>
+    <p>{{ lex["You’re receiving this email because you recently created a new Taskstack account. If this wasn’t you, please ignore this email."] }}</p>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html.j2' %}
+
+{% block head %}
+  <link rel="stylesheet" href={{ static_url("css/document.css") }} type="text/css">
+  <title>Taskstack | {{ lex["Privacy"] }}</title>
+{% endblock %}
+
+{% block content %}
+<div class="document">
+  <h1>{{lex["Privacy"]}}</h1>
+  <div class="documentContent">
+    <h2>{{ lex["Use of cookies"] }}</h2>
+    <p>{{ lex["Taskstack uses cookies to authenticate users and to store system relevant data (like the selected language) locally. Cookies are not used for advertising purposes or to track you."] }}</p>
+    <h2>{{ lex["Your data"] }}</h2>
+    <p>{{ lex["No data is passed on to third parties or is used for advertising purposes."] }}</p>
+    <p>{{ lex["We do not intentionally collect personal information. Any personal information is the responsibility of the user. You can set who has access to your profile and your projects."] }}</p>
+    <h2>{{ lex["Uploaded files"] }}</h2>
+    <p>{{ lex["Uploaded files are stored with Amazon S3. The URLs we generate for these files are cryptographically unguessable, meaning that no one is going to be able to guess the URL for your file. However, if you share the URL for a Taskstack file, anyone with the URL will be able to see the file. Deleting a file in Taskstack removes it from Amazon S3."]}}</p>
+  </div>
+</div>
+
+{% endblock %}

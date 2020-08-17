@@ -1,0 +1,63 @@
+{% extends 'base.html.j2' %}
+
+{% block head %}
+  <script src="https://kit.fontawesome.com/ba20bc93cc.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href={{ static_url("css/home.auth.css") }} type="text/css">
+  <script>
+  var projects = {{projects}};
+  var friends = {{friends}};
+  var notifications = {{notifications}};
+  </script>
+  <script src={{ static_url("js/home.auth.js") }}></script>
+  <title>Taskstack</title>
+{% endblock %}
+
+{% block body_classes %}fluid{% endblock %}
+
+{% block content %}
+  <div class="main">
+    <div class="projects">
+      <h2>{{ lex["Projects"] }}</h2>
+      <div class="list">
+        <section id="projectsWhereOwner">
+        </section>
+        <section id="projectsWhereCollab">
+        </section>
+      </div>
+      <section class="actions">
+        <div class="btnGroup centerH">
+          <a class="linkBtn new" href="/new">{{ lex["New"] }}</a>
+        </div>
+      </section>
+    </div>
+    <div class="center">
+      <div id="nothingHere" class="active">
+        <div class="introBox">
+          <h3>{{ lex["How about a short introduction to Taskstack?"] }}</h3>
+          <p>{{ lex["Learn the basics of using Taskstack to make all your organizational dreams come true."] }}</p>
+          <a href="/guide" class="linkBtn subtle">{{ lex["Taskstack basics"] }}</a>
+        </div>
+        <div class="info"><i class="far fa-lightbulb"></i><p>{{ lex["This is your newsfeed. Unread messages or friendship requests... will be displayed here."]}}</p></div>
+      </div>
+      <section id="notifications">
+        
+      </section>
+    </div>
+    <div class="friends">
+      <a href="/chat">
+        <i class="fas fa-align-left chatIconText"></i>
+        <i class="fas fa-comment-alt chatIcon"></i>
+      </a>
+      <h2>{{ lex["Friends"] }}</h2>
+      <div class="list">
+        <section id="friends">
+        </section>
+      </div>
+      <section class="actions">
+        <div class="btnGroup centerH">
+          <a class="linkBtn new" href="/new-friend">{{ lex["Add"] }}</a>
+        </div>
+      </section>
+    </div>
+  </div>
+{% endblock %}

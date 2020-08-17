@@ -1,0 +1,95 @@
+{% macro static_url(string) %}
+  {# in production env srcs marked with this func will be replaced with their "taskstack-static" s3 bucket url (-> /tools/production_env_setup.py) #}
+  "/static/{{string}}"
+{% endmacro %}
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="{{ lex['Taskstack_desc'] }}">
+    <meta ame="author" content="Julius Krahn">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href={{ static_url("css/main.css") }} type="text/css">
+    <script src={{ static_url("js/detect_element_resize.min.js") }}></script>
+    <script src={{ static_url("js/socketio.min.js") }}></script>
+    <script src={{ static_url("js/main.js") }}></script>
+    <link rel="shortcut icon" href={{ static_url("favicon.ico") }}>
+    <script>
+      const currentUserIsAuthenticated = {% if current_user.is_authenticated() %}true{% else %}false{% endif %};
+      const lang = "{{ lang }}";
+      const lex = {{ lex }};
+      const msgsToFlash = {{ get_flashed_messages() }};
+    </script>
+    {% block head %}{% endblock %}
+  </head>
+  <body class="{% block body_classes %}{% endblock %}">
+    <header id="headerNotLoggedIn">
+      <a href="/" class="linkToHome">
+        <picture class="logo">
+          <source media="(min-width:500px)" srcset={{ static_url("img/logo.png") }} alt="Taskstack">
+          <img class="logo" src={{ static_url("img/small_logo.png") }} alt="Taskstack">
+        </picture>
+        <div id="notificationsCount" {% if request.endpoint != "home" and request.endpoint != "chat_home" and request.endpoint != "chat" and notifications_count >= 1 %}class="active"{% endif %}>{% if request.endpoint != "home" and request.endpoint != "chat_home" and request.endpoint != "chat" %}{{ notifications_count }}{% endif %}</div>
+      </a>
+      {% if current_user.is_authenticated() %}
+      <div id="account">
+        <img id="currentUserProfilePic" src="{{ current_user.small_avatar_url }}" alt="{{ lex['Account'] }}" onclick="DomHelpers.activate(document.getElementById('accountActions'));">
+        <div id="accountActions">
+          <div class="title">{{ lex["Logged in as"] }} <span>{{ current_user.name }}</span></div>
+          <hr>
+          <div><a href="/{{ current_user.name }}">{{ lex["Your profile"] }}</a></div>
+          <div><a href="/{{ current_user.name }}/settings">{{ lex["Settings"] }}</a></div>
+          <div><form action="/logout" method="POST"><button type="submit">{{ lex["Logout"] }}</button></form></div>
+          <hr>
+          <div><a href="/">Home</a></div>
+          <div><a href="/chat">Chat</a></div>
+        </div>
+      </div>
+      {% else %}
+      <a class="linkBtn" href="{{ signup_url }}">{{ lex["Signup"] }}</a>
+      <a class="linkBtn secondary" href="{{ login_url }}">{{ lex["Login"] }}</a>
+      {% endif %}
+    </header>
+    <section id="content">
+      {% block content %}{% endblock %}
+    </section>
+    <footer>
+      <ul>
+        <li>Copyright © 2020 <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC</a></li><li><a href="/privacy">{{ lex["Privacy"] }}</a></li><li><a href="/imprint">{{ lex["Imprint"] }}</a></li><li><a href="/help">{{ lex["Help"] }}</a></li>
+        <li class="sDropMenuContainer">
+          <div id="selectLang" class="sDropMenu up">
+            <h5>{{ lex["Language"] }}</h5>
+            <svg class="expandIcon" width="10" height="5">
+              <polygon points="5,0 0,5 10,5" style="fill:#616163;">
+            </svg>
+            <ul>
+              <li id="selectEn">English</li>
+              <li id="selectDe">Deutsch</li>
+            </ul>
+          </div>
+        </li>
+        <li><a href="/contact">{{ lex["Contact"]}}</a></li>
+      </ul>
+    </footer>
+    <section id="bannerMsgs">
+    </section>
+    <div class="modals">
+      {% block modals %}{% endblock %}
+      <div class="overlay"></div>
+      <noscript class="modal active">
+        <h2>Error</h2>
+        <p>{{ lex["Make sure that"] }}</p>
+        <ul class="standard">
+          <li>{{ lex["your browser supports javascript"] }}</li>
+          <li>{{ lex["javascript is enabled"] }}</li>
+        </ul>
+        <section class="btnGroup centerH">
+          <a class="linkBtn" href="">{{ lex["Reload"] }}</a>
+        </section>
+      </noscript>
+      <noscript><div class="overlay active"></div></noscript>
+    </div>
+    {% block bottom %}{% endblock %}
+  </body>
+</html>

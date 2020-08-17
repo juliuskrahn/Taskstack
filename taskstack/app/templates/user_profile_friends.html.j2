@@ -1,0 +1,16 @@
+{% extends 'user_profile.html.j2' %}
+
+{% block _head %}
+  <title>Taskstack | {{ username }} | {{ lex["Friends"] }}</title>
+{% endblock %}
+
+{% block _content %}
+{% for friend in friends %}
+  <div class="friend">
+    <a href="{{friend['link']}}" class="">
+        <img src="{{friend['picUrl']}}">
+        <p>{{friend["name"]}}</p>
+    </a>
+  </div>
+{% endfor %}
+{% endblock %}

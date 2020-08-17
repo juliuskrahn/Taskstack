@@ -1,0 +1,18 @@
+{% extends "base.html.j2" %}
+
+{% block head %}
+<title>Taskstack | {{ lex["Join project: "] + project_name }}</title>
+{% endblock %}
+
+{% block content %}
+<div class="cohesiveContainer">
+    <form action="{{ post_to }}" method="POST">
+      <h1>{{ lex["Join project: "] + project_name }}</h1>
+      <hr>
+      <div class="btnGroup">
+        <a href="/" class="linkBtn secondary">{{ lex["Cancel"] }}</a>
+        <button type="submit" name="button">{{ lex["Join"] }}</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

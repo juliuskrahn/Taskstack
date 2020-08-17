@@ -1,0 +1,8 @@
+{% extends "email/base.txt.j2" %}
+
+{% block content %}
+lex["Your email verification code"]:
+    {{code}}
+
+{{link}}
+{% endblock %}
