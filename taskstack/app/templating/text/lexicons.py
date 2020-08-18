@@ -380,7 +380,7 @@ guide_html_j2 = get_extended_lexicon_dict({
                                                                "Beschreibung geben.",
         "Set who can see your project.": "Außerdem müssen Sie festlegen wer Ihr Projekt sehen kann.",
         "To discuss and make decisions faster, you can create a linked chat group for your project.":
-        "Um schneller Entscheidungen zu treffen und sich auszutauschen können Sie das Projekt auch mit einer Chat "
+        "Um schneller Entscheidungen zu treffen und sich auszutauschen, können Sie das Projekt auch mit einer Chat "
         "Gruppe verknüpfen.",
         "Adding lists": "Listen hinzufügen",
         "To add a list to your project, click \"New list\" in the project menu. A list can represent a process or a "
@@ -400,7 +400,7 @@ guide_html_j2 = get_extended_lexicon_dict({
         "Fügen Sie einer Liste eine Karte hinzu, indem Sie auf \"Neue Karte\" klicken. Eine Karte kann z.B. für "
         "eine Aufgabe stehen. Wenn Sie Ihr Projekt nach Prozessen organisiert haben, können Sie eine Karte, sobald "
         "Sie einen Prozess durchlaufen hat, in die nächste Prozess Liste ziehen. Sie können Karten detaillierte "
-        "Beschreibungen geben und Dateien anhängen. Um klarzumachen wer für was zuständig ist können Sie einer Karte "
+        "Beschreibungen geben und Dateien anhängen. Um klarzumachen wer für was zuständig ist, können Sie einer Karte "
         "auch Mitglieder zuweisen."
     }
 }, base_html_j2)
@@ -717,7 +717,7 @@ home_auth_html_j2 = get_extended_lexicon_dict({
         "Friendship request": "Freundschaftsanfrage",
         "How about a short introduction to Taskstack?": "Wie wäre es mit einer kurzen Einführung in Taskstack?",
         "Learn the basics of using Taskstack to make all your organizational dreams come true.":
-        "Lernen Sie die Grundlagen von Taskstack um gleich loszulegen.",
+        "Lernen Sie die Grundlagen von Taskstack, um gleich loszulegen.",
         "Taskstack basics": "Taskstack Grundlagen",
         "This is your newsfeed. Unread messages or friendship requests... will be displayed here.":
         "Das ist Ihr Newsfeed. Ungelesene Nachrichten oder Freundschaftsanfragen... werden hier angezeigt."

@@ -1785,13 +1785,7 @@ function updateACard(data) {
 
 function activateCardFileToolTip(e) {
     const filesToolTip_files = e.target.parentElement.children[1];
-    if (filesToolTip_files.classList.contains("active")) { return; }
-    filesToolTip_files.classList.add("active");
-    setTimeout(() => {
-        document.addEventListener("click", (_e) => {
-                setTimeout(() => {filesToolTip_files.classList.remove("active")}, 50);
-        }, {once:true});
-    }, 1);
+    DomHelpers.activate(filesToolTip_files);
 }
 
 
