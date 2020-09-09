@@ -526,6 +526,8 @@ const chatWin = {
         unreadCount_dom_el.classList.remove("active");
         unreadCount_dom_el.innerHTML = "";
 
+        document.getElementsByTagName("header")[0].classList.add("chatOpen");
+
         if (chat_already_build) {
             return;
         }
@@ -570,6 +572,7 @@ const chatWin = {
         const dom_el = this.getDomEl();
         dom_el.classList.remove("open");
         dom_el.classList.add("closed");
+        document.getElementsByTagName("header")[0].classList.remove("chatOpen");
     },
 
     send: function() {
@@ -609,7 +612,7 @@ const chatWin = {
         else {
             msg_html += 'received">';
         }
-        msg_html += '<div class="box"><p class="from">' + msg.fromName +  '</p><p class="when">' + DatetimeToLocalizedString.datetimeV1(datetime) +  '</p><p class="text">' + renderText(msg.content) + '</p></div>';
+        msg_html += '<div class="box"><p class="from"><a href="/' + msg.fromName + '">' + msg.fromName +  '</a></p><p class="when">' + DatetimeToLocalizedString.datetimeV1(datetime) +  '</p><p class="text">' + renderText(msg.content) + '</p></div>';
         return msg_html;
     }
 }

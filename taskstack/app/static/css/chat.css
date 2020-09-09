@@ -226,7 +226,7 @@
 
 #msgs .msg {
     max-width: 320px;
-    margin: 10px;
+    margin: 6px 12px;
     clear: both;
 }
 
@@ -286,6 +286,14 @@
 
 #msgs .msg.received .from, #msgs .msg.received .when {
     color: #b1b1b1;
+}
+
+#msgs .msg .from {
+    text-decoration: underline;
+}
+
+#msgs .msg .from a {
+    color: inherit;
 }
 
 #msgs .msg.sent .box::before {
@@ -372,17 +380,27 @@
     opacity: .8;
 }
 
+@keyframes chat-topBar-slide-in {
+    from { left: -100%; }
+    to { left: 0; }
+}
+
 #chat .topBar {
     display: none;
     grid-template-columns: 22px auto;
     column-gap: 32px;
     align-items: center;
     padding: 4px 16px;
-    background-color: var(--green);
+    background-color: white;
+    box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e1e4e8;
+    border-bottom: none;
+    position: relative;
+    animation: chat-topBar-slide-in .3s ease-in-out;
 }
 
 #chat .topBar .goBackIcon {
-    color: white;
+    color: #bababa;
     font-size: 18px;
     padding: 2px;
 }
@@ -407,7 +425,7 @@
 }
 
 #chat .topBar #currentContact #currentContactName {
-    color: white;
+    color: var(--dim-grey);
     font-size: 20px;
     line-height: 22px;
     cursor: default;
@@ -448,6 +466,14 @@
 @media (max-width:640px) {
     .main {
         display: block;
+    }
+
+    header {
+        transition: box-shadow .35s ease-out;
+    }
+
+    header.chatOpen {
+        box-shadow: none;
     }
 
     #contacts.open, #chat.open {
