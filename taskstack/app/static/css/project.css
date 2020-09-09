@@ -187,10 +187,6 @@ body > section, #top section, #content > section {
     top: 100%;
 }
 
-#menuBar .menu.hidden ul {
-    display: none !important;
-}
-
 #menuBar .menu ul li.disabled {
     color: #BFC0C1 !important;
 }

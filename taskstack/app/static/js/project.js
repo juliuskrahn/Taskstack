@@ -387,7 +387,7 @@ function setupFileUploading() {
 ============================================================================= */
 
 function setupMenuBar() {
-    function activateMenu(menu) {
+    function openMenu(menu) {
         for (let _menu of document.getElementsByClassName("menu")) {
             _menu.classList.remove("active");
             _menu.classList.remove("reactToHover");
@@ -396,21 +396,7 @@ function setupMenuBar() {
         menu.classList.add("reactToHover");
     }
 
-    function deactivateMenus() {
-        for (let menu of document.getElementsByClassName("menu")) {
-            menu.classList.remove("active");
-            menu.classList.add("reactToHover");
-            menu.classList.add("hidden");
-        }
-        deactivateSubMenus();
-        setTimeout(() => {
-            for (let menu of document.getElementsByClassName("menu")) {
-                menu.classList.remove("hidden");
-            }
-        }, 10)
-    }
-
-    function activateSubMenu(subMenu) {
+    function openSubMenu(subMenu) {
         for (let _subMenu of document.getElementsByClassName("subMenu")) {
             _subMenu.classList.remove("active");
             _subMenu.classList.remove("reactToHover");
@@ -420,7 +406,7 @@ function setupMenuBar() {
         }
         const menu = DomHelpers.getParent(subMenu, "menu");
         if (! menu.classList.contains("active")) {
-            activateMenu(menu);
+            openMenu(menu);
         }
         for (let parent_subMenu of DomHelpers.getParents(subMenu, "subMenu")) {
             parent_subMenu.classList.add("active");
@@ -429,7 +415,7 @@ function setupMenuBar() {
         subMenu.classList.add("reactToHover");
     }
 
-    function deactivateSubMenu(subMenu) {
+    function closeSubMenu(subMenu) {
         subMenu.classList.remove("active");
         subMenu.classList.add("reactToHover");
         for (let child_subMenu of subMenu.getElementsByClassName("subMenu")) {
@@ -438,42 +424,39 @@ function setupMenuBar() {
         }
     }
 
-    function deactivateSubMenus() {
+    function closeAllMenus() {
+        for (let menu of document.getElementsByClassName("menu")) {
+            menu.classList.remove("active");
+            menu.classList.add("reactToHover");
+        }
         for (let subMenu of document.getElementsByClassName("subMenu")) {
             subMenu.classList.remove("active");
             subMenu.classList.add("reactToHover");
         }
     }
 
-    function menuBar_document_clicked_handler(e) {
-        if (e.target.classList.contains("menu")) {
-            if (e.target.classList.contains("active")) {
-                setTimeout(deactivateMenus, 200);
-            } 
-            else {
-                activateMenu(e.target);
-            }
+    document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("menu") && ! e.target.classList.contains("active")) {
+            openMenu(e.target);
+            return;
         }
 
         else if (e.target.classList.contains("subMenu") && ! e.target.classList.contains("disabled")) {
             if (e.target.classList.contains("active")) {
-                deactivateSubMenu(e.target)
+                closeSubMenu(e.target)
             } 
             else {
-                activateSubMenu(e.target);
+                openSubMenu(e.target);
             }
+            return;
         }
 
-        else if (document.getElementById("menuBar").contains(e.target)) {
-            if (! e.target.classList.contains("disabled")) {
-                deactivateMenus();
-            }
+        else if (document.getElementById("menuBar").contains(e.target) && e.target.classList.contains("disabled")) {
+            return;
         }
 
-        else {
-            deactivateMenus(); 
-        }
-    }
+        setTimeout(closeAllMenus, 200);
+    });
 
     for (let menu of document.getElementsByClassName("menu")) {
         menu.classList.add("reactToHover");
@@ -483,7 +466,7 @@ function setupMenuBar() {
         subMenu.classList.add("reactToHover");
     }
 
-    document.addEventListener("click", menuBar_document_clicked_handler);
+    // setup menu shortcuts
 
     if (lang == "de") {
         document.addEventListener("keydown", (e) => {
@@ -493,19 +476,19 @@ function setupMenuBar() {
             const key_code = e.which || e.keyCode;
             switch (key_code) {
                 case 80:
-                    activateMenu(document.getElementById("projectMenu"));
+                    openMenu(document.getElementById("projectMenu"));
                     break;
                 case 65: 
-                    activateMenu(document.getElementById("viewMenu"));
+                    openMenu(document.getElementById("viewMenu"));
                     break;
                 case 69:
-                    activateMenu(document.getElementById("settingsMenu"));
+                    openMenu(document.getElementById("settingsMenu"));
                     break;
                 case 86:
-                    activateMenu(document.getElementById("historyMenu"));
+                    openMenu(document.getElementById("historyMenu"));
                     break;
                 case 72:
-                    activateMenu(document.getElementById("helpMenu"));
+                    openMenu(document.getElementById("helpMenu"));
                     break;
                 default:
                     return;
@@ -521,19 +504,19 @@ function setupMenuBar() {
             const key_code = e.which || e.keyCode;
             switch (key_code) {
                 case 80:
-                    activateMenu(document.getElementById("projectMenu"));
+                    openMenu(document.getElementById("projectMenu"));
                     break;
                 case 86: 
-                    activateMenu(document.getElementById("viewMenu"));
+                    openMenu(document.getElementById("viewMenu"));
                     break;
                 case 83:
-                    activateMenu(document.getElementById("settingsMenu"));
+                    openMenu(document.getElementById("settingsMenu"));
                     break;
                 case 73:
-                    activateMenu(document.getElementById("historyMenu"));
+                    openMenu(document.getElementById("historyMenu"));
                     break;
                 case 72:
-                    activateMenu(document.getElementById("helpMenu"));
+                    openMenu(document.getElementById("helpMenu"));
                     break;
                 default:
                     return;
@@ -1955,13 +1938,7 @@ function showRemoveFileIcon(e) {
         file = DomHelpers.getParent(e.target, "file");
     }
     const icon = file.getElementsByClassName("cancelIcon")[0];
-    if (icon.classList.contains("active")) { return; }
-    icon.classList.add("active");
-    setTimeout(() => {
-        document.addEventListener("click", (_e) => {
-            setTimeout(() => icon.classList.remove("active"), 50);
-        }, {once: true});
-    }, 1);
+    DomHelpers.activate(icon);
 } 
 
 
