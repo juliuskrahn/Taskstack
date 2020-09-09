@@ -12,6 +12,8 @@ window.addEventListener("load", () => {
 ============================================================================= */
 
 function installGlobalSocketEventHandlersForHome() {
+    socket.on("disconnect", EventCallback.socketDisconnected);
+    
     socket.on("new_friend", (data) => {
         newFriendDomEl(data);
     });

@@ -33,16 +33,12 @@ window.addEventListener("load", () => {
 });
 
 
-/* before unload
-============================================================================= */
-
-window.addEventListener("beforeunload", () => ignoreDisconnect=true)
-
-
 /* socketio event handlers
 ============================================================================= */
 
 function installExtraGlobalSocketEventHandlersForProject() {  // (called from main.js)
+
+    socket.on("disconnect", EventCallback.socketDisconnected);
 
     socket.on("removed_as_collab_of_project", (id) => {
         if (id == project.id) {
@@ -74,14 +70,7 @@ function installProjectSocketEventHandlers() {
 
     projectSocket.on("connect", () => projectSocket.emit("join_project_room", project.id));
 
-    projectSocket.on("disconnect", () => {
-        setTimeout(() => {
-            if (! ignoreDisconnect) {
-                document.getElementById("disconnectModal").classList.add("active");
-                document.getElementsByClassName("overlay")[0].classList.add("active");
-            }
-        }, 100);
-    });
+    projectSocket.on("disconnect", EventCallback.socketDisconnected);
 
     projectSocket.on("edit_project_name_and_desc_successful", () => {
         projectNameAndDescSettingWin.stopLoadingAnim();

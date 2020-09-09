@@ -34,12 +34,12 @@ window.addEventListener("load", () => {
 
   MainInit.setupOverlays();
 
-  if (currentUserIsAuthenticated) {
-    MainInit.setupGlobalSocket();
-  }
-
   if (Number(document.getElementById("notificationsCount").innerHTML) < 1) {
     document.getElementById("notificationsCount").classList.remove("active");
+  }
+
+  if (currentUserIsAuthenticated) {
+    MainInit.setupGlobalSocket();
   }
 });
 
@@ -77,6 +77,7 @@ const MainInit = {
   },
 
   installDefaultGlobalSocketEventHandlers: function() {
+    socket.on("disconnect", EventCallback.socketDisconnected);
     socket.on("receive_msg", (_) => NotificationsCount.increment());
     socket.on("receive_friendship_request", (_) => NotificationsCount.increment());
   },
@@ -174,11 +175,19 @@ const MainInit = {
   
   setupOverlays: function() {
     for (let overlay of document.getElementsByClassName("overlay")) {
-      overlay.addEventListener("click", Modal.hideAll);
+      overlay.addEventListener("click", () => {
+        if (! Flag.ignoreOverlayClick) {
+          Modal.hideAll();
+        }
+      });
     }
 
     for (let loadingOverlay of document.getElementsByClassName("loadingOverlay")) {
-      loadingOverlay.addEventListener("click", LoadingAnim.stopAll);
+      loadingOverlay.addEventListener("click", () => {
+        if (! Flag.ignoreOverlayClick) {
+          LoadingAnim.stopAll();
+        }
+      });
     }
   
     document.body.addEventListener("wheel", (e) => {
@@ -198,6 +207,38 @@ const MainInit = {
         e.preventDefault();
       }
     });
+  }
+}
+
+
+/* on document unload
+============================================================================= */
+
+window.addEventListener("beforeunload", () => Flag.pageIsUnloading=true);
+
+
+/* flags
+============================================================================= */
+
+const Flag = {
+  pageIsUnloading: false,
+  ignoreOverlayClick: false
+}
+
+
+/* event callbacks
+============================================================================= */
+
+const EventCallback = {
+  socketDisconnected: function() {
+    setTimeout(() => {
+      if (! Flag.pageIsUnloading) {
+          Modal.hideAll();
+          Flag.ignoreOverlayClick = true;
+          document.getElementById("disconnectModal").classList.add("active");
+          document.getElementsByClassName("overlay")[0].classList.add("active");
+      }
+    }, 100);
   }
 }
 

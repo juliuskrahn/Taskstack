@@ -981,6 +981,16 @@ li > .sDropMenu {
   overflow-y: auto;
 }
 
+@media (max-width:480px) {
+  .modal .stretchBox {
+    min-width: unset;
+  }
+}
+
+#disconnectModal {
+  z-index: 100000;
+}
+
 
 /* form
 ============================================================================= */
@@ -1180,7 +1190,7 @@ li > .sDropMenu {
 .loadingOverlay {
   display: none;
   position: fixed;
-  z-index: 1000000;
+  z-index: 10000;
   background-color: white;
   opacity: .5;
   top: 0;

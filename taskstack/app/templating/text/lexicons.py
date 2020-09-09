@@ -63,7 +63,6 @@ base_html_j2 = {
         "Settings": "Settings",
         "Logout": "Logout",
 
-        # no javascript modal
         "Make sure that": "Make sure that",
         "your browser supports javascript": "your browser supports javascript",
         "javascript is enabled": "javascript is enabled",
@@ -72,6 +71,9 @@ base_html_j2 = {
                       'Policy</a>.',
 
         "Reload": "Reload",
+
+        "Connection lost": "Connection lost",
+        "Try reloading the page.": "Try reloading the page.",
 
         # time
         "today": "today",
@@ -103,7 +105,6 @@ base_html_j2 = {
         "Settings": "Einstellungen",
         "Logout": "Abmelden",
 
-        # no javascript modal
         "Make sure that": "Stellen Sie sicher, dass",
         "your browser supports javascript": "Ihr Browser Javascript unterstützt",
         "javascript is enabled": "Javascript aktiviert ist",
@@ -112,6 +113,9 @@ base_html_j2 = {
                       'mehr Details.',
 
         "Reload": "Neu laden",
+
+        "Connection lost": "Verbindung zum Server unterbrochen",
+        "Try reloading the page.": "Versuchen Sie die Seite neu zu laden.",
 
         # time
         "today": "Heute",
@@ -456,9 +460,6 @@ project_html_j2 = get_extended_lexicon_dict({
         "Share this link to <b>add users as admins to this project</b>":
         "Share this link to <b>add people as admins to this project</b>",
 
-        "Connection lost": "Connection lost",
-        "Try reloading the page.": "Try reloading the page.",
-
         "This project has been deleted.": "This project has been deleted.",
         "Take me home": "Take me home",
         "The list name must be 1 - 32 characters long.": "The list name must be 1 - 32 characters long.",
@@ -562,9 +563,6 @@ project_html_j2 = get_extended_lexicon_dict({
         "bearbeiten",
         "Share this link to <b>add users as admins to this project</b>":
         "Teilen Sie diesen Link, um <b>Benutzer als Admins zu diesem Projekt hinzuzufügen</b>",
-
-        "Connection lost": "Verbindung zum Server unterbrochen",
-        "Try reloading the page.": "Versuchen Sie die Seite neu zu laden.",
 
         "This project has been deleted.": "Dieses Projekt wurde gelöscht.",
         "Take me home": "nach Hause",

@@ -77,6 +77,13 @@
     <div class="modals">
       {% block modals %}{% endblock %}
       <div class="overlay"></div>
+      <div id="disconnectModal" class="modal">
+        <h2>{{ lex["Connection lost"] }}</h2>
+        <p>{{ lex["Try reloading the page."] }}</p>
+        <section class="btnGroup centerH">
+          <a class="linkBtn" href="">{{ lex["Reload"] }}</a>
+        </section>
+      </div>
       <noscript class="modal active">
         <h2>Error</h2>
         <p>{{ lex["Make sure that"] }}</p>
