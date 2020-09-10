@@ -278,6 +278,7 @@ body > section, #top section, #content > section {
     cursor: pointer;
     padding: 2px;
     line-height: 18px;
+    font-size: 16px;
 }
 
 .list .head .ecclipseIcon:hover {
@@ -289,7 +290,7 @@ body > section, #top section, #content > section {
     opacity: .1;
 }
 
-.list.dragging section, .list.dragging div {
+.list.dragging * {
     opacity: 0;
 }
 
@@ -298,38 +299,43 @@ body > section, #top section, #content > section {
 ============================================================================= */
 
 .card {
-    position: relative;
     background-color: white;
     box-shadow: 0 0 3px 1px rgba(60, 60, 60, .1);
     padding: 8px;
+    padding-bottom: 0;
     margin: 8px auto;
     cursor: default;
     transition: background-color .2s ease-out;
 }
 
-.card:first-child {
-    margin-top: 0;
-}
-
 .card h3 {
+    margin-top: 0;
     font-weight: 400;
     font-size: 16px;
     margin-bottom: 6px;
 }
 
-.card > i, .card .paperclipIcon {
-    color: #616163;
+.card .actions {
+    margin-bottom: 2px;
+}
+
+.card .action {
+    color: var(--dim-grey);
     padding: 2px;
     cursor: pointer;
-    margin-right: 6px;
+    margin-right: 8px;
 }
 
-.card > i:last-child, .card > .filesToolTip:last-child .paperclipIcon {
-    margin-right: 0;
+.card i.action, .card i .action {
+    font-size: 15px;
 }
 
-.card > i:hover {
+.card i.action:hover, .card i .action:hover {
     opacity: .7;
+}
+
+.card .actions .action:last-child {
+    margin-right: 0;
 }
 
 .card.dragImg {
@@ -337,16 +343,20 @@ body > section, #top section, #content > section {
 }
 
 .card.dragging {
-    background-color: #616163;
+    background-color: var(--dim-grey);
     opacity: .05;
 }
 
-.card .filesToolTip {
+.card.dragging * {
+    opacity: 0;
+}
+
+.card .filesPopUp {
     position: relative;
     display: inline-block;
 }
 
-.card .filesToolTip > i:after {
+.card .filesPopUp > i:after {
     content: "";
     position: absolute;
     display: block;
@@ -356,7 +366,7 @@ body > section, #top section, #content > section {
     width: 100%;
 }
 
-.card .filesToolTip .container {
+.card .filesPopUp .container {
     z-index: 50;
     display: flex;
     position: absolute;
@@ -373,38 +383,32 @@ body > section, #top section, #content > section {
     transition: visibility .25s ease;
 }
 
-.card .filesToolTip:hover .container, .card .filesToolTip .container.active {
+.card .filesPopUp:hover .container, .card .filesPopUp .container.active {
     visibility: visible;
 }
 
-.card .filesToolTip:hover .paperclipIcon {
+.card .filesPopUp:hover .paperclipIcon {
     opacity: .7;
 }
 
-.addedUsers {
+.addedUsersBox {
     border: 1px solid #ccc;
     border-radius: 2px;
 }
 
 .addedUsersList {
     display: flex;
-    flex-direction: row;
     flex-wrap: nowrap;
-    align-items: flex-start;
     overflow-x: auto;
+    padding: 4px 4px 4px 0;
+}
+
+.addedUsersBox .addedUsersList {
     padding: 4px;
 }
 
 .addedUsersList  > *:not(:last-child) {
     margin-right: 6px;
-}
-
-.addedUsersList .addedUser img {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    position: relative;
-    z-index: -1;
 }
 
 .addedUsersList .addedUser {
@@ -415,8 +419,16 @@ body > section, #top section, #content > section {
     position: relative;
 }
 
+.addedUsersList .addedUser img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    position: relative;
+}
+
 .addedUsersList .addedUser .name {
     position: absolute;
+    z-index: 1;
     left: 16px;
     top: 0;
     padding: 2px 4px;

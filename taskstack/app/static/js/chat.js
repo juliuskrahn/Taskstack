@@ -354,7 +354,7 @@ const contactsWin = {
     },
 
     open: function(dontPushState=false) {
-        if (page_url.getQueryVariable("with") && ! dontPushState) {
+        if (pageUrl.getQueryVariable("with") && ! dontPushState) {
             history.pushState({open: "contactsWin"}, "Taskstack | Chat", "/chat");
         }
         document.title = "Taskstack | Chat"

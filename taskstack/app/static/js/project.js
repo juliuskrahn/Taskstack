@@ -2,32 +2,20 @@ var projectSocket;  // project namespace
 
 var dragging;  // list/ card dom element that is currently being dragged
 
-var fileUploadBoxes = {};
-/*
-    {<fileUploadBox-id>: {
-            <file-name>: string (binary data) | null (-> don't upload file)
-            ... 
-    } ...}
-*/
-
-const UPLOAD_FILE_MAX = 8;
-
-var ignoreDisconnect = false;
-
 
 /* on document load
 ============================================================================= */
 
 window.addEventListener("load", () => {
-    buildListsAndCards();
-    setupMenuBar();
+    MenuBar.setup();
+    ListsAndCardsSetup.buildDomEls();
     if (currentUserIsOwner || currentUserIsCollaborator) {
         // installExtraGlobalSocketEventHandlersForProject is called from main.js
         projectSocket = io.connect("/project");
         installProjectSocketEventHandlers();
         if (currentUserRole == "owner" || currentUserRole == "admin") {
-            setupListAndCardDragging();
-            setupFileUploading();
+            ListsAndCardsSetup.prepareDragging();
+            FileAttachment.setupUploading();
         }
     }
 });
@@ -84,10 +72,10 @@ function installProjectSocketEventHandlers() {
 
     projectSocket.on("project_deleted", () => {
         Modal.hideAll();
-        deactivateMenuBar();
+        MenuBar.deactivate();
         document.getElementById("content").innerHTML = '<div style="padding: 32px;"><p style="text-align: center;display: block;">'+ lex["This project has been deleted."] + '</p><a href="/" style="text-align: center;display: block;">'+ lex["Take me home"] + '</a></div>';
         document.getElementsByClassName("modals")[0].innerHTML = "";
-        ignoreDisconnect = true;
+        Flag.ignoreSocketDisconnect = true;
         projectSocket.disconnect();
     });
 
@@ -95,10 +83,10 @@ function installProjectSocketEventHandlers() {
         for (let list_id in project.lists) {
             project.lists[list_id].pos += 1;
         }
-        buildList(data)
+        List.build(data)
     });
 
-    projectSocket.on("build_new_card", (data) => buildCard(data));
+    projectSocket.on("build_new_card", (data) => Card.build(data));
 
     projectSocket.on("create_list_successful", () => {
         newListWin.stopLoadingAnim();
@@ -110,9 +98,9 @@ function installProjectSocketEventHandlers() {
         newCardWin.close();
     });
 
-    projectSocket.on("update_list", (data) => updateAList(data));
+    projectSocket.on("update_list", (data) => List.update(data));
 
-    projectSocket.on("update_card", (data) => updateACard(data));
+    projectSocket.on("update_card", (data) => Card.update(data));
 
     projectSocket.on("edit_list_successful", () => {
         editListWin.stopLoadingAnim();
@@ -124,13 +112,13 @@ function installProjectSocketEventHandlers() {
         editCardWin.close(true);
     });
 
-    projectSocket.on("update_list_pos", (data) => updateListsPos(data));
+    projectSocket.on("update_list_pos", (data) => List.updatePositions(data));
 
-    projectSocket.on("update_card_pos", (data) => updateCardsPos(data));
+    projectSocket.on("update_card_pos", (data) => Card.updatePositions(data));
 
-    projectSocket.on("remove_list", (data) => removeAList(data));
+    projectSocket.on("remove_list", (data) => List.remove(data));
 
-    projectSocket.on("remove_card", (data) => removeACard(data));
+    projectSocket.on("remove_card", (data) => Card.remove(data));
 
     projectSocket.on("delete_list_successful", () => {
         editListWin.stopLoadingAnim();
@@ -212,346 +200,339 @@ function installProjectSocketEventHandlers() {
 }
 
 
-/* initial list and card rendering
+/* lists and cards setup
 ============================================================================= */
 
-function buildListsAndCards() {
-    var lists = [];
+const ListsAndCardsSetup = {
 
-    for (let listId of Object.keys(project.lists)) {
+    buildDomEls: function() {
+        var lists = [];
 
-        var cards = [];
-
-        for (let cardId of Object.keys(project.lists[listId].cards)) {
-            cards.push([cardId, project.lists[listId].cards[cardId]]);
+        for (let listId of Object.keys(project.lists)) {
+    
+            var cards = [];
+    
+            for (let cardId of Object.keys(project.lists[listId].cards)) {
+                cards.push([cardId, project.lists[listId].cards[cardId]]);
+            }
+    
+            cards.sort((card1, card2) => card1[1].pos - card2[1].pos);
+    
+            lists.push([listId, project.lists[listId], cards]);
         }
-
-        cards.sort((card1, card2) => card1[1].pos - card2[1].pos);
-
-        lists.push([listId, project.lists[listId], cards]);
-    }
-
-    lists.sort((list1, list2) => list1[1].pos - list2[1].pos);
-
-    for (let list of lists) {
-        buildListDomEl({
-            id: list[0],
-            name: list[1].name
-        });
-        for (let card of list[2]) {
-            buildCardDomEl({
-                id: card[0],
-                listId: list[0],
-                name: card[1].name,
-                attachedFiles: card[1].attachedFiles
+    
+        lists.sort((list1, list2) => list1[1].pos - list2[1].pos);
+    
+        for (let list of lists) {
+            List.buildDomEl({
+                id: list[0],
+                name: list[1].name
             });
-        }
-    }
-}
-
-
-/* setup list and card dragging
-============================================================================= */
-
-function setupListAndCardDragging() {
-    const listsContainer = document.getElementById("listsContainer");
-
-    document.addEventListener("dragstart", (e) => {
-        if (e.target.classList.contains("list") || e.target.classList.contains("card")) {
-            dragging = e.target;
-            e.target.classList.add("dragImg");
-            setTimeout(() => {
-                e.target.classList.remove("dragImg");
-                e.target.classList.add("dragging");
-            }
-            , 0);
-        }
-    });
-
-    document.addEventListener("dragend", (e) => {
-
-        if (dragging && dragging.classList.contains("list")) {
-            const list_dom_el = dragging;
-            var pos;
-            for (pos=0; pos < listsContainer.children.length; pos++) {
-                if (listsContainer.children[pos].id == list_dom_el.id) {
-                    break;
-                }
-            }
-            var id = list_dom_el.id.substring(2);
-            if (pos != project.lists[id].pos) {
-                projectSocket.emit("move_list", {
-                    projectId: project.id,
-                    id: id,
-                    pos: pos
+            for (let card of list[2]) {
+                Card.buildDomEl({
+                    id: card[0],
+                    listId: list[0],
+                    name: card[1].name,
+                    attachedFiles: card[1].attachedFiles,
+                    members: card[1].members
                 });
             }
-            
-        } 
+        }        
+    },
 
-        else if (dragging && dragging.classList.contains("card")) {
-            const card_dom_el = dragging;
-            const list_of_card_dom_el_cards = DomHelpers.getParent(card_dom_el, "cards");
-            var pos;
-            for (pos=0; pos < list_of_card_dom_el_cards.children.length; pos++) {
-                if (list_of_card_dom_el_cards.children[pos].id == card_dom_el.id) {
-                    break;
+    prepareDragging: function() {
+        const listsContainer = document.getElementById("listsContainer");
+
+        document.addEventListener("dragstart", (e) => {
+            if (e.target.classList.contains("list") || e.target.classList.contains("card")) {
+                dragging = e.target;
+                e.target.classList.add("dragImg");
+                setTimeout(() => {
+                    e.target.classList.remove("dragImg");
+                    e.target.classList.add("dragging");
                 }
+                , 0);
             }
-            var id = card_dom_el.id.substring(2);
-            var card_oldListId = DomHelpers.getParent(card_dom_el, "list").id.substring(2);
-            for (let listId in project.lists) {
-                if (project.lists[listId].cards[id]) {
-                    card_oldListId = listId;
-                    break;
-                }
-            }
-            var card_newListId = DomHelpers.getParent(card_dom_el, "list").id.substring(2);
-            if ((pos != project.lists[card_oldListId].cards[id].pos) || (card_newListId != card_oldListId)) {
-                projectSocket.emit("move_card", {
-                    projectId: project.id,
-                    id: id,
-                    listId: card_newListId,
-                    pos: pos
-                });
-            }
-        } 
-        
-        else { return; }
-
-        dragging.classList.remove("dragging");
-        dragging = null;
-
-    });
-
-    document.addEventListener("dragover", (e) => {
-        if (dragging) {
-
-            if (dragging.classList.contains("list") && (e.target ===  listsContainer || listsContainer.contains(e.target))) {
-                e.preventDefault();
-                const list = dragging;
-                const insert_before_pos = getInsertListBeforePos(e.clientX);
-                if (insert_before_pos > listsContainer.children.length - 1) {
-                    listsContainer.appendChild(list);
-                } else {
-                    listsContainer.insertBefore(list, listsContainer.children[insert_before_pos]);
-                }
-            }
-
-            else if (dragging.classList.contains("card")) {
-                var list = e.target;
-                if (! list.classList.contains("list")) {
-                    list = DomHelpers.getParent(e.target, "list");
-                    if (! list) {
-                        return;
+        });
+    
+        document.addEventListener("dragend", (e) => {
+    
+            if (dragging && dragging.classList.contains("list")) {
+                const list_dom_el = dragging;
+                var pos;
+                for (pos=0; pos < listsContainer.children.length; pos++) {
+                    if (listsContainer.children[pos].id == list_dom_el.id) {
+                        break;
                     }
                 }
-                e.preventDefault();
-                const list_of_card_cards = list.getElementsByClassName("cards")[0].children
-                const card = dragging;
-                const insert_before_pos = getInsertCardBeforePos(list, e.clientY);
-                if (insert_before_pos > list_of_card_cards.length - 1) {
-                list.getElementsByClassName("cards")[0].appendChild(card);
-                } else {
-                    list.getElementsByClassName("cards")[0].insertBefore(card, list_of_card_cards[insert_before_pos]);
+                var id = list_dom_el.id.substring(2);
+                if (pos != project.lists[id].pos) {
+                    projectSocket.emit("move_list", {
+                        projectId: project.id,
+                        id: id,
+                        pos: pos
+                    });
+                }
+                
+            } 
+    
+            else if (dragging && dragging.classList.contains("card")) {
+                const card_dom_el = dragging;
+                const list_of_card_dom_el_cards = DomHelpers.getParent(card_dom_el, "cards");
+                var pos;
+                for (pos=0; pos < list_of_card_dom_el_cards.children.length; pos++) {
+                    if (list_of_card_dom_el_cards.children[pos].id == card_dom_el.id) {
+                        break;
+                    }
+                }
+                var id = card_dom_el.id.substring(2);
+                var card_oldListId = DomHelpers.getParent(card_dom_el, "list").id.substring(2);
+                for (let listId in project.lists) {
+                    if (project.lists[listId].cards[id]) {
+                        card_oldListId = listId;
+                        break;
+                    }
+                }
+                var card_newListId = DomHelpers.getParent(card_dom_el, "list").id.substring(2);
+                if ((pos != project.lists[card_oldListId].cards[id].pos) || (card_newListId != card_oldListId)) {
+                    projectSocket.emit("move_card", {
+                        projectId: project.id,
+                        id: id,
+                        listId: card_newListId,
+                        pos: pos
+                    });
+                }
+            } 
+            
+            else { return; }
+    
+            dragging.classList.remove("dragging");
+            dragging = null;
+    
+        });
+    
+        document.addEventListener("dragover", (e) => {
+            if (dragging) {
+    
+                if (dragging.classList.contains("list") && (e.target ===  listsContainer || listsContainer.contains(e.target))) {
+                    e.preventDefault();
+                    const list = dragging;
+                    const insert_before_pos = List.Helpers.getInsertBeforePos(e.clientX);
+                    if (insert_before_pos > listsContainer.children.length - 1) {
+                        listsContainer.appendChild(list);
+                    } else {
+                        listsContainer.insertBefore(list, listsContainer.children[insert_before_pos]);
+                    }
+                }
+    
+                else if (dragging.classList.contains("card")) {
+                    var list = e.target;
+                    if (! list.classList.contains("list")) {
+                        list = DomHelpers.getParent(e.target, "list");
+                        if (! list) {
+                            return;
+                        }
+                    }
+                    e.preventDefault();
+                    const list_of_card_cards = list.getElementsByClassName("cards")[0].children
+                    const card = dragging;
+                    const insert_before_pos = Card.Helpers.getInsertBeforePos(list, e.clientY);
+                    if (insert_before_pos > list_of_card_cards.length - 1) {
+                    list.getElementsByClassName("cards")[0].appendChild(card);
+                    } else {
+                        list.getElementsByClassName("cards")[0].insertBefore(card, list_of_card_cards[insert_before_pos]);
+                    }
                 }
             }
-        }
-
-    });
-}
-
-
-/* setup file uploading
-============================================================================= */
-
-function setupFileUploading() {
-    for (let fileUploadBox of document.getElementsByClassName("fileUploadBox")) {
-        fileUploadBoxes[fileUploadBox.id] = {};
+    
+        });
     }
 }
 
 
-/* setup menu bar
+/* menu bar
 ============================================================================= */
 
-function setupMenuBar() {
-    function openMenu(menu) {
-        for (let _menu of document.getElementsByClassName("menu")) {
-            _menu.classList.remove("active");
-            _menu.classList.remove("reactToHover");
-        }
-        menu.classList.add("active");
-        menu.classList.add("reactToHover");
-    }
+const MenuBar = {
 
-    function openSubMenu(subMenu) {
-        for (let _subMenu of document.getElementsByClassName("subMenu")) {
-            _subMenu.classList.remove("active");
-            _subMenu.classList.remove("reactToHover");
-        }
-        for (let child_subMenu of subMenu.getElementsByClassName("subMenu")) {
-            child_subMenu.classList.add("reactToHover");
-        }
-        const menu = DomHelpers.getParent(subMenu, "menu");
-        if (! menu.classList.contains("active")) {
-            openMenu(menu);
-        }
-        for (let parent_subMenu of DomHelpers.getParents(subMenu, "subMenu")) {
-            parent_subMenu.classList.add("active");
-        }
-        subMenu.classList.add("active");
-        subMenu.classList.add("reactToHover");
-    }
-
-    function closeSubMenu(subMenu) {
-        subMenu.classList.remove("active");
-        subMenu.classList.add("reactToHover");
-        for (let child_subMenu of subMenu.getElementsByClassName("subMenu")) {
-            child_subMenu.classList.remove("active");
-            child_subMenu.classList.add("reactToHover");
-        }
-    }
-
-    function closeAllMenus() {
-        for (let menu of document.getElementsByClassName("menu")) {
-            menu.classList.remove("active");
+    setup: function() {
+        function openMenu(menu) {
+            for (let _menu of document.getElementsByClassName("menu")) {
+                _menu.classList.remove("active");
+                _menu.classList.remove("reactToHover");
+            }
+            menu.classList.add("active");
             menu.classList.add("reactToHover");
         }
-        for (let subMenu of document.getElementsByClassName("subMenu")) {
-            subMenu.classList.remove("active");
+    
+        function openSubMenu(subMenu) {
+            for (let _subMenu of document.getElementsByClassName("subMenu")) {
+                _subMenu.classList.remove("active");
+                _subMenu.classList.remove("reactToHover");
+            }
+            for (let child_subMenu of subMenu.getElementsByClassName("subMenu")) {
+                child_subMenu.classList.add("reactToHover");
+            }
+            const menu = DomHelpers.getParent(subMenu, "menu");
+            if (! menu.classList.contains("active")) {
+                openMenu(menu);
+            }
+            for (let parent_subMenu of DomHelpers.getParents(subMenu, "subMenu")) {
+                parent_subMenu.classList.add("active");
+            }
+            subMenu.classList.add("active");
             subMenu.classList.add("reactToHover");
         }
-    }
-
-    document.addEventListener("click", (e) => {
-        if (e.target.classList.contains("menu") && ! e.target.classList.contains("active")) {
-            openMenu(e.target);
-            return;
-        }
-
-        else if (e.target.classList.contains("subMenu") && ! e.target.classList.contains("disabled")) {
-            if (e.target.classList.contains("active")) {
-                closeSubMenu(e.target)
-            } 
-            else {
-                openSubMenu(e.target);
+    
+        function closeSubMenu(subMenu) {
+            subMenu.classList.remove("active");
+            subMenu.classList.add("reactToHover");
+            for (let child_subMenu of subMenu.getElementsByClassName("subMenu")) {
+                child_subMenu.classList.remove("active");
+                child_subMenu.classList.add("reactToHover");
             }
-            return;
         }
-
-        else if (document.getElementById("menuBar").contains(e.target) && e.target.classList.contains("disabled")) {
-            return;
+    
+        function closeAllMenus() {
+            for (let menu of document.getElementsByClassName("menu")) {
+                menu.classList.remove("active");
+                menu.classList.add("reactToHover");
+            }
+            for (let subMenu of document.getElementsByClassName("subMenu")) {
+                subMenu.classList.remove("active");
+                subMenu.classList.add("reactToHover");
+            }
         }
-
-        setTimeout(closeAllMenus, 200);
-    });
-
-    for (let menu of document.getElementsByClassName("menu")) {
-        menu.classList.add("reactToHover");
-    }
-
-    for (let subMenu of document.getElementsByClassName("subMenu")) {
-        subMenu.classList.add("reactToHover");
-    }
-
-    // setup menu shortcuts
-
-    if (lang == "de") {
-        document.addEventListener("keydown", (e) => {
-            if (! e.altKey) {
+    
+        document.addEventListener("click", (e) => {
+            if (e.target.classList.contains("menu") && ! e.target.classList.contains("active")) {
+                openMenu(e.target);
                 return;
             }
-            const key_code = e.which || e.keyCode;
-            switch (key_code) {
-                case 80:
-                    openMenu(document.getElementById("projectMenu"));
-                    break;
-                case 65: 
-                    openMenu(document.getElementById("viewMenu"));
-                    break;
-                case 69:
-                    openMenu(document.getElementById("settingsMenu"));
-                    break;
-                case 86:
-                    openMenu(document.getElementById("historyMenu"));
-                    break;
-                case 72:
-                    openMenu(document.getElementById("helpMenu"));
-                    break;
-                default:
-                    return;
-            }
-            e.preventDefault();
-        }); 
-    }
-    else {
-       document.addEventListener("keydown", (e) => {
-            if (! e.altKey) {
+    
+            else if (e.target.classList.contains("subMenu") && ! e.target.classList.contains("disabled")) {
+                if (e.target.classList.contains("active")) {
+                    closeSubMenu(e.target)
+                } 
+                else {
+                    openSubMenu(e.target);
+                }
                 return;
             }
-            const key_code = e.which || e.keyCode;
-            switch (key_code) {
-                case 80:
-                    openMenu(document.getElementById("projectMenu"));
-                    break;
-                case 86: 
-                    openMenu(document.getElementById("viewMenu"));
-                    break;
-                case 83:
-                    openMenu(document.getElementById("settingsMenu"));
-                    break;
-                case 73:
-                    openMenu(document.getElementById("historyMenu"));
-                    break;
-                case 72:
-                    openMenu(document.getElementById("helpMenu"));
-                    break;
-                default:
-                    return;
+    
+            else if (document.getElementById("menuBar").contains(e.target) && e.target.classList.contains("disabled")) {
+                return;
             }
-            e.preventDefault();
-        }); 
-    }
     
-    // (de/)activate buttons
+            setTimeout(closeAllMenus, 200);
+        });
     
-    if (currentUserIsOwner) {
-        document.getElementById("addFriendButton").onclick = addFriendToProjectWin.open;
-        document.getElementById("invitePeopleWithLinkButton").onclick = invitePeopleWithLinkWin.open;
-        document.getElementById("editProjectNameAndDescButton").onclick = projectNameAndDescSettingWin.open;
-        document.getElementById("deleteProjectButton").onclick = deleteProjectWin.open;
-        document.getElementById("changeOwnerButton").onclick = changeOwnerWin.open;
-        document.getElementById("visibilitySettingButton").onclick = visibilitySettingWin.open;
-        document.getElementById("chatGroupSettingButton").onclick = chatGroupSettingWin.open;
-    } else {
-        document.getElementById("addFriendButton").classList.add("disabled");
-        document.getElementById("invitePeopleWithLinkButton").classList.add("disabled");
-        document.getElementById("editProjectNameAndDescButton").classList.add("disabled");
-        document.getElementById("deleteProjectButton").classList.add("disabled");
-        document.getElementById("changeOwnerButton").classList.add("disabled");
-        document.getElementById("visibilitySettingButton").classList.add("disabled");
-        document.getElementById("chatGroupSettingButton").classList.add("disabled");
-    }
-    if (currentUserRole == "owner" || currentUserRole == "admin") {
-        document.getElementById("newListButton").onclick = newListWin.open;
-    } else {
-        document.getElementById("newListButton").classList.add("disabled");
-    }
-    if (currentUserIsCollaborator) {
-        document.getElementById("leaveProjectButton").onclick = leaveProjectWin.open;
-    } else {
-        document.getElementById("leaveProjectButton").classList.add("disabled");
-    }
-    document.getElementById("collaboratorsButton").onclick = collabsWin.open;
-}
+        for (let menu of document.getElementsByClassName("menu")) {
+            menu.classList.add("reactToHover");
+        }
+    
+        for (let subMenu of document.getElementsByClassName("subMenu")) {
+            subMenu.classList.add("reactToHover");
+        }
+    
+        // setup menu shortcuts
+    
+        if (lang == "de") {
+            document.addEventListener("keydown", (e) => {
+                if (! e.altKey) {
+                    return;
+                }
+                const key_code = e.which || e.keyCode;
+                switch (key_code) {
+                    case 80:
+                        openMenu(document.getElementById("projectMenu"));
+                        break;
+                    case 65: 
+                        openMenu(document.getElementById("viewMenu"));
+                        break;
+                    case 69:
+                        openMenu(document.getElementById("settingsMenu"));
+                        break;
+                    case 86:
+                        openMenu(document.getElementById("historyMenu"));
+                        break;
+                    case 72:
+                        openMenu(document.getElementById("helpMenu"));
+                        break;
+                    default:
+                        return;
+                }
+                e.preventDefault();
+            }); 
+        }
+        else {
+           document.addEventListener("keydown", (e) => {
+                if (! e.altKey) {
+                    return;
+                }
+                const key_code = e.which || e.keyCode;
+                switch (key_code) {
+                    case 80:
+                        openMenu(document.getElementById("projectMenu"));
+                        break;
+                    case 86: 
+                        openMenu(document.getElementById("viewMenu"));
+                        break;
+                    case 83:
+                        openMenu(document.getElementById("settingsMenu"));
+                        break;
+                    case 73:
+                        openMenu(document.getElementById("historyMenu"));
+                        break;
+                    case 72:
+                        openMenu(document.getElementById("helpMenu"));
+                        break;
+                    default:
+                        return;
+                }
+                e.preventDefault();
+            }); 
+        }
+        
+        // (de/)activate buttons
+        
+        if (currentUserIsOwner) {
+            document.getElementById("addFriendButton").onclick = addFriendToProjectWin.open;
+            document.getElementById("invitePeopleWithLinkButton").onclick = invitePeopleWithLinkWin.open;
+            document.getElementById("editProjectNameAndDescButton").onclick = projectNameAndDescSettingWin.open;
+            document.getElementById("deleteProjectButton").onclick = deleteProjectWin.open;
+            document.getElementById("changeOwnerButton").onclick = changeOwnerWin.open;
+            document.getElementById("visibilitySettingButton").onclick = visibilitySettingWin.open;
+            document.getElementById("chatGroupSettingButton").onclick = chatGroupSettingWin.open;
+        } else {
+            document.getElementById("addFriendButton").classList.add("disabled");
+            document.getElementById("invitePeopleWithLinkButton").classList.add("disabled");
+            document.getElementById("editProjectNameAndDescButton").classList.add("disabled");
+            document.getElementById("deleteProjectButton").classList.add("disabled");
+            document.getElementById("changeOwnerButton").classList.add("disabled");
+            document.getElementById("visibilitySettingButton").classList.add("disabled");
+            document.getElementById("chatGroupSettingButton").classList.add("disabled");
+        }
+        if (currentUserRole == "owner" || currentUserRole == "admin") {
+            document.getElementById("newListButton").onclick = newListWin.open;
+        } else {
+            document.getElementById("newListButton").classList.add("disabled");
+        }
+        if (currentUserIsCollaborator) {
+            document.getElementById("leaveProjectButton").onclick = leaveProjectWin.open;
+        } else {
+            document.getElementById("leaveProjectButton").classList.add("disabled");
+        }
+        document.getElementById("collaboratorsButton").onclick = collabsWin.open;
+    },
 
-function deactivateMenuBar() {
-    for (let menu of document.getElementById("menuBar").children) {
-        for (let action of menu.children[1].children) {
-            if (action.id != "exitButton") {
-                action.classList.add("disabled");
-                action.onclick = "";
+    deactivate: function() {
+        for (let menu of document.getElementById("menuBar").children) {
+            for (let action of menu.children[1].children) {
+                if (action.id != "exitButton") {
+                    action.classList.add("disabled");
+                    action.onclick = "";
+                }
             }
         }
     }
@@ -584,7 +565,7 @@ const listWin = {
         if (Object.keys(list.attachedFiles).length >= 1) {
             document.getElementById("listWinFilesSection").classList.add("active");
             for (let file_name of Object.keys(list.attachedFiles)) {
-                listWinFiles.innerHTML += getFileHTML(file_name, list.attachedFiles[file_name]);
+                listWinFiles.innerHTML += FileAttachment.getHTML(file_name, list.attachedFiles[file_name]);
             }
         } else {
             document.getElementById("listWinFilesSection").classList.remove("active");
@@ -627,7 +608,7 @@ const cardWin = {
         if (Object.keys(card.attachedFiles).length >= 1) {
             document.getElementById("cardWinFilesSection").classList.add("active");
             for (let file_name of Object.keys(card.attachedFiles)) {
-                cardWinFiles.innerHTML += getFileHTML(file_name, card.attachedFiles[file_name]);
+                cardWinFiles.innerHTML += FileAttachment.getHTML(file_name, card.attachedFiles[file_name]);
             }
         } else {
             document.getElementById("cardWinFilesSection").classList.remove("active");
@@ -685,17 +666,17 @@ const editListWin = {
         var newAttachedFiles = {};
         var replacedAttachedFiles = {};
         var removedAttachedFiles = [];
-        for (let file_name of Object.keys(fileUploadBoxes.editListFileUploadBox)) {
-            if (fileUploadBoxes.editListFileUploadBox[file_name] != null) {
+        for (let file_name of Object.keys(FileAttachment.uploadBoxes.editListFileUploadBox)) {
+            if (FileAttachment.uploadBoxes.editListFileUploadBox[file_name] != null) {
                 if (project.lists[this.listId].attachedFiles.hasOwnProperty(file_name)) {
-                    replacedAttachedFiles[file_name] = fileUploadBoxes.editListFileUploadBox[file_name];
+                    replacedAttachedFiles[file_name] = FileAttachment.uploadBoxes.editListFileUploadBox[file_name];
                 } else {
-                    newAttachedFiles[file_name] = fileUploadBoxes.editListFileUploadBox[file_name];
+                    newAttachedFiles[file_name] = FileAttachment.uploadBoxes.editListFileUploadBox[file_name];
                 }
             }
         }
         for (let file_name of Object.keys(project.lists[this.listId].attachedFiles)) {
-            if (! fileUploadBoxes.editListFileUploadBox.hasOwnProperty(file_name)) {
+            if (! FileAttachment.uploadBoxes.editListFileUploadBox.hasOwnProperty(file_name)) {
                 removedAttachedFiles.push(file_name);
             }
         }
@@ -718,7 +699,7 @@ const editListWin = {
         document.getElementById("editListNameInput").value = project.lists[this.listId].name;
         document.getElementById("editListDescInput").value = project.lists[this.listId].listDesc;
         for (let file_name of Object.keys(project.lists[this.listId].attachedFiles)) {
-            fileUploadBoxAddFile("editListFileUploadBox", file_name, null);
+            FileAttachment.uploadBoxAddFile("editListFileUploadBox", file_name, null);
         }
         document.getElementById("w-editListWin").classList.add("active");
     },
@@ -728,7 +709,7 @@ const editListWin = {
         document.getElementById("editListDescInput").value = "";
         document.getElementById("editListNameInputErrorText").classList.remove("active");
         document.getElementById("editListDescInputErrorText").classList.remove("active");
-        clearFileUploadBox("editListFileUploadBox");
+        FileAttachment.clearUploadBox("editListFileUploadBox");
         Modal.hideAll();
         if (open_listWin) {
             listWin.open(null, this.listId);
@@ -786,17 +767,17 @@ const editCardWin = {
         var replacedAttachedFiles = {};
         var removedAttachedFiles = [];
         const listId = DomHelpers.getParent(document.getElementById("c-"+this.cardId), "list").id.substring(2);
-        for (let file_name of Object.keys(fileUploadBoxes.editCardFileUploadBox)) {
-            if (fileUploadBoxes.editCardFileUploadBox[file_name] != null) {
+        for (let file_name of Object.keys(FileAttachment.uploadBoxes.editCardFileUploadBox)) {
+            if (FileAttachment.uploadBoxes.editCardFileUploadBox[file_name] != null) {
                 if (project.lists[listId].cards[this.cardId].attachedFiles.hasOwnProperty(file_name)) {
-                    replacedAttachedFiles[file_name] = fileUploadBoxes.editCardFileUploadBox[file_name];
+                    replacedAttachedFiles[file_name] = FileAttachment.uploadBoxes.editCardFileUploadBox[file_name];
                 } else {
-                    newAttachedFiles[file_name] = fileUploadBoxes.editCardFileUploadBox[file_name];
+                    newAttachedFiles[file_name] = FileAttachment.uploadBoxes.editCardFileUploadBox[file_name];
                 }
             }
         }
         for (let file_name of Object.keys(project.lists[listId].cards[this.cardId].attachedFiles)) {
-            if (! fileUploadBoxes.editCardFileUploadBox.hasOwnProperty(file_name)) {
+            if (! FileAttachment.uploadBoxes.editCardFileUploadBox.hasOwnProperty(file_name)) {
                 removedAttachedFiles.push(file_name);
             }
         }
@@ -825,7 +806,7 @@ const editCardWin = {
         document.getElementById("editCardDescInput").value = project.lists[listId].cards[this.cardId].cardDesc;
 
         for (let file_name of Object.keys(project.lists[listId].cards[this.cardId].attachedFiles)) {
-            fileUploadBoxAddFile("editCardFileUploadBox", file_name, null);
+            FileAttachment.uploadBoxAddFile("editCardFileUploadBox", file_name, null);
         }
 
         const editCardWinAddUserSelect = document.getElementById("editCardWinAddUserSelect");
@@ -861,7 +842,7 @@ const editCardWin = {
         document.getElementById("editCardDescInput").value = "";
         document.getElementById("editCardNameInputErrorText").classList.remove("active");
         document.getElementById("editCardDescInputErrorText").classList.remove("active");
-        clearFileUploadBox("editCardFileUploadBox");
+        FileAttachment.clearUploadBox("editCardFileUploadBox");
         Modal.hideAll();
         if (open_cardWin) {
             cardWin.open(null, this.cardId);
@@ -939,7 +920,7 @@ const newListWin = {
             projectId: project.id,
             name: document.getElementById("newListNameInput").value,
             listDesc: document.getElementById("newListDescInput").value,
-            attachedFiles: fileUploadBoxes["newListFileUploadBox"]
+            attachedFiles: FileAttachment.uploadBoxes["newListFileUploadBox"]
         });
         this.startLoadingAnim();
     },
@@ -954,7 +935,7 @@ const newListWin = {
         document.getElementById("newListDescInput").value = "";
         document.getElementById("newListNameInputErrorText").classList.remove("active");
         document.getElementById("newListDescInputErrorText").classList.remove("active");
-        clearFileUploadBox("newListFileUploadBox");
+        FileAttachment.clearUploadBox("newListFileUploadBox");
         Modal.hideAll();
     }, 
 
@@ -999,7 +980,7 @@ const newCardWin = {
             listId: newCardWin.addCardTo,
             name: document.getElementById("newCardNameInput").value,
             cardDesc: document.getElementById("newCardDescInput").value,
-            attachedFiles: fileUploadBoxes["newCardFileUploadBox"],
+            attachedFiles: FileAttachment.uploadBoxes["newCardFileUploadBox"],
             addedUsers: newCardWin.addedUsers
         });
         this.startLoadingAnim();
@@ -1030,7 +1011,7 @@ const newCardWin = {
     toggleAddUser: function(id) {
         const dom_el = document.getElementById("new-card-win-added-user-"+id);
         if (! dom_el) {
-            document.getElementById("newCardWinAddedUsersList").innerHTML += '<a class"user-'+id+'" id="'+"new-card-win-added-user-"+id+'"><img src="'+project.members[id].picUrl+'"></a>';
+            document.getElementById("newCardWinAddedUsersList").innerHTML += '<a class="addedUser user-'+id+'" id="'+"new-card-win-added-user-"+id+'"><img src="'+project.members[id].picUrl+'"></a>';
             newCardWin.addedUsers.push(id);
         } else {
             dom_el.remove();
@@ -1047,7 +1028,7 @@ const newCardWin = {
         document.getElementById("newCardDescInput").value = "";
         document.getElementById("newCardNameInputErrorText").classList.remove("active");
         document.getElementById("newCardDescInputErrorText").classList.remove("active");
-        clearFileUploadBox("newCardFileUploadBox");
+        FileAttachment.clearUploadBox("newCardFileUploadBox");
         Modal.hideAll();
     }, 
 
@@ -1453,129 +1434,150 @@ const leaveProjectWin = {
 /* list
 ============================================================================= */
 
-function buildList(list_data) {
-    project.lists[list_data.id] = {
-        name: list_data.name,
-        listDesc: list_data.listDesc,
-        pos: list_data.pos,
-        attachedFiles: list_data.attachedFiles,
-        cards: {}
-    };
-
-    buildListDomEl(list_data);
-}
-
-function buildListDomEl(list_data) {
-    var list_html = 
-    '<div id='+ "l-"+list_data.id +' class="list">'+
-    '<section class="head">'+
-    '<h2>'+ list_data.name +'</h2>'+
-    '<i class="fas fa-ellipsis-h ecclipseIcon" onclick="listWin.open(event);"></i>'+
-    '</section>'+
-    '<section class="cards">'+
-    '</section>'
-    if (currentUserRole == "owner" || currentUserRole == "admin") {
-        list_html += 
-        '<div class="btnGroup centerH">'+
-        '<button class="new" onclick="newCardWin.open(event);">' + lex["Add card"] + '</button>'+
-        '</div>';
-    }
-    list_html += '</div>';
-
-    if (list_data.hasOwnProperty("pos") && list_data.pos >= 1) {
-        document.getElementById("listsContainer").children[list_data.pos-1].insertAdjacentHTML("afterend", list_html);
-    }
-    else if (list_data.hasOwnProperty("pos") && list_data.pos == 0) {
-        document.getElementById("listsContainer").insertAdjacentHTML("afterbegin", list_html);
-    }
-    else {
-        document.getElementById("listsContainer").innerHTML += list_html;
-    }
-
-    if (!(currentUserRole == "owner" || currentUserRole == "admin")) {
-        return;
-    }
+const List = {
+     
+    build: function(list_data) {
+        project.lists[list_data.id] = {
+            name: list_data.name,
+            listDesc: list_data.listDesc,
+            pos: list_data.pos,
+            attachedFiles: list_data.attachedFiles,
+            cards: {}
+        };
     
-    document.getElementById("l-"+list_data.id).setAttribute("draggable", "true");
-}
+        List.buildDomEl(list_data);
+    },
 
-function updateListsPos(data) {
-    const listsContainer = document.getElementById("listsContainer");
-    const list_dom_el = document.getElementById("l-"+data.id);
-    if (listsContainer.children[data.pos] != list_dom_el) {
-        if (data.pos >= 1 && listsContainer.children.length > 1) {
-            if (project.lists[data.id].pos > data.pos) {
-                listsContainer.children[data.pos].insertAdjacentElement("beforebegin", document.getElementById("l-"+data.id));
+    buildDomEl: function(list_data) {
+        var list_html = 
+        '<div id='+ "l-"+list_data.id +' class="list">'+
+        '<section class="head">'+
+        '<h2>'+ list_data.name +'</h2>'+
+        '<i class="fas fa-ellipsis-h ecclipseIcon" onclick="listWin.open(event);"></i>'+
+        '</section>'+
+        '<section class="cards">'+
+        '</section>'
+        if (currentUserRole == "owner" || currentUserRole == "admin") {
+            list_html += 
+            '<div class="btnGroup centerH">'+
+            '<button class="new" onclick="newCardWin.open(event);">' + lex["Add card"] + '</button>'+
+            '</div>';
+        }
+        list_html += '</div>';
+    
+        if (list_data.hasOwnProperty("pos") && list_data.pos >= 1) {
+            document.getElementById("listsContainer").children[list_data.pos-1].insertAdjacentHTML("afterend", list_html);
+        }
+        else if (list_data.hasOwnProperty("pos") && list_data.pos == 0) {
+            document.getElementById("listsContainer").insertAdjacentHTML("afterbegin", list_html);
+        }
+        else {
+            document.getElementById("listsContainer").innerHTML += list_html;
+        }
+    
+        if (!(currentUserRole == "owner" || currentUserRole == "admin")) {
+            return;
+        }
+        
+        document.getElementById("l-"+list_data.id).setAttribute("draggable", "true");        
+    },
+
+    update: function(data) {
+        project.lists[data.id].name = data.name;
+        project.lists[data.id].listDesc = data.listDesc;
+        document.getElementById("l-"+data.id).getElementsByTagName("h2")[0].innerHTML = he.escape(data.name);
+        if (listWin.listId == data.id) {
+            document.getElementById("listWinName").innerHTML = he.escape(data.name);
+            document.getElementById("listWinDesc").innerHTML = renderText(data.listDesc);
+        }
+        if (listWin.listId == data.id) {
+            document.getElementById("editListWinName").innerHTML = he.escape(data.name);
+            document.getElementById("editListNameInput").value = data.name;
+            document.getElementById("editListDescInput").value = data.listDesc;
+        }
+        for (let file of data.newAttachedFiles) {
+            project.lists[data.id].attachedFiles[file[0]] = file[1];
+            if (listWin.listId == data.id) {
+                let listWinFiles = document.getElementById("listWinFiles");
+                listWinFiles.classList.add("active");
+                listWinFiles.innerHTML += FileAttachment.getHTML(file[0], file[1]);
             }
-            else {
-                listsContainer.children[data.pos].insertAdjacentElement("afterend", document.getElementById("l-"+data.id));
+            if (listWin.listId == data.id) {
+                FileAttachment.uploadBoxAddFile("editListFileUploadBox", file[0], null);
             }
-        } else {
-            listsContainer.insertAdjacentElement("afterbegin", document.getElementById("l-"+data.id));
         }
-    }
-    project.lists[data.id].pos = data.pos;
-    for (let list of data.otherListsPosChanges) {
-        project.lists[list[0]].pos += list[1];
-    }
-}
-
-function removeAList(data) {
-    delete project.lists[data.id];
-    document.getElementById("l-"+data.id).remove();
-    for (let list of data.listsPosChanges) {
-        project.lists[list[0]].pos += list[1];
-    }
-    if (listWin.listId == data.id) {
-        Modal.hideAll();
-    }
-    if (editListWin.listId == data.id) {
-        editListWin.close();
-    }
-}
-
-function updateAList(data) {
-    project.lists[data.id].name = data.name;
-    project.lists[data.id].listDesc = data.listDesc;
-    document.getElementById("l-"+data.id).getElementsByTagName("h2")[0].innerHTML = he.escape(data.name);
-    if (listWin.listId == data.id) {
-        document.getElementById("listWinName").innerHTML = he.escape(data.name);
-        document.getElementById("listWinDesc").innerHTML = renderText(data.listDesc);
-    }
-    if (listWin.listId == data.id) {
-        document.getElementById("editListWinName").innerHTML = he.escape(data.name);
-        document.getElementById("editListNameInput").value = data.name;
-        document.getElementById("editListDescInput").value = data.listDesc;
-    }
-    for (let file of data.newAttachedFiles) {
-        project.lists[data.id].attachedFiles[file[0]] = file[1];
-        if (listWin.listId == data.id) {
-            let listWinFiles = document.getElementById("listWinFiles");
-            listWinFiles.classList.add("active");
-            listWinFiles.innerHTML += getFileHTML(file[0], file[1]);
-        }
-        if (listWin.listId == data.id) {
-            fileUploadBoxAddFile("editListFileUploadBox", file[0], null);
-        }
-    }
-    for (let file_name of data.removedAttachedFiles) {
-        delete project.lists[data.id].attachedFiles[file_name];
-        if (listWin.listId == data.id) {
-            for (let _file of document.getElementById("listWinFiles").children) {
-                if (_file.name == file_name) {
-                    _file.remove()
+        for (let file_name of data.removedAttachedFiles) {
+            delete project.lists[data.id].attachedFiles[file_name];
+            if (listWin.listId == data.id) {
+                for (let _file of document.getElementById("listWinFiles").children) {
+                    if (_file.name == file_name) {
+                        _file.remove()
+                    }
+                }
+            }
+            if (document.getElementById("listWinFiles").children.length == 0) {
+                document.getElementById("listWinFiles").classList.remove("active");
+            }
+            if (listWin.listId == data.id) {
+                for (_file of document.getElementById("editListFileUploadBox").getElementsByClassName("file")) {
+                    if (_file.dataset.name == file_name) {
+                        FileAttachment.uploadBoxRemoveFile(null, _file);
+                    } 
                 }
             }
         }
-        if (document.getElementById("listWinFiles").children.length == 0) {
-            document.getElementById("listWinFiles").classList.remove("active");
+    },
+
+    remove: function(data) {
+        delete project.lists[data.id];
+        document.getElementById("l-"+data.id).remove();
+        for (let list of data.listsPosChanges) {
+            project.lists[list[0]].pos += list[1];
         }
         if (listWin.listId == data.id) {
-            for (_file of document.getElementById("editListFileUploadBox").getElementsByClassName("file")) {
-                if (_file.dataset.name == file_name) {
-                    fileUploadBoxRemoveFile(null, _file);
-                } 
+            Modal.hideAll();
+        }
+        if (editListWin.listId == data.id) {
+            editListWin.close();
+        }
+    },
+
+    updatePositions: function(data) {
+        const listsContainer = document.getElementById("listsContainer");
+        const list_dom_el = document.getElementById("l-"+data.id);
+        if (listsContainer.children[data.pos] != list_dom_el) {
+            if (data.pos >= 1 && listsContainer.children.length > 1) {
+                if (project.lists[data.id].pos > data.pos) {
+                    listsContainer.children[data.pos].insertAdjacentElement("beforebegin", document.getElementById("l-"+data.id));
+                }
+                else {
+                    listsContainer.children[data.pos].insertAdjacentElement("afterend", document.getElementById("l-"+data.id));
+                }
+            } else {
+                listsContainer.insertAdjacentElement("afterbegin", document.getElementById("l-"+data.id));
             }
+        }
+        project.lists[data.id].pos = data.pos;
+        for (let list of data.otherListsPosChanges) {
+            project.lists[list[0]].pos += list[1];
+        }
+    },
+
+    Helpers: {
+
+        getInsertBeforePos: function(x) {
+            const lists = [...document.getElementsByClassName("list")];
+            var i = -1;
+            return lists.reduce((closest, child) => {
+                i++;
+                const box = child.getBoundingClientRect();
+                const offset = x - box.left - box.width / 2;
+                if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child, pos: i };
+                } else {
+                return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY, pos: Number.POSITIVE_INFINITY }).pos;            
         }
     }
 }
@@ -1584,389 +1586,390 @@ function updateAList(data) {
 /* card
 ============================================================================= */
 
-function buildCard(card_data) {
-    project.lists[card_data.listId].cards[card_data.id] = {
-        name: card_data.name,
-        cardDesc: card_data.cardDesc,
-        pos: card_data.pos,
-        attachedFiles: card_data.attachedFiles,
-        members: card_data.members
-    };
+const Card = {
 
-    buildCardDomEl(card_data);
-}
-
-function buildCardDomEl(card_data) {
-    const list_cards_section = document.getElementById("l-"+card_data.listId).getElementsByClassName("cards")[0];
-
-    var card_html = 
-    '<div id="'+ "c-"+card_data.id +'" class="card">'+
-    '<h3>'+ card_data.name +'</h3>'+
-    '<i class="fas fa-align-left" onclick="cardWin.open(event);"></i>';
-
-    if (Object.keys(card_data.attachedFiles).length >= 1) {
-        card_html += 
-        '<section class="filesToolTip">'+
-        '<i class="fas fa-paperclip paperclipIcon" onclick="activateCardFileToolTip(event);"></i>'+
-        '<div class="container files">';
-
-        for (let file_name of Object.keys(card_data.attachedFiles)) {
-            card_html += getFileHTML(file_name, card_data.attachedFiles[file_name]);
-        }
-
-        card_html += 
-        '</div>'+
-        '</section>';
-    }
-
-    card_html += '</div>';
-
-    if (card_data.hasOwnProperty("pos") && card_data.pos >= 1) {
-        list_cards_section.children[card_data.pos-1].insertAdjacentHTML("afterend", card_html);
-    }
-    else {
-        list_cards_section.innerHTML += card_html;
-    }
-
-    if (!(currentUserRole == "owner" || currentUserRole == "admin")) {
-        return;
-    }
+    build: function(card_data) {
+        project.lists[card_data.listId].cards[card_data.id] = {
+            name: card_data.name,
+            cardDesc: card_data.cardDesc,
+            pos: card_data.pos,
+            attachedFiles: card_data.attachedFiles,
+            members: card_data.members
+        };
     
-    document.getElementById("c-"+card_data.id).setAttribute("draggable", "true");
-}
+        Card.buildDomEl(card_data);
+    },
 
-function updateCardsPos(data) {
-    const card_list_cards = document.getElementById("l-"+data.listId).getElementsByClassName("cards")[0];
-    const card_dom_el = document.getElementById("c-"+data.id);
-    if (card_list_cards.children[data.pos] != card_dom_el) {
-        if (0 < card_list_cards.children.length && data.pos < card_list_cards.children.length) {
-            if (project.lists[data.prevListId].cards[data.id].pos > data.pos || data.prevListId != data.listId) {
-                card_list_cards.children[data.pos].insertAdjacentElement("beforebegin", card_dom_el);
+    buildDomEl: function(card_data) {
+        const list_cards_section = document.getElementById("l-"+card_data.listId).getElementsByClassName("cards")[0];
+
+        var card_html = 
+        '<div id="'+ "c-"+card_data.id +'" class="card">'+
+        '<h3>'+ card_data.name +'</h3><section class="actions">'+
+        '<i class="action fas fa-align-left" onclick="cardWin.open(event);"></i>';
+
+        if (Object.keys(card_data.attachedFiles).length >= 1) {
+            card_html += 
+            '<div class="action filesPopUp">'+
+            '<i class="fas fa-paperclip paperclipIcon" onclick="Card.activateAttachedFilesPopUp(event);"></i>'+
+            '<div class="container files">';
+
+            for (let file_name of Object.keys(card_data.attachedFiles)) {
+                card_html += FileAttachment.getHTML(file_name, card_data.attachedFiles[file_name]);
             }
-            else {
-                card_list_cards.children[data.pos].insertAdjacentElement("afterend", card_dom_el);
-            }
-        } else {
-            card_list_cards.insertAdjacentElement("beforeend", card_dom_el);
-        }
-    }
-    const card_copy = JSON.parse(JSON.stringify(project.lists[data.prevListId].cards[data.id]));
-    delete project.lists[data.prevListId].cards[data.id];
-    project.lists[data.listId].cards[data.id] = card_copy;
-    project.lists[data.listId].cards[data.id].pos = data.pos;
-    for (let card of data.otherCardsPosChanges) {
-        project.lists[card[1]].cards[card[0]].pos += card[2];
-    }
-}
 
-function removeACard(data) {
-    delete project.lists[data.listId].cards[data.id];
-    document.getElementById("c-"+data.id).remove();
-    for (let card of data.cardsPosChanges) {
-        project.lists[data.listId].cards[card[0]].pos += card[1];
-    }
-    if (cardWin.cardId == data.id) {
-        Modal.hideAll();
-    }
-    if (editCardWin.cardId == data.id) {
-        editCardWin.close();
-    }
-}
-
-function updateACard(data) {
-    const card_dom_el = document.getElementById("c-"+data.id);
-    project.lists[data.listId].cards[data.id].name = data.name;
-    project.lists[data.listId].cards[data.id].cardDesc = data.cardDesc;
-    card_dom_el.getElementsByTagName("h3")[0].innerHTML = he.escape(data.name);
-    if (cardWin.cardId == data.id) {
-        document.getElementById("cardWinName").innerHTML = he.escape(data.name);
-        document.getElementById("cardWinDesc").innerHTML = renderText(data.cardDesc);
-    }
-    if (editCardWin.cardId == data.id) {
-        document.getElementById("editCardWinName").innerHTML = he.escape(data.name);
-        document.getElementById("editCardNameInput").value = data.name;
-        document.getElementById("editCardDescInput").value = data.cardDesc;
-    }
-
-    for (let file of data.newAttachedFiles) {
-        project.lists[data.listId].cards[data.id].attachedFiles[file[0]] = file[1];
-        const file_html = getFileHTML(file[0], file[1]);
-        if (card_dom_el.getElementsByClassName("files")[0]) {
-            card_dom_el.getElementsByClassName("files")[0].innerHTML += file_html;
-        } else {
-            card_dom_el.innerHTML += 
-            '<section class="filesToolTip">'+
-            '<i class="fas fa-paperclip paperclipIcon" onclick="activateCardFileToolTip(event);"></i>'+
-            '<div class="container files">'+
-            file_html+
+            card_html += 
             '</div>'+
-            '</section>';
+            '</div>';
         }
+
+        card_html += '</section><div class="addedUsersList">';
+
+        if (Object.keys(card_data.members).length >= 1) {
+
+            for (let member_id in card_data.members) {
+                card_html += '<div class="addedUser user-'+member_id+' '+"card-added-user-"+member_id+'" onclick="Card.activateAddedUserNameOnSmallCard(\''+card_data.id+'\', \''+member_id+'\');"><img src="'+project.members[member_id].picUrl+'"><a class="name" href="'+project.members[member_id].goToUrl+'">'+ project.members[member_id].name + '</a></div>';
+            }
+        }
+
+        card_html += '</div></div>';
+
+        if (card_data.hasOwnProperty("pos") && card_data.pos >= 1) {
+            list_cards_section.children[card_data.pos-1].insertAdjacentHTML("afterend", card_html);
+        }
+        else {
+            list_cards_section.innerHTML += card_html;
+        }
+
+        if (!(currentUserRole == "owner" || currentUserRole == "admin")) {
+            return;
+        }
+        
+        document.getElementById("c-"+card_data.id).setAttribute("draggable", "true");
+    },
+
+    update: function(data) {
+        const card_dom_el = document.getElementById("c-"+data.id);
+        project.lists[data.listId].cards[data.id].name = data.name;
+        project.lists[data.listId].cards[data.id].cardDesc = data.cardDesc;
+        card_dom_el.getElementsByTagName("h3")[0].innerHTML = he.escape(data.name);
         if (cardWin.cardId == data.id) {
-            let cardWinFiles = document.getElementById("cardWinFiles");
-            cardWinFiles.classList.add("active");
-            cardWinFiles.innerHTML += file_html;
+            document.getElementById("cardWinName").innerHTML = he.escape(data.name);
+            document.getElementById("cardWinDesc").innerHTML = renderText(data.cardDesc);
         }
         if (editCardWin.cardId == data.id) {
-            fileUploadBoxAddFile("editCardFileUploadBox", file[0], null);
+            document.getElementById("editCardWinName").innerHTML = he.escape(data.name);
+            document.getElementById("editCardNameInput").value = data.name;
+            document.getElementById("editCardDescInput").value = data.cardDesc;
         }
-    }
-    for (let file_name of data.removedAttachedFiles) {
-        delete project.lists[data.listId].cards[data.id].attachedFiles[file_name];
-        for (let _file of card_dom_el.getElementsByClassName("file")) {
-            if (_file.name == file_name) {
-                _file.remove();
+
+        for (let file of data.newAttachedFiles) {
+            project.lists[data.listId].cards[data.id].attachedFiles[file[0]] = file[1];
+            const file_html = FileAttachment.getHTML(file[0], file[1]);
+            if (card_dom_el.getElementsByClassName("files")[0]) {
+                card_dom_el.getElementsByClassName("files")[0].innerHTML += file_html;
+            } else {
+                card_dom_el.innerHTML += 
+                '<section class="filesPopUp">'+
+                '<i class="fas fa-paperclip paperclipIcon" onclick="Card.activateAttachedFilesPopUp(event);"></i>'+
+                '<div class="container files">'+
+                file_html+
+                '</div>'+
+                '</section>';
+            }
+            if (cardWin.cardId == data.id) {
+                let cardWinFiles = document.getElementById("cardWinFiles");
+                cardWinFiles.classList.add("active");
+                cardWinFiles.innerHTML += file_html;
+            }
+            if (editCardWin.cardId == data.id) {
+                FileAttachment.uploadBoxAddFile("editCardFileUploadBox", file[0], null);
             }
         }
-        if (card_dom_el.getElementsByClassName("file").length == 0) {
-            card_dom_el.getElementsByClassName("filesToolTip")[0].remove()
-        }
-        if (cardWin.cardId == data.id) {
-            for (let _file of document.getElementById("cardWinFiles").children) {
+        for (let file_name of data.removedAttachedFiles) {
+            delete project.lists[data.listId].cards[data.id].attachedFiles[file_name];
+            for (let _file of card_dom_el.getElementsByClassName("file")) {
                 if (_file.name == file_name) {
                     _file.remove();
                 }
             }
-        }
-        if (document.getElementById("cardWinFiles").children.length == 0) {
-            document.getElementById("cardWinFiles").classList.remove("active");
-        }
-        if (editCardWin.cardId == data.id) {
-            for (_file of document.getElementById("editCardFileUploadBox").getElementsByClassName("file")) {
-                if (_file.dataset.name == file_name) {
-                    fileUploadBoxRemoveFile(null, _file);
-                } 
+            if (card_dom_el.getElementsByClassName("file").length == 0) {
+                card_dom_el.getElementsByClassName("filesPopUp")[0].remove()
+            }
+            if (cardWin.cardId == data.id) {
+                for (let _file of document.getElementById("cardWinFiles").children) {
+                    if (_file.name == file_name) {
+                        _file.remove();
+                    }
+                }
+            }
+            if (document.getElementById("cardWinFiles").children.length == 0) {
+                document.getElementById("cardWinFiles").classList.remove("active");
+            }
+            if (editCardWin.cardId == data.id) {
+                for (_file of document.getElementById("editCardFileUploadBox").getElementsByClassName("file")) {
+                    if (_file.dataset.name == file_name) {
+                        FileAttachment.uploadBoxRemoveFile(null, _file);
+                    } 
+                }
             }
         }
-    }
 
-    for (let card_member_id of data.newAddedUsers) {
-        project.lists[data.listId].cards[data.id].members[card_member_id] = 1;
+        for (let card_member_id of data.newAddedUsers) {
+            project.lists[data.listId].cards[data.id].members[card_member_id] = 1;
+            card_dom_el.getElementsByClassName("addedUsersList")[0].innerHTML += '<div class="addedUser user-'+card_member_id+' '+"card-added-user-"+card_member_id+'" onclick="Card.activateAddedUserNameOnSmallCard(\''+data.id+'\', \''+card_member_id+'\');"><img src="'+project.members[card_member_id].picUrl+'"><a class="name" href="'+project.members[card_member_id].goToUrl+'">'+ project.members[card_member_id].name + '</a></div>';
+            if (cardWin.cardId == data.id) {
+                document.getElementById("cardWinAddedUsersList").innerHTML += '<a class="user-'+card_member_id+'" id="card-win-added-user-'+card_member_id+'" href="'+project.members[card_member_id].goToUrl+'"><img src="'+project.members[card_member_id].picUrl+'"></a>';
+                document.getElementById("cardWinAddedUsersSection").classList.add("active");
+            }
+        }
+        for (let card_member_id of data.removedAddedUsers) {
+            delete project.lists[data.listId].cards[data.id].members[card_member_id];
+            card_dom_el.getElementsByClassName("addedUsersList")[0].getElementsByClassName("card-added-user-"+card_member_id)[0].remove();
+            if (cardWin.cardId == data.id) {
+                document.getElementById("card-win-added-user-"+card_member_id).remove();
+            }
+        }
+    },
+
+    remove: function(data) {
+        delete project.lists[data.listId].cards[data.id];
+        document.getElementById("c-"+data.id).remove();
+        for (let card of data.cardsPosChanges) {
+            project.lists[data.listId].cards[card[0]].pos += card[1];
+        }
         if (cardWin.cardId == data.id) {
-            document.getElementById("cardWinAddedUsersList").innerHTML += '<a class="user-'+card_member_id+'" id="card-win-added-user-'+card_member_id+'" href="'+project.members[card_member_id].goToUrl+'"><img src="'+project.members[card_member_id].picUrl+'"></a>';
-            document.getElementById("cardWinAddedUsersSection").classList.add("active");
+            Modal.hideAll();
+        }
+        if (editCardWin.cardId == data.id) {
+            editCardWin.close();
+        }
+    },
+
+    updatePositions: function(data) {
+        const card_list_cards = document.getElementById("l-"+data.listId).getElementsByClassName("cards")[0];
+        const card_dom_el = document.getElementById("c-"+data.id);
+        if (card_list_cards.children[data.pos] != card_dom_el) {
+            if (0 < card_list_cards.children.length && data.pos < card_list_cards.children.length) {
+                if (project.lists[data.prevListId].cards[data.id].pos > data.pos || data.prevListId != data.listId) {
+                    card_list_cards.children[data.pos].insertAdjacentElement("beforebegin", card_dom_el);
+                }
+                else {
+                    card_list_cards.children[data.pos].insertAdjacentElement("afterend", card_dom_el);
+                }
+            } else {
+                card_list_cards.insertAdjacentElement("beforeend", card_dom_el);
+            }
+        }
+        const card_copy = JSON.parse(JSON.stringify(project.lists[data.prevListId].cards[data.id]));
+        delete project.lists[data.prevListId].cards[data.id];
+        project.lists[data.listId].cards[data.id] = card_copy;
+        project.lists[data.listId].cards[data.id].pos = data.pos;
+        for (let card of data.otherCardsPosChanges) {
+            project.lists[card[1]].cards[card[0]].pos += card[2];
+        }
+    },
+
+    activateAttachedFilesPopUp: function(e) {
+        const filesToolTip_files = e.target.parentElement.children[1];
+        DomHelpers.activate(filesToolTip_files);
+    },
+
+    activateAddedUserNameOnSmallCard: function(card_id, user_id) {
+        DomHelpers.activate(document.getElementById("c-"+card_id).getElementsByClassName("card-added-user-"+user_id)[0].getElementsByClassName("name")[0]);
+    },
+
+    Helpers: {
+
+        getInsertBeforePos: function(list, y) {
+            const list_cards = [...list.getElementsByClassName("card")];
+            var i = -1;
+            return list_cards.reduce((closest, child) => {
+                i++;
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child, pos: i };
+                } else {
+                return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY, pos: Number.POSITIVE_INFINITY }).pos;
         }
     }
-    for (let card_member_id of data.removedAddedUsers) {
-        delete project.lists[data.listId].cards[data.id].members[card_member_id];
-        if (cardWin.cardId == data.id) {
-            document.getElementById("card-win-added-user-"+card_member_id).remove();
-        }
-    }
-}
-
-function activateCardFileToolTip(e) {
-    const filesToolTip_files = e.target.parentElement.children[1];
-    DomHelpers.activate(filesToolTip_files);
-}
-
-
-/* list/ card - helpers
-============================================================================= */
-
-function getInsertCardBeforePos(list, y) {
-    const list_cards = [...list.getElementsByClassName("card")];
-    var i = -1;
-    return list_cards.reduce((closest, child) => {
-        i++;
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-        return { offset: offset, element: child, pos: i };
-        } else {
-        return closest;
-        }
-    }, { offset: Number.NEGATIVE_INFINITY, pos: Number.POSITIVE_INFINITY }).pos;
-}
-
-function getInsertListBeforePos(x) {
-    const lists = [...document.getElementsByClassName("list")];
-    var i = -1;
-    return lists.reduce((closest, child) => {
-        i++;
-        const box = child.getBoundingClientRect();
-        const offset = x - box.left - box.width / 2;
-        if (offset < 0 && offset > closest.offset) {
-        return { offset: offset, element: child, pos: i };
-        } else {
-        return closest;
-        }
-    }, { offset: Number.NEGATIVE_INFINITY, pos: Number.POSITIVE_INFINITY }).pos;
-}
-
-function getFileHTML(file_name, file_url) {
-    return '<a name="'+ he.escape(file_name) +'" class="file" href="'+ file_url +'" download>'+
-    '<i class="fas fa-file fileIcon"></i>'+
-    '<p>'+ he.escape(file_name) +'</p>'+
-    '</a>';
 }
 
 
 /* file uploading
 ============================================================================= */
 
-function fileUploadBoxDragOverHandler(e) {
-    e.preventDefault();
+const FileAttachment = {
 
-    var fileUploadBox;
-    if (e.target.classList.contains("fileUploadBox")) {
-        fileUploadBox = e.target;
-    } else {
-        fileUploadBox = DomHelpers.getParent(e.target, "fileUploadBox");
-    }
-    fileUploadBox.classList.add("dragover");
+    uploadBoxes: {},
+    /*
+        {<fileUploadBox-id>: {
+                <file-name>: string (binary data) | null (-> don't upload file)
+                ... 
+        } ...}
+    */
 
-    e.target.addEventListener("dragleave", ()=> {
+   UPLOAD_MAX: 8,
+
+    setupUploading: function() {
+        for (let fileUploadBox of document.getElementsByClassName("fileUploadBox")) {
+            FileAttachment.uploadBoxes[fileUploadBox.id] = {};
+        }
+    },
+
+    getHTML: function(file_name, file_url) {
+        return '<a name="'+ he.escape(file_name) +'" class="file" href="'+ file_url +'" download>'+
+        '<i class="fas fa-file fileIcon"></i>'+
+        '<p>'+ he.escape(file_name) +'</p>'+
+        '</a>';
+    },
+
+    uploadBoxDragOverHandler: function(e) {
+        e.preventDefault();
+
+        var fileUploadBox;
+        if (e.target.classList.contains("fileUploadBox")) {
+            fileUploadBox = e.target;
+        } else {
+            fileUploadBox = DomHelpers.getParent(e.target, "fileUploadBox");
+        }
+        fileUploadBox.classList.add("dragover");
+    
+        e.target.addEventListener("dragleave", ()=> {
+            fileUploadBox.classList.remove("dragover");
+        }, {once:true});        
+    },
+
+    processUploadBoxDropInput: async function(e) {
+        e.preventDefault();
+
+        var fileUploadBox;
+        var fileUploadBox_files;
+        if (e.target.classList.contains("fileUploadBox")) {
+            fileUploadBox = e.target;
+            fileUploadBox_files = e.target.getElementsByClassName("files")[0];
+        } else {
+            fileUploadBox = DomHelpers.getParent(e.target, "fileUploadBox");
+            fileUploadBox_files = DomHelpers.getParent(e.target, "fileUploadBox").getElementsByClassName("files")[0];
+        }
+    
+        if (! fileUploadBox || ! fileUploadBox_files) { 
+            return; 
+        }
+    
         fileUploadBox.classList.remove("dragover");
-    }, {once:true});
+    
+        const fileUploadBoxErrorText = fileUploadBox.parentElement.getElementsByClassName("fileUploadBoxErrorText")[0];
+    
+        for (let file of e.dataTransfer.files) {
+            if (file.size > 8388608) {
+                fileUploadBoxErrorText.innerHTML = lex["The file must not be larger than 8 MB."];
+            }
+            else if (FileAttachment.uploadBoxes[fileUploadBox.id][file.name] !== undefined) {
+                fileUploadBoxErrorText.innerHTML = lex["A file with this name has already been selected."];
+            }
+            else if (Object.keys(FileAttachment.uploadBoxes[fileUploadBox.id]).length >= FileAttachment.UPLOAD_MAX) {
+                fileUploadBoxErrorText.innerHTML = "Max. " + FileAttachment.UPLOAD_MAX + " " + lex["files"];
+            }
+            else {
+                FileAttachment.uploadBoxes[fileUploadBox.id][file.name] = file;
+                fileUploadBox_files.innerHTML += '<div data-name="' + he.escape(file.name) + '" class="file" onclick="FileAttachment.uploadBoxShowRemoveFileIcon(event);">' + 
+                '<i class="fas fa-window-close cancelIcon" onclick="FileAttachment.uploadBoxRemoveFile(event);"></i>' +
+                '<i class="fas fa-file fileIcon"></i>' +
+                '<p>' + he.escape(file.name) + '</p>' +
+                '</div>';
+                fileUploadBoxErrorText.innerHTML = "";
+            }
+        }
+    },
+
+    processUploadBoxInput: async function(e) {
+        const fileUploadBox = DomHelpers.getParent(e.target, "fileUploadBox");
+        const fileUploadBox_files = fileUploadBox.getElementsByClassName("files")[0];
+        const fileUploadBoxErrorText = fileUploadBox.parentElement.getElementsByClassName("fileUploadBoxErrorText")[0];
+    
+        for (let file of e.target.files) {
+            if (file.size > 8388608) {
+                fileUploadBoxErrorText.innerHTML = lex["The file must not be larger than 8 MB."];
+            }
+            else if (FileAttachment.uploadBoxes[fileUploadBox.id][file.name]) {
+                fileUploadBoxErrorText.innerHTML = lex["A file with this name has already been selected."];
+            }
+            else if (Object.keys(FileAttachment.uploadBoxes[fileUploadBox.id]).length >= FileAttachment.UPLOAD_MAX) {
+                fileUploadBoxErrorText.innerHTML = "A maximum of " + FileAttachment.UPLOAD_MAX + " files can be attached.";
+            }
+            else {
+                FileAttachment.uploadBoxes[fileUploadBox.id][file.name] = file;
+                fileUploadBox_files.innerHTML += '<div data-name="' + he.escape(file.name) + '" class="file" onclick="FileAttachment.uploadBoxShowRemoveFileIcon(event);">' + 
+                '<i class="fas fa-window-close cancelIcon" onclick="FileAttachment.uploadBoxRemoveFile(event);"></i>' +
+                '<i class="fas fa-file fileIcon"></i>' +
+                '<p>' + he.escape(file.name) + '</p>' +
+                '</div>';
+                fileUploadBoxErrorText.innerHTML = "";
+            }
+        }
+    
+        e.target.value = "";
+    },
+
+    uploadBoxRemoveFile: function(e=null, file_dom_el=null) {
+        if (file_dom_el === null) {
+            file_dom_el = DomHelpers.getParent(e.target, "file");
+        }
+        const fileUploadBox = DomHelpers.getParent(file_dom_el, "fileUploadBox");
+        delete FileAttachment.uploadBoxes[fileUploadBox.id][file_dom_el.dataset.name];
+        file_dom_el.remove();
+    },
+
+    clearUploadBox: function(fileUploadBox_id) {
+        const fileUploadBox = document.getElementById(fileUploadBox_id);
+        for (let file in FileAttachment.uploadBoxes[fileUploadBox_id]) {
+            delete FileAttachment.uploadBoxes[fileUploadBox_id][file];
+        }
+        fileUploadBox.getElementsByClassName("files")[0].innerHTML = "";
+        fileUploadBox.parentElement.getElementsByClassName("fileUploadBoxErrorText")[0].innerHTML = "";        
+    },
+
+    uploadBoxAddFile: function(fileUploadBox_id, file_name, file_data) {  // programmatically
+        FileAttachment.uploadBoxes[fileUploadBox_id][file_name] = file_data;
+        const fileUploadBox_files = document.getElementById(fileUploadBox_id).getElementsByClassName("files")[0];
+        fileUploadBox_files.innerHTML += '<div data-name="' + he.escape(file_name) + '" class="file" onclick="FileAttachment.uploadBoxShowRemoveFileIcon(event);">' + 
+        '<i class="fas fa-window-close cancelIcon" onclick="FileAttachment.uploadBoxRemoveFile(event);"></i>' +
+        '<i class="fas fa-file fileIcon"></i>' +
+        '<p>' + he.escape(file_name) + '</p>' +
+        '</div>'; 
+    },
+
+    uploadBoxShowRemoveFileIcon: function(e) {
+        var file = e.target;
+        if (! file.classList.contains("file")) {
+            file = DomHelpers.getParent(e.target, "file");
+        }
+        const icon = file.getElementsByClassName("cancelIcon")[0];
+        DomHelpers.activate(icon);        
+    }
 }
 
-async function processFileUploadBoxDropInput(e) {
-    e.preventDefault();
 
-    var fileUploadBox;
-    var fileUploadBox_files;
-    if (e.target.classList.contains("fileUploadBox")) {
-        fileUploadBox = e.target;
-        fileUploadBox_files = e.target.getElementsByClassName("files")[0];
-    } else {
-        fileUploadBox = DomHelpers.getParent(e.target, "fileUploadBox");
-        fileUploadBox_files = DomHelpers.getParent(e.target, "fileUploadBox").getElementsByClassName("files")[0];
-    }
-
-    if (! fileUploadBox || ! fileUploadBox_files) { 
-        return; 
-    }
-
-    fileUploadBox.classList.remove("dragover");
-
-    const fileUploadBoxErrorText = fileUploadBox.parentElement.getElementsByClassName("fileUploadBoxErrorText")[0];
-
-    for (let file of e.dataTransfer.files) {
-        if (file.size > 8388608) {
-            fileUploadBoxErrorText.innerHTML = lex["The file must not be larger than 8 MB."];
-        }
-        else if (fileUploadBoxes[fileUploadBox.id][file.name] !== undefined) {
-            fileUploadBoxErrorText.innerHTML = lex["A file with this name has already been selected."];
-        }
-        else if (Object.keys(fileUploadBoxes[fileUploadBox.id]).length >= UPLOAD_FILE_MAX) {
-            fileUploadBoxErrorText.innerHTML = "Max. " + UPLOAD_FILE_MAX + " " + lex["files"];
-        }
-        else {
-            fileUploadBoxes[fileUploadBox.id][file.name] = file;
-            fileUploadBox_files.innerHTML += '<div data-name="' + he.escape(file.name) + '" class="file" onclick="showRemoveFileIcon(event);">' + 
-            '<i class="fas fa-window-close cancelIcon" onclick="fileUploadBoxRemoveFile(event);"></i>' +
-            '<i class="fas fa-file fileIcon"></i>' +
-            '<p>' + he.escape(file.name) + '</p>' +
-            '</div>';
-            fileUploadBoxErrorText.innerHTML = "";
-        }
-    }
-}
-
-async function processFileUploadBoxInput(e) {
-    const fileUploadBox = DomHelpers.getParent(e.target, "fileUploadBox");
-    const fileUploadBox_files = fileUploadBox.getElementsByClassName("files")[0];
-    const fileUploadBoxErrorText = fileUploadBox.parentElement.getElementsByClassName("fileUploadBoxErrorText")[0];
-
-    for (let file of e.target.files) {
-        if (file.size > 8388608) {
-            fileUploadBoxErrorText.innerHTML = lex["The file must not be larger than 8 MB."];
-        }
-        else if (fileUploadBoxes[fileUploadBox.id][file.name]) {
-            fileUploadBoxErrorText.innerHTML = lex["A file with this name has already been selected."];
-        }
-        else if (Object.keys(fileUploadBoxes[fileUploadBox.id]).length >= UPLOAD_FILE_MAX) {
-            fileUploadBoxErrorText.innerHTML = "A maximum of " + UPLOAD_FILE_MAX + " files can be attached.";
-        }
-        else {
-            fileUploadBoxes[fileUploadBox.id][file.name] = file;
-            fileUploadBox_files.innerHTML += '<div data-name="' + he.escape(file.name) + '" class="file" onclick="showRemoveFileIcon(event);">' + 
-            '<i class="fas fa-window-close cancelIcon" onclick="fileUploadBoxRemoveFile(event);"></i>' +
-            '<i class="fas fa-file fileIcon"></i>' +
-            '<p>' + he.escape(file.name) + '</p>' +
-            '</div>';
-            fileUploadBoxErrorText.innerHTML = "";
-        }
-    }
-
-    e.target.value = "";
-}
-
-function fileUploadBoxRemoveFile(e=null, file_dom_el=null) {
-    if (file_dom_el === null) {
-        file_dom_el = DomHelpers.getParent(e.target, "file");
-    }
-    const fileUploadBox = DomHelpers.getParent(file_dom_el, "fileUploadBox");
-    delete fileUploadBoxes[fileUploadBox.id][file_dom_el.dataset.name];
-    file_dom_el.remove();
-}
-
-function clearFileUploadBox(fileUploadBox_id) {
-    const fileUploadBox = document.getElementById(fileUploadBox_id);
-    for (let file in fileUploadBoxes[fileUploadBox_id]) {
-        delete fileUploadBoxes[fileUploadBox_id][file];
-    }
-    fileUploadBox.getElementsByClassName("files")[0].innerHTML = "";
-    fileUploadBox.parentElement.getElementsByClassName("fileUploadBoxErrorText")[0].innerHTML = "";
-}
-
-function fileUploadBoxAddFile(fileUploadBox_id, file_name, file_data) {  // programmatically
-    fileUploadBoxes[fileUploadBox_id][file_name] = file_data;
-    const fileUploadBox_files = document.getElementById(fileUploadBox_id).getElementsByClassName("files")[0];
-    fileUploadBox_files.innerHTML += '<div data-name="' + he.escape(file_name) + '" class="file" onclick="showRemoveFileIcon(event);">' + 
-    '<i class="fas fa-window-close cancelIcon" onclick="fileUploadBoxRemoveFile(event);"></i>' +
-    '<i class="fas fa-file fileIcon"></i>' +
-    '<p>' + he.escape(file_name) + '</p>' +
-    '</div>'; 
-}
-
-function showRemoveFileIcon(e) {
-    var file = e.target;
-    if (! file.classList.contains("file")) {
-        file = DomHelpers.getParent(e.target, "file");
-    }
-    const icon = file.getElementsByClassName("cancelIcon")[0];
-    DomHelpers.activate(icon);
-} 
-
-
-/* toggle page-head
+/* page-head
 ============================================================================= */
 
-function hidePageHead() {
-    document.getElementById("pageHead").classList.add("hidden");
-    document.getElementById("content").classList.add("pageHeadHidden");
-    document.getElementById("hideIcon").classList.remove("active");
-    document.getElementById("showIcon").classList.add("active");
+const PageHead = {
+
+    show: function() {
+        document.getElementById("pageHead").classList.remove("hidden");
+        document.getElementById("content").classList.remove("pageHeadHidden");
+        document.getElementById("hideIcon").classList.add("active");
+        document.getElementById("showIcon").classList.remove("active");
+    },
+
+    hide: function() {
+        document.getElementById("pageHead").classList.add("hidden");
+        document.getElementById("content").classList.add("pageHeadHidden");
+        document.getElementById("hideIcon").classList.remove("active");
+        document.getElementById("showIcon").classList.add("active");
+    }
 }
-
-function showPageHead() {
-    document.getElementById("pageHead").classList.remove("hidden");
-    document.getElementById("content").classList.remove("pageHeadHidden");
-    document.getElementById("hideIcon").classList.add("active");
-    document.getElementById("showIcon").classList.remove("active");
-}
-
-
-/* polyfills
-============================================================================= */
-
-(function (arr) {
-    arr.forEach(function (item) {
-      if (item.hasOwnProperty('remove')) {
-        return;
-      }
-      Object.defineProperty(item, 'remove', {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        value: function remove() {
-          if (this.parentNode === null) {
-            return;
-          }
-          this.parentNode.removeChild(this);
-        }
-      });
-    });
-})([Element.prototype, CharacterData.prototype, DocumentType.prototype]);

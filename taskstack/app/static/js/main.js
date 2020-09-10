@@ -6,10 +6,7 @@ var socket;
 
 window.addEventListener("load", () => {
 
-  if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
-    MainInit.set_viewport_for_mobiles();
-    window.addEventListener('resize', MainInit.set_viewport_for_mobiles);
-  }
+  MainInit.setViewportForMobiles();
 
   MainInit.setupBannerMsgResponsiveness();
 
@@ -46,26 +43,30 @@ window.addEventListener("load", () => {
 
 const MainInit = {
 
-  set_viewport_for_mobiles: function(){
+  setViewportForMobiles: function(){
     if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
-      const ww = window.screen.width;
-      const body_mw = getComputedStyle(document.body).minWidth;
-      const mw = Number(body_mw.substring(0,body_mw.length-2));
-      const ratio =  ww / mw;
-      const viewport_meta_tag = document.getElementById('viewport');
-      if( ww < mw){
-        viewport_meta_tag.setAttribute('content', 'initial-scale=' + ratio + ', maximum-scale=' + ratio + ', minimum-scale=' + ratio + ', user-scalable=no, width=' + mw);
+      function do_setViewportForMobiles() {
+        const ww = window.screen.width;
+        const body_mw = getComputedStyle(document.body).minWidth;
+        const mw = Number(body_mw.substring(0,body_mw.length-2));
+        const ratio =  ww / mw;
+        const viewport_meta_tag = document.getElementById('viewport');
+        if( ww < mw){
+          viewport_meta_tag.setAttribute('content', 'initial-scale=' + ratio + ', maximum-scale=' + ratio + ', minimum-scale=' + ratio + ', user-scalable=no, width=' + mw);
+        }
       }
+      do_setViewportForMobiles();
+      window.addEventListener('resize', do_setViewportForMobiles);
     }
   },
 
   setupGlobalSocket: function() {
     socket = io.connect();
   
-    if (page_url.pathname == "/") {
+    if (pageUrl.pathname == "/") {
       installGlobalSocketEventHandlersForHome();
     }
-    else if (page_url.pathname.startsWith("/chat")) {
+    else if (pageUrl.pathname.startsWith("/chat")) {
       installGlobalSocketEventHandlersForChat();
     }
     else {
@@ -221,7 +222,11 @@ window.addEventListener("beforeunload", () => Flag.pageIsUnloading=true);
 ============================================================================= */
 
 const Flag = {
+  
   pageIsUnloading: false,
+
+  ignoreSocketDisconnect: false,
+
   ignoreOverlayClick: false
 }
 
@@ -232,7 +237,7 @@ const Flag = {
 const EventCallback = {
   socketDisconnected: function() {
     setTimeout(() => {
-      if (! Flag.pageIsUnloading) {
+      if (! Flag.pageIsUnloading && ! Flag.ignoreSocketDisconnect) {
           Modal.hideAll();
           Flag.ignoreOverlayClick = true;
           document.getElementById("disconnectModal").classList.add("active");
@@ -407,9 +412,9 @@ const Cookie = {
 /* page url
 ============================================================================= */
 
-const page_url = new URL(window.location.href);
+const pageUrl = new URL(window.location.href);
 
-page_url.getQueryVariable = function(variable) {
+pageUrl.getQueryVariable = function(variable) {
   var query = window.location.search.substring(1);
   var vars = query.split("&");
   for (var i=0;i<vars.length;i++) {
@@ -590,3 +595,26 @@ const DatetimeToLocalizedString = {
 function renderText(text) {
   return anchorme({input: he.escape(text), options: {attributes: {target: "_blank"}}}).replace(/\n/g, "</br>");
 }
+
+
+/* polyfills
+============================================================================= */
+
+(function (arr) {
+  arr.forEach(function (item) {
+    if (item.hasOwnProperty('remove')) {
+      return;
+    }
+    Object.defineProperty(item, 'remove', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: function remove() {
+        if (this.parentNode === null) {
+          return;
+        }
+        this.parentNode.removeChild(this);
+      }
+    });
+  });
+})([Element.prototype, CharacterData.prototype, DocumentType.prototype]);

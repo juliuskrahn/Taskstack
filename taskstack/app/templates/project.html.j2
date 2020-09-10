@@ -85,8 +85,8 @@
         <svg class="halfCircle" width="36" height="18">
           <circle r="18" cx="18" cy="0" />
         </svg> 
-        <i id="hideIcon" class="fas fa-chevron-up active" onclick="hidePageHead();"></i>
-        <i id="showIcon" class="fas fa-chevron-down" onclick="showPageHead();"></i>
+        <i id="hideIcon" class="fas fa-chevron-up active" onclick="PageHead.hide();"></i>
+        <i id="showIcon" class="fas fa-chevron-down" onclick="PageHead.show();"></i>
       </div>
       <ul id="menuBar">
         <li id="projectMenu" class="menu">
@@ -404,11 +404,11 @@
           </div>
           <p id="newListDescInputErrorText" class="errorText"></p>
         </section>
-        <section id="newListFileUploadBox" class="centerH fileUploadBox" ondrop="processFileUploadBoxDropInput(event);" ondragover="fileUploadBoxDragOverHandler(event);">
+        <section id="newListFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment.processUploadBoxDropInput(event);" ondragover="FileAttachment.uploadBoxDragOverHandler(event);">
           <div class="files">
           </div>
           <div class="bottom">
-            <input type="file" accept="*" onchange="processFileUploadBoxInput(event);" multiple>
+            <input type="file" accept="*" onchange="FileAttachment.processUploadBoxInput(event);" multiple>
             <p>{{ lex["Attach files by dropping them here or selecting them."] }}</p>
           </div>
         </section>
@@ -438,16 +438,16 @@
           </div>
           <p id="newCardDescInputErrorText" class="errorText"></p>
         </section>
-        <section id="newCardFileUploadBox" class="centerH fileUploadBox" ondrop="processFileUploadBoxDropInput(event);" ondragover="fileUploadBoxDragOverHandler(event);">
+        <section id="newCardFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment.processUploadBoxDropInput(event);" ondragover="FileAttachment.uploadBoxDragOverHandler(event);">
           <div class="files">
           </div>
           <div class="bottom">
-            <input type="file" accept="*" onchange="processFileUploadBoxInput(event);" multiple>
+            <input type="file" accept="*" onchange="FileAttachment.processUploadBoxInput(event);" multiple>
             <p>{{ lex["Attach files by dropping them here or selecting them."] }}</p>
           </div>
         </section>
         <p class="fileUploadBoxErrorText"></p>
-        <section class="addedUsers">
+        <section class="addedUsersBox">
           <div class="addedUsersTitle">
             <p>{{ lex["Members"] }}</p>
             <div class="select multiple" id="newCardWinAddUserSelect">
@@ -492,11 +492,11 @@
           </div>
           <p id="editListDescInputErrorText" class="errorText"></p>
         </section>
-        <section id="editListFileUploadBox" class="centerH fileUploadBox" ondrop="processFileUploadBoxDropInput(event);" ondragover="fileUploadBoxDragOverHandler(event);">
+        <section id="editListFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment.processUploadBoxDropInput(event);" ondragover="FileAttachment.uploadBoxDragOverHandler(event);">
           <div class="files">
           </div>
           <div class="bottom">
-            <input type="file" accept="*" onchange="processFileUploadBoxInput(event);" multiple>
+            <input type="file" accept="*" onchange="FileAttachment.processUploadBoxInput(event);" multiple>
             <p>{{ lex["Attach files by dropping them here or selecting them."] }}</p>
           </div>
         </section>
@@ -529,16 +529,16 @@
           </div>
           <p id="editCardDescInputErrorText" class="errorText"></p>
         </section>
-        <section id="editCardFileUploadBox" class="centerH fileUploadBox" ondrop="processFileUploadBoxDropInput(event);" ondragover="fileUploadBoxDragOverHandler(event);">
+        <section id="editCardFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment.processUploadBoxDropInput(event);" ondragover="FileAttachment.uploadBoxDragOverHandler(event);">
           <div class="files">
           </div>
           <div class="bottom">
-            <input type="file" accept="*" onchange="processFileUploadBoxInput(event);" multiple>
+            <input type="file" accept="*" onchange="FileAttachment.processUploadBoxInput(event);" multiple>
             <p>{{ lex["Attach files by dropping them here or selecting them."] }}</p>
           </div>
         </section>
         <p class="fileUploadBoxErrorText"></p>
-        <section class="addedUsers">
+        <section class="addedUsersBox">
           <div class="addedUsersTitle">
             <p>{{ lex["Members"] }}</p>
             <div class="select multiple" id="editCardWinAddUserSelect">
