@@ -40,7 +40,16 @@
     <script src={{ static_url("js/socketio.min.js") }}></script>
     <script src={{ static_url("js/he.min.js") }}></script>
     <script src={{ static_url("js/anchorme.min.js") }}></script>
-    <script src={{ static_url("js/project.js") }}></script>
+    <script src={{ static_url("js/popper.min.js") }}></script>
+    <link rel="stylesheet" href={{ static_url("css/tippy_light_border_theme.min.css") }} type="text/css">
+    <script src={{ static_url("js/tippy_bundle.min.js") }}></script>
+    <script src={{ static_url("js/project/main.js") }}></script>
+    <script src={{ static_url("js/project/static_page_elements.js") }}></script>
+    <script src={{ static_url("js/project/lists_and_cards_setup.js") }}></script>
+    <script src={{ static_url("js/project/list.js") }}></script>
+    <script src={{ static_url("js/project/card.js") }}></script>
+    <script src={{ static_url("js/project/wins.js") }}></script>
+    <script src={{ static_url("js/project/file_attachment.js") }}></script>
     <script src="https://kit.fontawesome.com/ba20bc93cc.js" crossorigin="anonymous"></script>
     <link rel="shortcut icon" href={{ static_url("favicon.ico") }}>
     <script src={{ static_url("js/drag_and_drop_polyfill_for_touchsreen.js") }}></script>
@@ -60,8 +69,8 @@
         </a>
         {% if current_user.is_authenticated() %}
         <div id="account">
-          <img id="currentUserProfilePic" src="{{ current_user.small_avatar_url }}" alt="{{ lex['Account'] }}" onclick="DomHelpers.activate(document.getElementById('accountActions'));">
-          <div id="accountActions">
+          <img id="currentUserProfilePic" src="{{ current_user.small_avatar_url }}" alt="{{ lex['Account'] }}">
+          <div id="accountActions" class="modal small">
             <div class="title">{{ lex["Logged in as"] }} <span>{{ current_user.name }}</span></div>
             <hr>
             <div><a href="/{{ current_user.name }}">{{ lex["Your profile"] }}</a></div>
@@ -81,7 +90,7 @@
         <h1 id="projectName">{{ project_name }}</h1>
         <p id="projectDesc">{{ project_desc }}</p>
       </section>
-      <div class="togglePageHead">
+      <div id="togglePageHead">
         <svg class="halfCircle" width="36" height="18">
           <circle r="18" cx="18" cy="0" />
         </svg> 
@@ -97,13 +106,13 @@
             <li id="invitePeopleWithLinkButton">{{ lex["Invite users with a link"] }}</li>
             <li id="collaboratorsButton">{{ lex["Collaborators"] }}</li>
             <li id="leaveProjectButton">{{ lex["Leave project"] }}</li>
-            <li id="exitButton"><a href="/">{{ lex["Exit"] }}</a></li>
+            <li id="exitButton" class="menu-linkBtn"><a href="/">{{ lex["Exit"] }}</a></li>
           </ul>
         </li>
         <li id="viewMenu" class="menu">
           {{ lex["view_menu_title"] }}
           <ul>
-            <li>-</li>
+            <li id="filterCardsButton">{{ lex["Filter cards"] }}</li>
           </ul>
         </li>
         <li id="settingsMenu" class="menu">
@@ -130,15 +139,22 @@
         <li id="helpMenu" class="menu">
           {{ lex["help_menu_title"] }}
           <ul>
-            <li>-</li>
+            <li class="menu-linkBtn"><a href="/guide">{{ lex["Taskstack basics"] }}</a></li>
           </ul>
         </li>
       </ul>
     </section>
 
     <section id="content">
-        <section id="listsContainer">
+
+        <section id="listsContainer"></section>
+
+        <section class="smallModals">
+          <div id="w-filterCardsWin" class="modal small">
+
+          </div>
         </section>
+
     </section>
 
     <footer>
@@ -160,8 +176,9 @@
       </ul>
     </footer>
 
-    <section id="bannerMsgs">
-    </section>
+    <section id="bannerMsgs"></section>
+
+    <section id="tippyContainer"></section>
 
     <div class="modals">
 
@@ -189,7 +206,7 @@
         </section>
         <section class="btnGroup centerH">
           <button type="button" onclick="listWin.close();">{{ lex["Close"] }}</button>
-          {% if current_user_role == "owner" or current_user_role == "admin" %}<button type="button" class="new" onclick="editListWin.open();">{{ lex["Edit"] }}</button>{% endif %}
+          {% if current_user_role == "owner" or current_user_role == "admin" %}<button type="button" class="new" onclick="editListWin.open(listWin.listId); listWin.close();">{{ lex["Edit"] }}</button>{% endif %}
         </section>
       </div>
 
@@ -208,7 +225,7 @@
         </section>
         <section class="btnGroup centerH">
           <button type="button" onclick="cardWin.close();">{{ lex["Close"] }}</button>
-          {% if current_user_role == "owner" or current_user_role == "admin" %}<button type="button" class="new" onclick="editCardWin.open();">{{ lex["Edit"] }}</button>{% endif %}
+          {% if current_user_role == "owner" or current_user_role == "admin" %}<button type="button" class="new" onclick="editCardWin.open(cardWin.cardId); cardWin.close();">{{ lex["Edit"] }}</button>{% endif %}
         </section>
       </div>
 
@@ -569,9 +586,6 @@
         </section>
       </div>
 
-      <div class="overlay"></div>
-      <div class="loadingOverlay"></div>
-
       <noscript class="modal active">
         <h2>Error</h2>
         <p>{{ lex["Make sure that"] }}</p>
@@ -584,6 +598,10 @@
         </section>
       </noscript>
       <noscript><div class="overlay active"></div></noscript>
+
+      <div class="overlay"></div>
+      <div class="loadingOverlay"></div>
+      <div class="overlay transparent"></div>
 
     </div>
     

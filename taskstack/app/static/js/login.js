@@ -1,6 +1,5 @@
 function submitLogInForm() {
-  document.getElementById("loadingBarBox").classList.add("active");
-  document.getElementsByClassName("loadingOverlay")[0].classList.add("active");
+  LoadingAnim.start("loadingBarBox");
 
   document.getElementById("nameErrorText").innerHTML = "";
   document.getElementById("passwordErrorText").innerHTML = "";
@@ -20,8 +19,7 @@ function submitLogInForm() {
   }
   
   if (error) {
-    document.getElementById("loadingBarBox").classList.remove("active");
-    document.getElementsByClassName("loadingOverlay")[0].classList.remove("active");
+    LoadingAnim.stopAll();
     return false;
   }
   return true;

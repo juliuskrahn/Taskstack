@@ -15,8 +15,7 @@ window.addEventListener("load", () => {
         .then(response => {
           if (response.status != 200) {
             if (response.status == 419) {
-              document.getElementById("invalidTokenMsg").classList.add("active");
-              document.getElementById("overlay").classList.add("active");
+              Modal.openSafelyById("invalidTokenMsg");
             }
             else {
               window.alert("Error");
@@ -62,8 +61,7 @@ function submitChangeUsername() {
   }
 
   if (! error) {
-    document.getElementsByClassName("loadingOverlay")[0].classList.add("active");
-    document.getElementById("changeUsernameLoadingBarBox").classList.add("active");
+    LoadingAnim.start("changeUsernameLoadingBarBox");
   }
 
   // submit
@@ -101,8 +99,7 @@ function submitChangeEmail() {
   }
 
   if (! error) {
-    document.getElementsByClassName("loadingOverlay")[0].classList.add("active");
-    document.getElementById("changeEmailLoadingBarBox").classList.add("active");
+    LoadingAnim.start("changeEmailLoadingBarBox");
   }
 
   // submit
@@ -140,8 +137,7 @@ function submitChangePassword() {
   }
 
   if (! error) {
-    document.getElementsByClassName("loadingOverlay")[0].classList.add("active");
-    document.getElementById("changePasswordLoadingBarBox").classList.add("active");
+    LoadingAnim.start("changePasswordLoadingBarBox");
   }
 
   // submit
@@ -159,8 +155,7 @@ function submitDeleteAccount() {
   }
 
   if (! error) {
-    document.getElementsByClassName("loadingOverlay")[0].classList.add("active");
-    document.getElementById("deleteAccountLoadingBarBox").classList.add("active");
+    LoadingAnim.start("deleteAccountLoadingBarBox");
   }
 
   return true;

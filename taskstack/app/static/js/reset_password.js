@@ -1,6 +1,5 @@
 function submitResetPasswordForm() {
-  document.getElementById("loadingBarBox").classList.add("active");
-  document.getElementsByClassName("loadingOverlay")[0].classList.add("active");
+  LoadingAnim.start("loadingBarBox");
 
   document.getElementById("passwordErrorText").innerHTML = "";
   document.getElementById("codeErrorText").innerHTML = "";
@@ -32,8 +31,7 @@ function submitResetPasswordForm() {
   }
 
   if (error) {
-    document.getElementById("loadingBarBox").classList.remove("active");
-    document.getElementsByClassName("loadingOverlay")[0].classList.remove("active");
+    LoadingAnim.stopAll();
     return false;
   }
   return true;

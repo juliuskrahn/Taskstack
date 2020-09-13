@@ -36,7 +36,7 @@
                 {% if current_user.is_authenticated() %}
                   {% if current_user_is_friend_with_user %}
                   <li><a href="/chat?with={{username}}">{{ lex["Go to chat"] }}</a></li>
-                  <li data-modal-target="removeFriendModal" onclick="Modal.show(this);">{{ lex["Remove friend"] }}</li>
+                  <li onclick="Modal.openSafelyById('removeFriendModal');">{{ lex["Remove friend"] }}</li>
                   {% elif current_user.id != user_id %}
                   <li><a href="/new-friend?name={{username}}&continue=%2F{{username}}">{{ lex["Send friendship request"] }}</a></li>
                   {% endif %}
@@ -85,7 +85,7 @@
     <div id="invalidTokenMsg" class="modal {% if invalid_token %}active{% endif %}">
       <p>{{ lex["Invalid token. Reload the page and try again."] }}</p>
       <section class="btnGroup centerH">
-        <button type="button" onclick="Modal.hideAll();">Ok</button>
+        <button type="button" onclick="Modal.closeAll();">Ok</button>
       </section>
     </div>
     <div class="overlay {% if invalid_token or change_username_invalid or change_email_invalid or change_password_invalid or delete_account_invalid %}active{% endif %}"></div>
@@ -97,7 +97,7 @@
       </section>
       <section class="btnGroup centerH">
         <button onclick="removeFriend();">{{ lex["Remove"] }}</button>
-        <button class="secondary" type="button" onclick="Modal.hideAll();">{{ lex["Cancel"] }}</button>
+        <button class="secondary" type="button" onclick="Modal.closeById('removeFriendModal');">{{ lex["Cancel"] }}</button>
       </section>
   </div>
   {% block _modals %}{% endblock %}

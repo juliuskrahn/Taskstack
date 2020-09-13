@@ -416,6 +416,7 @@ project_html_j2 = get_extended_lexicon_dict({
         "settings_menu_title": "<span>S</span>ettings",
         "history_menu_title": "H<span>i</span>story",
         "help_menu_title": "<span>H</span>elp",
+        "Taskstack basics": "Taskstack basics",
 
         "Delete": "Delete",
         "Cancel": "Cancel",
@@ -480,6 +481,7 @@ project_html_j2 = get_extended_lexicon_dict({
         "Close": "Close",
         "Edit": "Edit",
         "Apply": "Apply",
+        "Filter cards": "Filter cards",
 
         "Enter a name or an email address": "Enter a name or an email address",
         "Collaborators": "Collaborators",
@@ -517,6 +519,7 @@ project_html_j2 = get_extended_lexicon_dict({
         "settings_menu_title": "<span>E</span>instellungen",
         "history_menu_title": "<span>V</span>erlauf",
         "help_menu_title": "<span>H</span>ilfe",
+        "Taskstack basics": "Taskstack Grundlagen",
 
         "Delete": "Löschen",
         "Cancel": "Abbrechen",
@@ -585,6 +588,7 @@ project_html_j2 = get_extended_lexicon_dict({
         "Close": "Schließen",
         "Edit": "Bearbeiten",
         "Apply": "Bestätigen",
+        "Filter cards": "Karten filtern",
 
         "Enter a name or an email address": "Geben Sie einen Namen oder eine Email-Adresse ein",
         "Collaborators": "Mitglieder",

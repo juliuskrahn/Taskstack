@@ -153,7 +153,7 @@ function removeFriend() {
   })
   .then(response => {
     if (response.status == 200) {
-      Modal.hideAll();
+      Modal.closeById("removeFriendModal");
     }
     else {
       window.alert("Error");

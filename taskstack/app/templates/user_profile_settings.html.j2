@@ -20,16 +20,16 @@
         </div>
       </section>
       <section>
-        <a data-modal-target="changeUsernameModal" onclick="Modal.show(this);">{{ lex["Change my username"] }}</a>
+        <a onclick="Modal.openSafelyById('changeUsernameModal');">{{ lex["Change my username"] }}</a>
       </section>
       <section>
-        <a data-modal-target="changeEmailModal" onclick="Modal.show(this);">{{ lex["Change my email address"] }}</a>
+        <a onclick="Modal.openSafelyById('changeEmailModal');">{{ lex["Change my email address"] }}</a>
       </section>
       <section>
-        <a data-modal-target="changePasswordModal" onclick="Modal.show(this);">{{ lex["Change my password"] }}</a>
+        <a onclick="Modal.openSafelyById('changePasswordModal');">{{ lex["Change my password"] }}</a>
       </section>
       <section>
-        <a data-modal-target="deleteAccountModal" onclick="Modal.show(this);">{{ lex["Delete my account"] }}</a>
+        <a onclick="Modal.openSafelyById('deleteAccountModal');">{{ lex["Delete my account"] }}</a>
       </section>
     </section>
     <section>
@@ -83,7 +83,7 @@
     </section>
     <section class="btnGroup centerH">
       <button name="submit" value="changeUsername" type="submit">{{ lex["Apply"] }}</button>
-      <button class="secondary" type="button" onclick="Modal.hideAll();">{{ lex["Cancel"] }}</button>
+      <button class="secondary" type="button" onclick="Modal.closeById('changeUsernameModal');">{{ lex["Cancel"] }}</button>
     </section>
     <input class="hide" type="text" name="token" value="{{token}}">
   </form>
@@ -109,7 +109,7 @@
     </section>
     <section class="btnGroup centerH">
       <button name="submit" value="changeEmail" type="submit">{{ lex["Apply"] }}</button>
-      <button class="secondary" type="button" onclick="Modal.hideAll();">{{ lex["Cancel"] }}</button>
+      <button class="secondary" type="button" onclick="Modal.closeById('changeEmailModal');">{{ lex["Cancel"] }}</button>
     </section>
     <input class="hide" type="text" name="token" value="{{token}}">
   </form>
@@ -139,7 +139,7 @@
     </section>
     <section class="btnGroup centerH">
       <button name="submit" value="changePassword" type="submit">{{ lex["Apply"] }}</button>
-      <button class="secondary" type="button" onclick="Modal.hideAll();">{{ lex["Cancel"] }}</button>
+      <button class="secondary" type="button" onclick="Modal.closeById('changePasswordModal');">{{ lex["Cancel"] }}</button>
     </section>
     <input class="hide" type="text" name="token" value="{{token}}">
   </form>
@@ -161,10 +161,8 @@
     </section>
     <section class="btnGroup centerH">
       <button name="submit" value="deleteAccount" type="submit">{{ lex["Apply"] }}</button>
-      <button class="secondary" type="button" onclick="Modal.hideAll();">{{ lex["Cancel"] }}</button>
+      <button class="secondary" type="button" onclick="Modal.closeById('deleteAccountModal');">{{ lex["Cancel"] }}</button>
     </section>
     <input class="hide" type="text" name="token" value="{{token}}">
   </form>
-
-  <div class="loadingOverlay"></div>
 {% endblock %}

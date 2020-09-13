@@ -8,7 +8,7 @@
     <meta charset="utf-8">
     <meta name="description" content="{{ lex['Taskstack_desc'] }}">
     <meta ame="author" content="Julius Krahn">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" id="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href={{ static_url("css/main.css") }} type="text/css">
     <script src={{ static_url("js/detect_element_resize.min.js") }}></script>
@@ -34,8 +34,8 @@
       </a>
       {% if current_user.is_authenticated() %}
       <div id="account">
-        <img id="currentUserProfilePic" src="{{ current_user.small_avatar_url }}" alt="{{ lex['Account'] }}" onclick="DomHelpers.activate(document.getElementById('accountActions'));">
-        <div id="accountActions">
+        <img id="currentUserProfilePic" src="{{ current_user.small_avatar_url }}" alt="{{ lex['Account'] }}">
+        <div id="accountActions" class="modal small">
           <div class="title">{{ lex["Logged in as"] }} <span>{{ current_user.name }}</span></div>
           <hr>
           <div><a href="/{{ current_user.name }}">{{ lex["Your profile"] }}</a></div>
@@ -74,9 +74,9 @@
     </footer>
     <section id="bannerMsgs">
     </section>
+    <section id="tippyContainer"></section>
     <div class="modals">
       {% block modals %}{% endblock %}
-      <div class="overlay"></div>
       <div id="disconnectModal" class="modal">
         <h2>{{ lex["Connection lost"] }}</h2>
         <p>{{ lex["Try reloading the page."] }}</p>
@@ -96,6 +96,9 @@
         </section>
       </noscript>
       <noscript><div class="overlay active"></div></noscript>
+      <div class="overlay"></div>
+      <div class="loadingOverlay"></div>
+      <div class="overlay transparent"></div>
     </div>
     {% block bottom %}{% endblock %}
   </body>

@@ -8,9 +8,10 @@
     <meta charset="utf-8">
     <meta name="description" content="{{ lex['Taskstack_desc'] }}">
     <meta ame="author" content="Julius Krahn">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" id="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href={{ static_url("css/main.css") }} type="text/css">
+    <script src={{ static_url("js/main.js") }}></script>
     <link rel="shortcut icon" href={{ static_url("favicon.ico") }}>
     <script>
       const lang = "{{ lang }}";
@@ -29,7 +30,6 @@
     </section>
     <div class="modals">
       {% block modals %}{% endblock %}
-      <div class="overlay"></div>
       <noscript class="modal active">
         <h2>Error</h2>
         <p>{{ lex["Make sure that"] }}</p>
@@ -42,6 +42,9 @@
         </section>
       </noscript>
       <noscript><div class="overlay active"></div></noscript>
+      <div class="overlay"></div>
+      <div class="loadingOverlay"></div>
+      <div class="overlay transparent"></div>
     </div>
     {% block bottom %}{% endblock %}
   </body>

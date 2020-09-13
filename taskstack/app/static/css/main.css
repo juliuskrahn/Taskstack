@@ -43,14 +43,19 @@ body {
   overflow-x: hidden;
 }
 
-body.centerItems {
-  min-height: 640px;
+body.centerItems.stretchV {
+  height: auto;
+  min-height: 100vh;
 }
 
 @media (max-width:319px) {
   body {
     overflow-x: auto;
   }
+}
+
+.modal, .tippy-box {
+  overscroll-behavior: contain;
 }
 
 
@@ -140,20 +145,10 @@ header #smallLogo { display: none; }
 }
 
 #accountActions {
-  position: absolute;
   right: 50%;
   top: calc(100% - 6px);
-  border: 1px solid #eaeaea;
-  background-color: white;
   min-width: 200px;
   padding: 8px 0;
-  box-shadow: 0 0 4px 1px rgba(0,0,0,.1);
-  cursor: default;
-  display: none;
-}
-
-#accountActions.active {
-  display: block;
 }
 
 #accountActions div {
@@ -218,6 +213,11 @@ body.fluid #content:not(.light) {
   }
 }
 
+body.centerItems.stretchV > #content {
+  padding-top: 8px;
+  padding-bottom: 16px;
+}
+
 
 /* footer
 ============================================================================= */
@@ -236,6 +236,7 @@ footer:not(.light) {
   margin-top: 64px;
   height: 40px;
   padding: 0 4px;
+  background-color: white;
 }
 
 body.fluid footer:not(.light) {
@@ -899,8 +900,9 @@ li > .sDropMenu {
 ============================================================================= */
 
 .modals {
-  position: fixed;
   visibility: hidden;
+  pointer-events: none;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -912,24 +914,26 @@ li > .sDropMenu {
 }
 
 .modal {
-  position: fixed !important;
   display: none;
-  transform: scale(0) !important;
-  transition: 200ms ease-in-out;
+  visibility: visible;
+  pointer-events: all;
+  overflow-y: auto;
+  background-color: white;
+}
+
+.modal:not(.small) {
   z-index: 3000;
+  position: fixed !important;
   min-width: 350px;
   max-width: 95vw;
   max-height: 95vh;
-  overflow-y: auto;
-  background-color: white;
   border-radius: 8px;
   box-shadow: 0 0 4px 2px rgba(0,0,0,.15);
   padding: 16px;
-  visibility: visible;
 }
 
 @media (max-width:400px) {
-  .modal {
+  .modal:not(.small) {
     width: 95vw !important;
     min-width: 240px !important;
   }
@@ -937,22 +941,21 @@ li > .sDropMenu {
 
 .modal.active { 
   display: block;
-  transform: scale(1) !important; 
 }
 
-.modal .btnGroup {
+.modal:not(.small) .btnGroup {
   margin: 16px auto 0 auto;
 }
 
-.modal > section:not(.loadingBarBox):not(.head):not(.btnGroup), .modal > div:not(.loadingBarBox):not(.head):not(.btnGroup) {
+.modal:not(.small) > section:not(.loadingBarBox):not(.head):not(.btnGroup), .modal:not(.small) > div:not(.loadingBarBox):not(.head):not(.btnGroup) {
   margin: 18px 0;
 }
 
-.modal > * {
+.modal:not(.small) > * {
   max-width: 480px;
 }
 
-.modal .head {
+.modal:not(.small) .head {
   margin: 0 0 22px 0;
 }
 
@@ -974,7 +977,11 @@ li > .sDropMenu {
   display: block;
 }
 
-.modal .stretchBox {
+.overlay.transparent {
+  background-color: transparent;
+}
+
+.modal:not(.small) .stretchBox {
   min-width: 420px;
   max-height: 42vh;
   height: 420px;
@@ -982,13 +989,34 @@ li > .sDropMenu {
 }
 
 @media (max-width:480px) {
-  .modal .stretchBox {
+  .modal:not(.small) .stretchBox {
     min-width: unset;
   }
 }
 
 #disconnectModal {
   z-index: 100000;
+}
+
+.modal.small {
+  z-index: 2800;
+  position: absolute;
+  box-shadow: 0 0 4px 2px rgba(0,0,0,.15);
+  cursor: default;
+}
+
+
+/* tippy
+============================================================================= */
+
+#tippyContainer {
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 7000;
 }
 
 

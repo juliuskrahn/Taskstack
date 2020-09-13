@@ -223,9 +223,11 @@ function installGlobalSocketEventHandlersForChat() {
                 (editGroupWin.chatGroupId == chat_group_data.id && editGroupWin.chatGroupType == chat_group_data.type && editGroupWin_dom_el.classList.contains("active")) ||
                 (addFriendToGroupWin.chatGroupId == chat_group_data.id && addFriendToGroupWin.chatGroupType == chat_group_data.type && addFriendToGroupWin_dom_el.classList.contains("active")))
             {
-            Modal.hideAll();
+            Modal.closeById("w-groupWin");
             groupWin.stopLoadingAnim();
+            Modal.closeById("w-editGroupWin");
             editGroupWin.stopLoadingAnim();
+            Modal.closeById("w-addFriendToGroupWin");
             addFriendToGroupWin.stopLoadingAnim();
         }
 
@@ -260,8 +262,8 @@ function installGlobalSocketEventHandlersForChat() {
     });
 
     socket.on("successfully_deleted_chat_group", () => {
+        Modal.closeById("w-editGroupWin");
         editGroupWin.stopLoadingAnim();
-        Modal.hideAll();
     });
 
     socket.on("successfully_edited_chat_group_name", () => {
@@ -629,8 +631,7 @@ const newGroupWin = {
 
     open: function() {
         newGroupWin.isOpen = true;
-        document.getElementsByClassName("overlay")[0].classList.add("active");
-        document.getElementById("w-newGroupWin").classList.add("active");
+        Modal.openSafelyById("w-newGroupWin");
     },
 
     submit: function() {
@@ -651,17 +652,15 @@ const newGroupWin = {
 
     close: function() {
         newGroupWin.isOpen = false;
-        Modal.hideAll();
+        Modal.closeById("w-newGroupWin");
     },
 
     startLoadingAnim: function() {
-        document.getElementsByClassName("loadingOverlay")[0].classList.add("active");
-        document.getElementById("newGroupWinLoadingBarBox").classList.add("active");
+        LoadingAnim.start("newGroupWinLoadingBarBox");
     },
 
     stopLoadingAnim: function() {
-        document.getElementsByClassName("loadingOverlay")[0].classList.remove("active");
-        document.getElementById("newGroupWinLoadingBarBox").classList.remove("active");
+        LoadingAnim.stopAll();
     },
 }
 
@@ -676,8 +675,7 @@ const groupWin = {
     chatGroupType: null,
 
     open: function(id=groupWin.chatGroupId, type=chatGroupType.type, re_open=false) {
-        document.getElementsByClassName("overlay")[0].classList.add("active");
-        document.getElementById("w-groupWin").classList.add("active");
+        Modal.openSafelyById("w-groupWin");
 
         if (groupWin.chatGroupId == id && groupWin.chatGroupType == type && ! re_open) {
             return;
@@ -721,7 +719,7 @@ const groupWin = {
     },
 
     close: function() {
-        Modal.hideAll();
+        Modal.closeById("w-groupWin");
     },
 
     newMember: function(member) {
@@ -760,13 +758,11 @@ const groupWin = {
     },
 
     startLoadingAnim: function() {
-        document.getElementsByClassName("loadingOverlay")[0].classList.add("active");
-        document.getElementById("groupWinLoadingBarBox").classList.add("active");
+        LoadingAnim.start("groupWinLoadingBarBox");
     },
 
     stopLoadingAnim: function() {
-        document.getElementsByClassName("loadingOverlay")[0].classList.remove("active");
-        document.getElementById("groupWinLoadingBarBox").classList.remove("active");
+        LoadingAnim.stopAll();
     },
 }
 
@@ -784,8 +780,7 @@ const editGroupWin = {
         groupWin.close();
         editGroupWin.chatGroupId = id;
         editGroupWin.chatGroupType = type;
-        document.getElementsByClassName("overlay")[0].classList.add("active");
-        document.getElementById("w-editGroupWin").classList.add("active");
+        Modal.openSafelyById("w-editGroupWin");
         document.getElementById("editGroupWinTitle").innerHTML = chats[type][id].name;
         document.getElementById("groupNameInput").value = chats[type][id].name;
     },
@@ -811,18 +806,16 @@ const editGroupWin = {
     },
 
     closeAndOpenGroupWin: function() {
-        Modal.hideAll();
+        Modal.closeById("w-editGroupWin");
         groupWin.open(editGroupWin.chatGroupId, editGroupWin.chatGroupType);
     },
 
     startLoadingAnim: function() {
-        document.getElementsByClassName("loadingOverlay")[0].classList.add("active");
-        document.getElementById("editGroupWinLoadingBarBox").classList.add("active");
+        LoadingAnim.start("editGroupWinLoadingBarBox");
     },
 
     stopLoadingAnim: function() {
-        document.getElementsByClassName("loadingOverlay")[0].classList.remove("active");
-        document.getElementById("editGroupWinLoadingBarBox").classList.remove("active");
+        LoadingAnim.stopAll();
     },
 }
 
@@ -840,8 +833,7 @@ const addFriendToGroupWin = {
         groupWin.close();
         addFriendToGroupWin.chatGroupId = id;
         addFriendToGroupWin.chatGroupType = type;
-        document.getElementsByClassName("overlay")[0].classList.add("active");
-        document.getElementById("w-addFriendToGroupWin").classList.add("active");
+        Modal.openSafelyById("w-addFriendToGroupWin");
         document.getElementById("addFriendToGroupWinTitle").innerHTML = lex["Add a friend to: "]+chats[type][id].name;
         document.getElementById("addUserToGroupNameOrEmailInput").value = "";
     },
@@ -863,18 +855,16 @@ const addFriendToGroupWin = {
     },
 
     closeAndOpenGroupWin: function() {
-        Modal.hideAll();
+        Modal.closeById("w-addFriendToGroupWin");
         groupWin.open(addFriendToGroupWin.chatGroupId, addFriendToGroupWin.chatGroupType);
     },
 
     startLoadingAnim: function() {
-        document.getElementsByClassName("loadingOverlay")[0].classList.add("active");
-        document.getElementById("addFriendToGroupWinLoadingBarBox").classList.add("active");
+        LoadingAnim.start("addFriendToGroupWinLoadingBarBox");
     },
 
     stopLoadingAnim: function() {
-        document.getElementsByClassName("loadingOverlay")[0].classList.remove("active");
-        document.getElementById("addFriendToGroupWinLoadingBarBox").classList.remove("active");
+        LoadingAnim.stopAll();
     },
 }
 

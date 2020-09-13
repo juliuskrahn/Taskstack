@@ -1,14 +1,18 @@
-/* body
+/* body, top, header, content ...
 ============================================================================= */
 
 body {
-    min-width: 400px;
+    min-width: 360px;
     overflow-x: auto;
 }
 
-
-/* header
-============================================================================= */
+#top {
+    position: fixed;
+    z-index: 100;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
 
 header {
     position: relative;
@@ -16,31 +20,20 @@ header {
     z-index: 50;
 }
 
-
-/* top, content, general
-============================================================================= */
-
-#top {
-    padding: 0;
-    margin: 0;
-}
-
 #content {
     padding: 0 !important;
-    min-height: calc(100vh - 60px - 78.4px - 35px - 64px - 40px) !important;
+    padding-top: calc(60px + 78.4px + 35px) !important;
+    height: calc(100vh - 40px) !important;
+    min-height: 420px !important;
 }
 
 #content.pageHeadHidden {
-    min-height: calc(100vh - 60px - 35px - 64px - 40px) !important;
+    padding-top: calc(60px + 35px) !important;
 }
   
 @media (max-width:640px) {
     #content {
-        min-height: calc(100vh - 60px - 78.4px - 35px - 64px) !important;
-    }
-
-    #content.pageHeadHidden {
-        min-height: calc(100vh - 60px - 35px - 64px) !important;
+        height: 100vh !important;
     }
 }
 
@@ -48,10 +41,8 @@ body > section, #top section, #content > section {
     padding: 16px 24px 10px 24px;
 }
 
-@media (max-width:500px) {
-    body > section, #top section, #content > section {
-        padding: 16px 18px 12px 18px;
-    }
+footer {
+    margin-top: 0 !important;
 }
 
 
@@ -88,22 +79,21 @@ body > section, #top section, #content > section {
 /* toggle page head
 ============================================================================= */
 
-.togglePageHead:hover, #pageHead:hover ~ .togglePageHead, header:hover ~ .togglePageHead {
-    opacity: 1 !important;
-}
-
-.togglePageHead {
+#togglePageHead {
     opacity: 0 !important;
     transition: opacity .2s ease-out;
     position: absolute;
     width: 100%;
-    min-width: 400px;
     height: 4px;
     background-color: #e1e4e8;
     z-index: 40;
 }
 
-.togglePageHead .halfCircle {
+#togglePageHead:hover, #pageHead:hover ~ #togglePageHead, header:hover ~ #togglePageHead {
+    opacity: 1 !important;
+}
+
+#togglePageHead .halfCircle {
     display: block;
     position: absolute;
     top: calc(100%);
@@ -111,7 +101,7 @@ body > section, #top section, #content > section {
     fill: #e1e4e8;
 }
 
-.togglePageHead #hideIcon, .togglePageHead #showIcon {
+#togglePageHead #hideIcon, #togglePageHead #showIcon {
     display: none;
     position: absolute;
     top: calc(100% - 4px);
@@ -123,11 +113,16 @@ body > section, #top section, #content > section {
     padding: 2px 0;
 }
 
-.togglePageHead #hideIcon:hover, .togglePageHead #showIcon:hover {
+body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePageHead #hideIcon, body.onMobileDevice #togglePageHead #showIcon {
+    left: unset;
+    right: 4px;
+}
+
+#togglePageHead #hideIcon:hover, #togglePageHead #showIcon:hover {
     cursor: pointer;
 }
 
-.togglePageHead #hideIcon.active, .togglePageHead #showIcon.active {
+#togglePageHead #hideIcon.active, #togglePageHead #showIcon.active {
     display: block;
 }
 
@@ -145,6 +140,7 @@ body > section, #top section, #content > section {
     z-index: 10;
     cursor: default;
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    background-color: white;
 }
 
 @media (max-width:500px) {
@@ -158,8 +154,6 @@ body > section, #top section, #content > section {
 }
 
 #menuBar .menu {
-    font-size: 14px;
-    font-weight: 400;
     color: #616163;
     padding: 7px 0 8px 0;
     margin-right: 12px;
@@ -183,15 +177,15 @@ body > section, #top section, #content > section {
     border-radius: 2px;
     color: #616163 !important;
     width: auto;
-    min-width: 100%;
     top: 100%;
+    left: 0;
 }
 
 #menuBar .menu ul li.disabled {
     color: #BFC0C1 !important;
 }
 
-#menuBar .menu ul li {
+#menuBar .menu ul li:not(.menu-linkBtn) {
     padding: 4px 8px;
     white-space: nowrap;
 }
@@ -219,11 +213,12 @@ body > section, #top section, #content > section {
     cursor: default;
 }
 
-#menuBar a {
-    font-size: 14px;
-    font-weight: 400;
+#menuBar li.menu-linkBtn a {
+    padding: 4px 8px;
+    white-space: nowrap;
     color: #616163;
     opacity: 1 !important;
+    display: block;
 }
 
 
@@ -235,9 +230,9 @@ body > section, #top section, #content > section {
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: flex-start;
-    overflow-x: auto;
-    height: auto;
-    width: auto;
+    height: 100%;
+    max-height: 100%;
+    overflow: auto;
     padding: 32px 24px 64px 24px !important;
 }
 
@@ -248,17 +243,21 @@ body > section, #top section, #content > section {
     box-shadow: 0 0 4px 1px rgba(10, 10, 10, .1);
     padding: 8px 12px;
     background-color: #fafbfc;
-    flex-shrink: 0;
     cursor: default;
+    flex-shrink: 0;
 }
 
-.list:first-child {
+body.onMobileDevice .list {
+    padding: 8px 20px !important;
+}
+
+#listsContainer .list:first-child {
     margin-left: 0;
 }
 
 .list .head {
     position: relative;
-    margin-bottom: 16px;
+    margin-bottom: 4px;
 }
 
 .list .head h2 {
@@ -294,6 +293,18 @@ body > section, #top section, #content > section {
     opacity: 0;
 }
 
+#listsContainer .list .cards {
+    overflow-y: auto;
+    margin: -4px -12px;
+    padding: 4px 12px;
+    margin-bottom: 4px !important;
+}
+
+body.onMobileDevice .list .cards {
+    margin: -4px -20px !important;
+    padding: 4px 20px !important;
+}
+
 
 /* card 
 ============================================================================= */
@@ -306,6 +317,10 @@ body > section, #top section, #content > section {
     margin: 8px auto;
     cursor: default;
     transition: background-color .2s ease-out;
+}
+
+.card.hidden {
+    display: none;
 }
 
 .card h3 {
@@ -351,45 +366,9 @@ body > section, #top section, #content > section {
     opacity: 0;
 }
 
-.card .filesPopUp {
-    position: relative;
-    display: inline-block;
-}
 
-.card .filesPopUp > i:after {
-    content: "";
-    position: absolute;
-    display: block;
-    height: 4px;
-    top: 100%;
-    left: 0;
-    width: 100%;
-}
-
-.card .filesPopUp .container {
-    z-index: 50;
-    display: flex;
-    position: absolute;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: flex-start;
-    background-color: white;
-    box-shadow: 0 0 4px 2px rgba(0, 0, 0, .1);
-    width: auto;
-    border-radius: 4px;
-    top: calc(100% + 4px);
-    left: -50%;
-    visibility: hidden;
-    transition: visibility .25s ease;
-}
-
-.card .filesPopUp:hover .container, .card .filesPopUp .container.active {
-    visibility: visible;
-}
-
-.card .filesPopUp:hover .paperclipIcon {
-    opacity: .7;
-}
+/* (card:) added users
+============================================================================= */
 
 .addedUsersBox {
     border: 1px solid #ccc;
@@ -426,22 +405,6 @@ body > section, #top section, #content > section {
     position: relative;
 }
 
-.addedUsersList .addedUser .name {
-    position: absolute;
-    z-index: 1;
-    left: 16px;
-    top: 0;
-    padding: 2px 4px;
-    border: 1px solid #eee;
-    background-color: white;
-    display: none;
-}
-
-.addedUsersList .addedUser:hover .name, .addedUsersList .addedUser .name.active {
-    display: block;
-    opacity: 1;
-}
-
 .addedUsersTitle {
     color: #616163;
     padding: 8px;
@@ -469,6 +432,10 @@ body > section, #top section, #content > section {
     align-items: flex-start;
     overflow-x: auto;
     padding: 8px;
+}
+
+.tippy-box .files {
+    padding: 4px 0;
 }
 
 .files .file {
@@ -699,10 +666,76 @@ body > section, #top section, #content > section {
     border-radius: 50%;
 }
 
-/* warning section */
+    /* warning section */
 
 .warning {
     border-radius: 6px; 
     box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.2);
     padding: 12px;
+}
+
+
+/* small modals
+============================================================================= */
+
+section.smallModals {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+section.smallModals .modal.small {
+    min-width: 180px;
+    max-width: 320px;
+    min-height: 320px;
+    top: -4px;
+    right: 20px;
+}
+
+
+/* main media queries
+============================================================================= */
+
+@media (max-width: 500px) {
+    body > section, #top section, #content > section {
+        padding: 12px;
+    }
+
+    #menuBar {
+        padding: 0 12px;
+    }
+
+    #menuBar .menu {
+        margin-right: 8px;
+    }
+
+    #menuBar .menu, #menuBar .subMenu {
+        position: static;
+    }
+
+    #menuBar .menu > ul {
+        top: calc(100% + 8px);
+        left: 16px;
+        min-width: 32px;
+        min-height: 64px;
+    }
+
+    #menuBar .menu ul li:not(.menu-linkBtn), #menuBar li.menu-linkBtn a {
+        padding: 4px 6px;
+        font-size: 13px;
+    }
+
+    #listsContainer {
+        padding: 16px 12px 32px 12px !important;
+    }
+    
+    .list {
+        width: 280px;
+    }
+}
+
+@media (max-width: 400px) {
+    .list {
+        width: 240px;
+        padding: 8px 16px;
+    }
 }
