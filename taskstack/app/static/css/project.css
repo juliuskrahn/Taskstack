@@ -231,7 +231,6 @@ body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePage
     flex-wrap: nowrap;
     align-items: flex-start;
     height: 100%;
-    max-height: 100%;
     overflow: auto;
     padding: 32px 24px 64px 24px !important;
 }
@@ -247,62 +246,73 @@ body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePage
     flex-shrink: 0;
 }
 
-body.onMobileDevice .list {
-    padding: 8px 20px !important;
-}
-
 #listsContainer .list:first-child {
     margin-left: 0;
 }
 
-.list .head {
-    position: relative;
+.list > .head {
     margin-bottom: 4px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    column-gap: 8px;
 }
 
 .list .head h2 {
-    display: inline-block;
     font-weight: 500;
     font-size: 18px;
     line-height: 22px;
-    width: calc(100% - 32px);
+    flex-grow: 2;
 }
 
-.list .head .ecclipseIcon {
-    position: absolute;
-    display: inline-block;
-    left: calc(100% - 20px);
-    top: 0;
-    color: #616163;
+.list .head .actions {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    column-gap: 8px;
+}
+
+.list .head .actions .action {
+    color: var(--dim-grey);
     cursor: pointer;
     padding: 2px;
     line-height: 18px;
     font-size: 16px;
 }
 
-.list .head .ecclipseIcon:hover {
+.list .head .actions .action:first-child {
+    margin-left: auto;
+}
+
+.list .head .actions .action:hover {
     opacity: .7;
 }
 
-.list.dragging { 
-    background-color: #616163;
+.list.draggingGhost { 
+    background-color: var(--dim-grey);
     opacity: .1;
 }
 
-.list.dragging * {
-    opacity: 0;
+.list.draggingGhost * {
+    opacity: 0 !important;
 }
 
-#listsContainer .list .cards {
+.listDragHandle {
+    color: #b7b7b7 !important;
+}
+
+ .list .cards {
     overflow-y: auto;
     margin: -4px -12px;
     padding: 4px 12px;
-    margin-bottom: 4px !important;
+    min-height: 16px;
+    overscroll-behavior: contain;
 }
 
-body.onMobileDevice .list .cards {
-    margin: -4px -20px !important;
-    padding: 4px 20px !important;
+#listsContainer .buffer {
+    height: 100%;
+    width: 64px;
+    flex-shrink: 0;
 }
 
 
@@ -313,99 +323,104 @@ body.onMobileDevice .list .cards {
     background-color: white;
     box-shadow: 0 0 3px 1px rgba(60, 60, 60, .1);
     padding: 8px;
-    padding-bottom: 0;
     margin: 8px auto;
     cursor: default;
-    transition: background-color .2s ease-out;
 }
 
-.card.hidden {
-    display: none;
-}
-
-.card h3 {
-    margin-top: 0;
-    font-weight: 400;
-    font-size: 16px;
+.card .head {
     margin-bottom: 6px;
 }
 
-.card .actions {
-    margin-bottom: 2px;
+.card .head h3 {
+    margin-top: 0;
+    font-weight: 400;
+    font-size: 16px;
 }
 
-.card .action {
+.card .bottom .actions {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    column-gap: 8px;
+}
+
+.card .bottom .actions .action {
     color: var(--dim-grey);
-    padding: 2px;
     cursor: pointer;
-    margin-right: 8px;
-}
-
-.card i.action, .card i .action {
+    padding: 2px;
+    line-height: 16px;
     font-size: 15px;
 }
 
-.card i.action:hover, .card i .action:hover {
+.card .bottom .actions .action:hover {
     opacity: .7;
 }
 
-.card .actions .action:last-child {
-    margin-right: 0;
-}
-
-.card.dragImg {
-    transform: rotate(-8deg);
-}
-
-.card.dragging {
+.card.draggingGhost { 
     background-color: var(--dim-grey);
-    opacity: .05;
+    opacity: .1;
 }
 
-.card.dragging * {
-    opacity: 0;
+.card.draggingGhost * {
+    opacity: 0 !important;
+}
+
+.cardDragHandle {
+    color: #d1d1d1 !important;
+}
+
+.card .bottom {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    column-gap: 4px;
+    align-items: flex-start;
+}
+
+.card .bottom.membersListTooFull {
+    display: block;
+}
+
+.card .membersList {
+    justify-content: flex-end;
+    flex-grow: 2;
+}
+
+.bottom.membersListTooFull .membersList {
+    justify-content: unset;
 }
 
 
 /* (card:) added users
 ============================================================================= */
 
-.addedUsersBox {
-    border: 1px solid #ccc;
-    border-radius: 2px;
-}
-
-.addedUsersList {
+.membersList {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    padding: 4px 4px 4px 0;
+    column-gap: 4px;
 }
 
-.addedUsersBox .addedUsersList {
-    padding: 4px;
-}
-
-.addedUsersList  > *:not(:last-child) {
-    margin-right: 6px;
-}
-
-.addedUsersList .addedUser {
+.membersList .member {
     width: 36px;
     height: 36px;
     flex-shrink: 0;
     display: block;
-    position: relative;
-}
-
-.addedUsersList .addedUser img {
-    width: 36px;
-    height: 36px;
     border-radius: 50%;
-    position: relative;
+    cursor: pointer;
+    margin: 4px 0;
 }
 
-.addedUsersTitle {
+.modal .membersBox {
+    border: 1px solid #ccc;
+    border-radius: 2px;
+}
+
+.modal .membersBox .membersList {
+    padding: 4px;
+}
+
+.modal .membersTitle {
     color: #616163;
     padding: 8px;
     border-bottom: 1px solid #cacaca;
@@ -417,7 +432,7 @@ body.onMobileDevice .list .cards {
     overflow: visible;
 }
 
-.addedUsersTitle > p {
+.modal .membersTitle > p {
     margin-right: 12px;
 }
 
@@ -520,11 +535,11 @@ body.onMobileDevice .list .cards {
     max-width: 360px;
 }
 
-#listWinFilesSection, #cardWinFilesSection, #cardWinAddedUsersSection {
+#listWinFilesSection, #cardWinFilesSection, #cardWinMembersSection {
     display: none;
 }
 
-#listWinFilesSection.active, #cardWinFilesSection.active, #cardWinAddedUsersSection.active {
+#listWinFilesSection.active, #cardWinFilesSection.active, #cardWinMembersSection.active {
     display: block;
 }
 
@@ -736,6 +751,5 @@ section.smallModals .modal.small {
 @media (max-width: 400px) {
     .list {
         width: 240px;
-        padding: 8px 16px;
     }
 }

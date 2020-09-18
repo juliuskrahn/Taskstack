@@ -67,6 +67,8 @@ class SocketIOProjectNamespace(Namespace):
                 "projectDesc": project.project_desc
             }
 
+            emit("edit_project_name_and_desc_successful", room=request.sid)
+
             for collab in db.session.query(ProjectCollaboratorLink.user_id).filter_by(project_id=project.id).all():
                 emit("update_project_attributes",
                      project_data,
@@ -77,8 +79,6 @@ class SocketIOProjectNamespace(Namespace):
                  project_data,
                  room=current_user.id,
                  namespace="/")
-
-            emit("edit_project_name_and_desc_successful", room=request.sid)
 
     @staticmethod
     def on_delete_project(data):
@@ -159,6 +159,8 @@ class SocketIOProjectNamespace(Namespace):
 
             db.session.commit()
 
+            emit("create_list_successful", room=request.sid)
+
             emit("build_new_list",
                  {"id": new_list.id,
                   "name": data["name"],
@@ -166,7 +168,6 @@ class SocketIOProjectNamespace(Namespace):
                   "pos": new_list.pos,
                   "attachedFiles": attached_files},
                  room=int(data["projectId"]))
-            emit("create_list_successful", room=request.sid)
 
     @staticmethod
     def on_move_list(data):
@@ -234,6 +235,8 @@ class SocketIOProjectNamespace(Namespace):
 
             db.session.commit()
 
+            emit("edit_list_successful", request.sid)
+
             emit("update_list",
                  {"id": data["id"],
                   "name": data["name"],
@@ -241,7 +244,6 @@ class SocketIOProjectNamespace(Namespace):
                   "removedAttachedFiles": removed_attached_files,
                   "newAttachedFiles": new_attached_files},
                  room=int(data["projectId"]))
-            emit("edit_list_successful", request.sid)
 
     @staticmethod
     def on_delete_list(data):
@@ -273,8 +275,9 @@ class SocketIOProjectNamespace(Namespace):
             db.session.delete(list_to_remove)
             db.session.commit()
 
-            emit("remove_list", {"id": data["id"], "listsPosChanges": lists_pos_changes}, room=int(data["projectId"]))
             emit("delete_list_successful", room=request.sid)
+
+            emit("remove_list", {"id": data["id"], "listsPosChanges": lists_pos_changes}, room=int(data["projectId"]))
 
     @staticmethod
     def on_create_card(data):
@@ -302,11 +305,13 @@ class SocketIOProjectNamespace(Namespace):
                 attached_files[file_name] = app.config["S3_BUCKET_URL"] + "/" + key
 
             card_members = {}
-            for user_id in data["addedUsers"]:
+            for user_id in data["members"]:
                 card_members[user_id] = 1
                 db.session.add(CardUserAssignment(new_card.id, user_id))
 
             db.session.commit()
+
+            emit("create_card_successful", room=request.sid)
 
             emit("build_new_card",
                  {"id": new_card.id,
@@ -317,8 +322,6 @@ class SocketIOProjectNamespace(Namespace):
                   "attachedFiles": attached_files,
                   "members": card_members},
                  room=int(data["projectId"]))
-
-            emit("create_card_successful", room=request.sid)
 
     @staticmethod
     def on_move_card(data):
@@ -412,15 +415,17 @@ class SocketIOProjectNamespace(Namespace):
             new_card_members = []
             removed_card_members = []
 
-            for user_id in data["newAddedUsers"]:
+            for user_id in data["newMembers"]:
                 new_card_members.append(user_id)
                 db.session.add(CardUserAssignment(card_to_edit.id, user_id))
 
-            for user_id in data["removedAddedUsers"]:
+            for user_id in data["removedMembers"]:
                 removed_card_members.append(user_id)
                 CardUserAssignment.query.filter_by(card_id=card_to_edit.id, user_id=user_id).delete()
 
             db.session.commit()
+
+            emit("edit_card_successful", room=request.sid)
 
             emit("update_card",
                  {"id": data["id"],
@@ -429,10 +434,9 @@ class SocketIOProjectNamespace(Namespace):
                   "cardDesc": data["cardDesc"],
                   "removedAttachedFiles": removed_attached_files,
                   "newAttachedFiles": new_attached_files,
-                  "newAddedUsers": new_card_members,
-                  "removedAddedUsers": removed_card_members},
+                  "newMembers": new_card_members,
+                  "removedMembers": removed_card_members},
                  room=int(data["projectId"]))
-            emit("edit_card_successful", room=request.sid)
 
     @staticmethod
     def on_delete_card(data):
@@ -460,12 +464,13 @@ class SocketIOProjectNamespace(Namespace):
 
             db.session.commit()
 
+            emit("delete_card_successful", room=request.sid)
+
             emit("remove_card",
                  {"id": data["id"],
                   "listId": data["listId"],
                   "cardsPosChanges": cards_pos_changes},
                  room=int(data["projectId"]))
-            emit("delete_card_successful", room=request.sid)
 
     @staticmethod
     def on_add_friend_to_project(data):
@@ -543,6 +548,8 @@ class SocketIOProjectNamespace(Namespace):
 
             db.session.commit()
 
+            emit("successfully_added_friend_to_project", room=request.sid)
+
             emit("new_project_collab",
                  {"id": friend.id,
                   "name": friend.name,
@@ -559,8 +566,6 @@ class SocketIOProjectNamespace(Namespace):
                  namespace="/",
                  room=friend.id)
 
-            emit("successfully_added_friend_to_project", room=request.sid)
-
     @staticmethod
     def on_change_user_role(data):
         if current_user.is_project_owner_of(data["projectId"]) \
@@ -575,8 +580,8 @@ class SocketIOProjectNamespace(Namespace):
             collab_link.user_role = data["newRole"]
             db.session.commit()
 
-            emit("force_reload", namespace="/", room=int(data["userId"]))
             emit("successfully_changed_user_role", room=request.sid)
+            emit("force_reload", namespace="/", room=int(data["userId"]))
 
     @staticmethod
     def on_remove_user_from_project(data):
@@ -619,14 +624,14 @@ class SocketIOProjectNamespace(Namespace):
 
             db.session.commit()
 
-            emit("project_collab_removed",
-                 {"id": data["userId"]},
-                 room=int(data["projectId"]))
-
             if current_user.id == data["userId"]:
                 emit("successfully_left_project", room=request.sid)
             else:
                 emit("successfully_removed_project_collab", room=request.sid)
+
+            emit("project_collab_removed",
+                 {"id": data["userId"]},
+                 room=int(data["projectId"]))
 
             emit("removed_as_collab_of_project", data["projectId"], room=int(data["userId"]), namespace="/",)
 
@@ -707,7 +712,7 @@ class SocketIOProjectNamespace(Namespace):
 
         db.session.commit()
 
-        emit("successfully_created_chat_group", room=current_user.id)
+        emit("successfully_created_project_chat_group", room=request.sid)
 
         for key in members.keys():
             emit("new_chat_group",
@@ -722,8 +727,6 @@ class SocketIOProjectNamespace(Namespace):
                   "msgs": []},
                  room=int(key),
                  namespace="/")
-
-        emit("successfully_created_project_chat_group", room=request.sid)
 
     @staticmethod
     def on_delete_project_chat_group(data):
@@ -740,13 +743,13 @@ class SocketIOProjectNamespace(Namespace):
 
             db.session.commit()
 
+            emit("successfully_deleted_project_chat_group", room=request.sid)
+
             for member in members:
                 emit("chat_group_removed",
                      {"id": project_chat_group.id, "type": "projectChatGroup"},
                      room=member.user_id,
                      namespace="/")
-
-            emit("successfully_deleted_project_chat_group", room=request.sid)
 
     @staticmethod
     def on_change_project_visibility(data):
@@ -755,6 +758,6 @@ class SocketIOProjectNamespace(Namespace):
                 .update({Project.visibility: data["value"]})
             db.session.commit()
 
-            emit("update_project_visibility", data["value"], room=data["projectId"])
-
             emit("successfully_changed_project_visibility", room=request.sid)
+
+            emit("update_project_visibility", data["value"], room=data["projectId"])

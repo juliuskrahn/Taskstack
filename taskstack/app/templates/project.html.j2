@@ -41,18 +41,17 @@
     <script src={{ static_url("js/he.min.js") }}></script>
     <script src={{ static_url("js/anchorme.min.js") }}></script>
     <script src={{ static_url("js/popper.min.js") }}></script>
-    <link rel="stylesheet" href={{ static_url("css/tippy_light_border_theme.min.css") }} type="text/css">
+    <link rel="stylesheet" href={{ static_url("css/tippy_light_border_theme.css") }} type="text/css">
     <script src={{ static_url("js/tippy_bundle.min.js") }}></script>
+    <script src={{ static_url("js/sortable.min.js") }}></script>
     <script src={{ static_url("js/project/main.js") }}></script>
-    <script src={{ static_url("js/project/static_page_elements.js") }}></script>
-    <script src={{ static_url("js/project/lists_and_cards_setup.js") }}></script>
+    <script src={{ static_url("js/project/page_elements_static.js") }}></script>
     <script src={{ static_url("js/project/list.js") }}></script>
     <script src={{ static_url("js/project/card.js") }}></script>
-    <script src={{ static_url("js/project/wins.js") }}></script>
+    <script src={{ static_url("js/project/page_elements_dynamic.js") }}></script>
     <script src={{ static_url("js/project/file_attachment.js") }}></script>
     <script src="https://kit.fontawesome.com/ba20bc93cc.js" crossorigin="anonymous"></script>
     <link rel="shortcut icon" href={{ static_url("favicon.ico") }}>
-    <script src={{ static_url("js/drag_and_drop_polyfill_for_touchsreen.js") }}></script>
     <title>Taskstack | {{project_name}}</title>
   </head>
 
@@ -60,31 +59,34 @@
 
     <section id="top">
       <header id="headerNotLoggedIn">
-        <a href="/" class="linkToHome">
+        <a href="/" class="left">
           <picture class="logo">
             <source media="(min-width:500px)" srcset={{ static_url("img/logo.png") }} alt="Taskstack">
             <img class="logo" src={{ static_url("img/small_logo.png") }} alt="Taskstack">
           </picture>
-          <div id="notificationsCount" {% if notifications_count >= 1 %}class="active"{% endif %}>{{ notifications_count }}</div>
+          <div id="notificationsCount" {% if request.endpoint != "home" and request.endpoint != "chat_home" and request.endpoint != "chat" and notifications_count >= 1 %}class="active"{% endif %}>{% if request.endpoint != "home" and request.endpoint != "chat_home" and request.endpoint != "chat" %}{{ notifications_count }}{% endif %}</div>
         </a>
         {% if current_user.is_authenticated() %}
-        <div id="account">
-          <img id="currentUserProfilePic" src="{{ current_user.small_avatar_url }}" alt="{{ lex['Account'] }}">
-          <div id="accountActions" class="modal small">
-            <div class="title">{{ lex["Logged in as"] }} <span>{{ current_user.name }}</span></div>
-            <hr>
-            <div><a href="/{{ current_user.name }}">{{ lex["Your profile"] }}</a></div>
-            <div><a href="/{{ current_user.name }}/settings">{{ lex["Settings"] }}</a></div>
-            <div><form action="/logout" method="POST"><button type="submit">{{ lex["Logout"] }}</button></form></div>
-            <hr>
-            <div><a href="/">Home</a></div>
-            <div><a href="/chat">Chat</a></div>
+        <div class="right">
+          <div id="account">
+            <img id="currentUserProfilePic" src="{{ current_user.small_avatar_url }}" alt="{{ lex['Account'] }}">
+            <div id="accountActions" class="modal small">
+              <div class="title">{{ lex["Logged in as"] }} <span>{{ current_user.name }}</span></div>
+              <hr>
+              <div><a href="/{{ current_user.name }}">{{ lex["Your profile"] }}</a></div>
+              <div><a href="/{{ current_user.name }}/settings">{{ lex["Settings"] }}</a></div>
+              <div><form action="/logout" method="POST"><button type="submit">{{ lex["Logout"] }}</button></form></div>
+              <hr>
+              <div><a href="/">Home</a></div>
+              <div><a href="/chat">Chat</a></div>
+            </div>
           </div>
-        </div>
         {% else %}
+        <div class="right notLoggedIn">
+          <a class="linkBtn secondary" href="{{ login_url }}">{{ lex["Login"] }}</a>
         <a class="linkBtn" href="{{ signup_url }}">{{ lex["Signup"] }}</a>
-        <a class="linkBtn secondary" href="{{ login_url }}">{{ lex["Login"] }}</a>
         {% endif %}
+        </div>
       </header>
       <section id="pageHead">
         <h1 id="projectName">{{ project_name }}</h1>
@@ -112,7 +114,8 @@
         <li id="viewMenu" class="menu">
           {{ lex["view_menu_title"] }}
           <ul>
-            <li id="filterCardsButton">{{ lex["Filter cards"] }}</li>
+            <!--<li id="filterCardsButton">{{ lex["Filter cards"] }}</li>-->
+            <li>-</li>
           </ul>
         </li>
         <li id="settingsMenu" class="menu">
@@ -147,7 +150,7 @@
 
     <section id="content">
 
-        <section id="listsContainer"></section>
+        <section id="listsContainer"><div class="buffer"></div></section>
 
         <section class="smallModals">
           <div id="w-filterCardsWin" class="modal small">
@@ -215,9 +218,9 @@
           <i class="far fa-sticky-note cardIcon"></i><h2 id="cardWinName"></h2>
           <p id="cardWinDesc"></p>
         </section>
-        <section id="cardWinAddedUsersSection">
+        <section id="cardWinMembersSection">
           <p class="explain">{{ lex["Members"] }}</p>
-          <div id="cardWinAddedUsersList" class="addedUsersList"></div>
+          <div id="cardWinMembersList" class="membersList"></div>
         </section>
         <section id="cardWinFilesSection">
           <p class="explain">{{ lex["Attached files"] }}</p>
@@ -421,11 +424,11 @@
           </div>
           <p id="newListDescInputErrorText" class="errorText"></p>
         </section>
-        <section id="newListFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment.processUploadBoxDropInput(event);" ondragover="FileAttachment.uploadBoxDragOverHandler(event);">
+        <section id="newListFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment._processUploadBoxDropInput(event);" ondragover="FileAttachment._uploadBoxDragOverHandler(event);">
           <div class="files">
           </div>
           <div class="bottom">
-            <input type="file" accept="*" onchange="FileAttachment.processUploadBoxInput(event);" multiple>
+            <input type="file" accept="*" onchange="FileAttachment._processUploadBoxInput(event);" multiple>
             <p>{{ lex["Attach files by dropping them here or selecting them."] }}</p>
           </div>
         </section>
@@ -455,32 +458,21 @@
           </div>
           <p id="newCardDescInputErrorText" class="errorText"></p>
         </section>
-        <section id="newCardFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment.processUploadBoxDropInput(event);" ondragover="FileAttachment.uploadBoxDragOverHandler(event);">
+        <section id="newCardFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment._processUploadBoxDropInput(event);" ondragover="FileAttachment._uploadBoxDragOverHandler(event);">
           <div class="files">
           </div>
           <div class="bottom">
-            <input type="file" accept="*" onchange="FileAttachment.processUploadBoxInput(event);" multiple>
+            <input type="file" accept="*" onchange="FileAttachment._processUploadBoxInput(event);" multiple>
             <p>{{ lex["Attach files by dropping them here or selecting them."] }}</p>
           </div>
         </section>
         <p class="fileUploadBoxErrorText"></p>
-        <section class="addedUsersBox">
-          <div class="addedUsersTitle">
+        <section class="membersBox">
+          <div class="membersTitle">
             <p>{{ lex["Members"] }}</p>
-            <div class="select multiple" id="newCardWinAddUserSelect">
-              <div class="title">{{ lex["Select"] }}</div>
-              <svg width="9" height="5">
-                <polygon points="0,0 9,0 5,5" style="fill:#616163;">
-              </svg>
-              <ul class="options">
-                <li>
-                  <img>
-                  <p></p>
-                </li>
-              </ul>
-            </div>
+            <div class="selectBaseBox" id="newCardWinMembersSelectBaseBox">{{ lex["Select"] }}</div>
           </div>
-          <div id="newCardWinAddedUsersList" class="addedUsersList"></div>
+          <div id="newCardWinMembersList" class="membersList"></div>
         </section>
         <section class="btnGroup centerH">
           <button type="button" class="new" onclick="newCardWin.submit();">{{ lex["Add"] }}</button>
@@ -509,11 +501,11 @@
           </div>
           <p id="editListDescInputErrorText" class="errorText"></p>
         </section>
-        <section id="editListFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment.processUploadBoxDropInput(event);" ondragover="FileAttachment.uploadBoxDragOverHandler(event);">
+        <section id="editListFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment._processUploadBoxDropInput(event);" ondragover="FileAttachment._uploadBoxDragOverHandler(event);">
           <div class="files">
           </div>
           <div class="bottom">
-            <input type="file" accept="*" onchange="FileAttachment.processUploadBoxInput(event);" multiple>
+            <input type="file" accept="*" onchange="FileAttachment._processUploadBoxInput(event);" multiple>
             <p>{{ lex["Attach files by dropping them here or selecting them."] }}</p>
           </div>
         </section>
@@ -546,33 +538,26 @@
           </div>
           <p id="editCardDescInputErrorText" class="errorText"></p>
         </section>
-        <section id="editCardFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment.processUploadBoxDropInput(event);" ondragover="FileAttachment.uploadBoxDragOverHandler(event);">
+        <section id="editCardFileUploadBox" class="centerH fileUploadBox" ondrop="FileAttachment._processUploadBoxDropInput(event);" ondragover="FileAttachment._uploadBoxDragOverHandler(event);">
           <div class="files">
           </div>
           <div class="bottom">
-            <input type="file" accept="*" onchange="FileAttachment.processUploadBoxInput(event);" multiple>
+            <input type="file" accept="*" onchange="FileAttachment._processUploadBoxInput(event);" multiple>
             <p>{{ lex["Attach files by dropping them here or selecting them."] }}</p>
           </div>
         </section>
         <p class="fileUploadBoxErrorText"></p>
-        <section class="addedUsersBox">
-          <div class="addedUsersTitle">
+        <section class="membersBox">
+          <div class="membersTitle">
             <p>{{ lex["Members"] }}</p>
-            <div class="select multiple" id="editCardWinAddUserSelect">
-              <div class="title">{{ lex["Select"] }}</div>
-              <svg width="9" height="5">
-                <polygon points="0,0 9,0 5,5" style="fill:#616163;">
-              </svg>
-              <ul class="options">
-              </ul>
-            </div>
+            <div class="selectBaseBox" id="editCardWinMembersSelectBaseBox">{{ lex["Select"] }}</div>
           </div>
-          <div id="editCardWinAddedUsersList" class="addedUsersList"></div>
+          <div id="editCardWinMembersList" class="membersList"></div>
         </section>
         <section class="btnGroup centerH">
           <button type="button" onclick="editCardWin.submit();">{{ lex["Apply"] }}</button>
           <button type="button" class="secondary" onclick="editCardWin.close(true);">{{ lex["Cancel"] }}</button>
-          <button type="button" class="delete" onclick="editCardWin.delete();">{{ lex["Delete card"] }}</button>
+          <button type="button" class="delete" onclick="editCardWin._delete();">{{ lex["Delete card"] }}</button>
         </section>
       </div>
 

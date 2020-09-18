@@ -1,10 +1,10 @@
-/* on document load
+/* -> DOMContentLoaded
 ============================================================================= */
 
-window.addEventListener("load", () => {
-    buildProjectsOnLoad();
-    buildFriendsOnLoad();
-    buildNotificationsOnLoad();
+window.addEventListener("DOMContentLoaded", () => {
+    buildProjects();
+    buildFriends();
+    buildNotifications();
 });
 
 
@@ -12,7 +12,7 @@ window.addEventListener("load", () => {
 ============================================================================= */
 
 function installGlobalSocketEventHandlersForHome() {
-    socket.on("disconnect", EventCallback.socketDisconnected);
+    socket.on("disconnect", () => EventCallback.socketDisconnected(socket));
     
     socket.on("new_friend", (data) => {
         newFriendDomEl(data);
@@ -92,7 +92,7 @@ function newProjectDomEl(project, user_is) {
     }
 }
 
-function buildProjectsOnLoad() {
+function buildProjects() {
     function sortFunc(p1, p2) {
         if (p1.ownerName + p1.name > p2.ownerName + p2.name) {
             return -1;
@@ -133,7 +133,7 @@ function newFriendDomEl(friend) {
     ); 
 }
 
-function buildFriendsOnLoad() {
+function buildFriends() {
     friends.sort((f1, f2) => {
         if (f1.name > f2.name) {
             return -1;
@@ -215,7 +215,7 @@ function removeNotificationDomEl(n_dom_el_id) {
     }
 }
 
-function buildNotificationsOnLoad() {
+function buildNotifications() {
     notifications.sort((n1, n2) => {
         const n1_datetime = new Date(n1.datetime);
         const n2_datetime = new Date(n2.datetime);

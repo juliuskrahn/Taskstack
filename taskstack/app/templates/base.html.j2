@@ -24,8 +24,8 @@
     {% block head %}{% endblock %}
   </head>
   <body class="{% block body_classes %}{% endblock %}">
-    <header id="headerNotLoggedIn">
-      <a href="/" class="linkToHome">
+    <header>
+      <a href="/" class="left">
         <picture class="logo">
           <source media="(min-width:500px)" srcset={{ static_url("img/logo.png") }} alt="Taskstack">
           <img class="logo" src={{ static_url("img/small_logo.png") }} alt="Taskstack">
@@ -33,23 +33,26 @@
         <div id="notificationsCount" {% if request.endpoint != "home" and request.endpoint != "chat_home" and request.endpoint != "chat" and notifications_count >= 1 %}class="active"{% endif %}>{% if request.endpoint != "home" and request.endpoint != "chat_home" and request.endpoint != "chat" %}{{ notifications_count }}{% endif %}</div>
       </a>
       {% if current_user.is_authenticated() %}
-      <div id="account">
-        <img id="currentUserProfilePic" src="{{ current_user.small_avatar_url }}" alt="{{ lex['Account'] }}">
-        <div id="accountActions" class="modal small">
-          <div class="title">{{ lex["Logged in as"] }} <span>{{ current_user.name }}</span></div>
-          <hr>
-          <div><a href="/{{ current_user.name }}">{{ lex["Your profile"] }}</a></div>
-          <div><a href="/{{ current_user.name }}/settings">{{ lex["Settings"] }}</a></div>
-          <div><form action="/logout" method="POST"><button type="submit">{{ lex["Logout"] }}</button></form></div>
-          <hr>
-          <div><a href="/">Home</a></div>
-          <div><a href="/chat">Chat</a></div>
+      <div class="right">
+        <div id="account">
+          <img id="currentUserProfilePic" src="{{ current_user.small_avatar_url }}" alt="{{ lex['Account'] }}">
+          <div id="accountActions" class="modal small">
+            <div class="title">{{ lex["Logged in as"] }} <span>{{ current_user.name }}</span></div>
+            <hr>
+            <div><a href="/{{ current_user.name }}">{{ lex["Your profile"] }}</a></div>
+            <div><a href="/{{ current_user.name }}/settings">{{ lex["Settings"] }}</a></div>
+            <div><form action="/logout" method="POST"><button type="submit">{{ lex["Logout"] }}</button></form></div>
+            <hr>
+            <div><a href="/">Home</a></div>
+            <div><a href="/chat">Chat</a></div>
+          </div>
         </div>
-      </div>
       {% else %}
-      <a class="linkBtn" href="{{ signup_url }}">{{ lex["Signup"] }}</a>
-      <a class="linkBtn secondary" href="{{ login_url }}">{{ lex["Login"] }}</a>
+      <div class="right notLoggedIn">
+        <a class="linkBtn secondary" href="{{ login_url }}">{{ lex["Login"] }}</a>
+        <a class="linkBtn" href="{{ signup_url }}">{{ lex["Signup"] }}</a>
       {% endif %}
+      </div>
     </header>
     <section id="content">
       {% block content %}{% endblock %}

@@ -74,10 +74,10 @@
 */
 
 
-/* on document load
+/* -> DOMContentLoaded
 ============================================================================= */
 
-window.addEventListener("load", () => {
+window.addEventListener("DOMContentLoaded", () => {
     history.replaceState({open: "contactsWin"}, "Taskstack | Chat", "/chat");
     contactsWin.init();
     if (chatToOpen) {
@@ -110,7 +110,7 @@ window.addEventListener('popstate', (e) => {
 
 function installGlobalSocketEventHandlersForChat() {
 
-    socket.on("disconnect", EventCallback.socketDisconnected);
+    socket.on("disconnect", () => EventCallback.socketDisconnected(socket));
 
     socket.on("successfully_sent_msg", (msg_data) => {
         const chat_meta_data = getMsgChatMetaData(msg_data);

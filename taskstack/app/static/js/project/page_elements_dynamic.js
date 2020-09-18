@@ -32,6 +32,31 @@ const listWin = {
         Modal.openSafelyById("w-listWin");
     },
 
+    update: function(data) {
+        document.getElementById("listWinName").innerHTML = he.escape(data.name);
+        document.getElementById("listWinDesc").innerHTML = renderText(data.listDesc);
+
+        for (let file of data.newAttachedFiles) {
+            let listWinFiles = document.getElementById("listWinFiles");
+            listWinFiles.classList.add("active");
+            listWinFiles.innerHTML += FileAttachment.getHTML(file[0], file[1]);
+        }
+
+        for (let file_name of data.removedAttachedFiles) {
+            document.querySelector('#listWinFiles .file[data-name="'+file_name+'"]').remove();       
+        }
+
+        if (document.getElementById("listWinFiles").children.length == 0) {
+            document.getElementById("listWinFiles").classList.remove("active");
+        }
+
+        if (document.getElementById("listWinFiles").firstChild) {
+            document.getElementById("listWinFilesSection").classList.add("active");
+        } else {
+            document.getElementById("listWinFilesSection").classList.remove("active");
+        }
+    },
+
     close: function() {
         listWin.listId = null;
         Modal.closeById("w-listWin");
@@ -46,7 +71,7 @@ const cardWin = {
 
     memberPopUpsTippyInstancesSingleton: tippy.createSingleton([], 
         {
-            delay: 64,
+            delay: 32,
             moveTransition: 'transform 0.2s ease-out',
             overrides: ['interactive', 'placement', 'theme', 'trigger', 'allowHTML', 'appendTo', 'interactiveBorder', 'interactiveDebounce', 'zIndex']
         }),
@@ -82,27 +107,31 @@ const cardWin = {
             document.getElementById("cardWinFilesSection").classList.remove("active");
         }
         
+        for (let tippyInstance of cardWin.memberPopUpsTippyInstances) { 
+            tippyInstance.destroy();
+        }
         cardWin.memberPopUpsTippyInstances = [];
-        const cardWinAddedUsersList = document.getElementById("cardWinAddedUsersList");
-        cardWinAddedUsersList.innerHTML = "";
-        var hide_cardWinAddedUsersSection = true;
+        
+        const cardWinMembersList = document.getElementById("cardWinMembersList");
+        cardWinMembersList.innerHTML = "";
+        var hide_cardWinMembersSection = true;
         for (let member_id in card.members) {
-            cardWinAddedUsersList.innerHTML += '<div class="addedUser user-'+member_id+'"><img src="'+project.members[member_id].picUrl+'"></div>';
+            cardWinMembersList.innerHTML += '<img class="member user-'+member_id+'" src="'+project.members[member_id].picUrl+'">';
             setTimeout(() => {
                 cardWin.memberPopUpsTippyInstances.push(
                     tippy("#w-cardWin .user-"+member_id, {
-                        content: '<a href="'+project.members[member_id].goToUrl+'">'+project.members[member_id].name+'</a>',
+                        content: '<a class="popUp" href="'+project.members[member_id].goToUrl+'">'+project.members[member_id].name+'</a>',
                         interactive: true,
                         appendTo: document.getElementById("tippyContainer")
                     })[0]
                 );
-            }, 250);
-            hide_cardWinAddedUsersSection = false;
+            }, 200);
+            hide_cardWinMembersSection = false;
         }
-        if (hide_cardWinAddedUsersSection) {
-            document.getElementById("cardWinAddedUsersSection").classList.remove("active");
+        if (hide_cardWinMembersSection) {
+            document.getElementById("cardWinMembersSection").classList.remove("active");
         } else {
-            document.getElementById("cardWinAddedUsersSection").classList.add("active");
+            document.getElementById("cardWinMembersSection").classList.add("active");
             setTimeout(() => {
                 cardWin.memberPopUpsTippyInstancesSingleton.setInstances(cardWin.memberPopUpsTippyInstances);
             }, 500);
@@ -110,6 +139,84 @@ const cardWin = {
         
         cardWin.cardId = cardId;
         Modal.openSafelyById("w-cardWin");
+    },
+
+    update: function(data) {
+        document.getElementById("cardWinName").innerHTML = he.escape(data.name);
+        document.getElementById("cardWinDesc").innerHTML = renderText(data.cardDesc);
+
+        const cardWinFiles = document.getElementById("cardWinFiles");
+        const cardWinMembersList = document.getElementById("cardWinMembersList");
+
+        for (let file of data.newAttachedFiles) {
+            cardWinFiles.innerHTML += FileAttachment.getHTML(file[0]);
+        }
+
+        for (let file_name of data.removedAttachedFiles) {
+            document.querySelector('#cardWinFiles .file[data-name="'+file_name+'"]').remove();
+        }
+
+        for (let card_member_id of data.newMembers) {
+            cardWinMembersList.insertAdjacentHTML("beforeend", '<img class="member user-'+card_member_id+'" src="'+project.members[card_member_id].picUrl+'">');
+            setTimeout(() => {
+                cardWin.memberPopUpsTippyInstances.push(
+                    tippy("#w-cardWin .user-"+card_member_id, {
+                        content: '<a href="'+project.members[card_member_id].goToUrl+'">'+project.members[card_member_id].name+'</a>',
+                        interactive: true,
+                        appendTo: document.getElementById("tippyContainer")
+                    })[0]
+                );
+            }, 200);      
+        }
+        
+        for (let card_member_id of data.removedMembers) {
+            const cardWin_member_dom_el = document.querySelector("#w-cardWin .user-"+card_member_id);
+            var i = 0;
+            for (let tippyInstance of cardWin.memberPopUpsTippyInstances) {
+                if (tippyInstance.reference == cardWin_member_dom_el) {
+                    tippyInstance.destroy();
+                    break;
+                }
+                i++;
+            }
+            cardWin.memberPopUpsTippyInstances.splice(i, 1);
+            cardWin_member_dom_el.remove();            
+        }
+
+        setTimeout(() => {
+            cardWin.memberPopUpsTippyInstancesSingleton.setInstances(cardWin.memberPopUpsTippyInstances);
+            if (cardWinFiles.firstChild) {
+                cardWinFiles.classList.add("active");
+            } else {
+                cardWinFiles.classList.remove("active");
+            }
+            if (cardWinMembersList.firstChild) {
+                document.getElementById("cardWinMembersSection").classList.add("active");
+            } else {
+                document.getElementById("cardWinMembersSection").classList.remove("active");
+            }
+        }, 500);
+    },
+
+    projectCollabRemoved: function(data) {
+        const cardWin_member_dom_el = document.querySelector("#w-cardWin .user-"+data.id);
+        var i = 0;
+        for (let tippyInstance of cardWin.memberPopUpsTippyInstances) {
+            if (tippyInstance.reference == cardWin_member_dom_el) {
+                tippyInstance.destroy();
+                break;
+            }
+            i++;
+        }
+        cardWin.memberPopUpsTippyInstances.splice(i, 1); 
+
+        cardWin.memberPopUpsTippyInstancesSingleton.setInstances(cardWin.memberPopUpsTippyInstances);
+
+        if (document.getElementById("cardWinMembersList").firstChild) {
+            document.getElementById("cardWinMembersSection").classList.add("active");
+        } else {
+            document.getElementById("cardWinMembersSection").classList.remove("active");
+        }
     },
 
     close: function() {
@@ -186,6 +293,18 @@ const editListWin = {
         editListWin.listId = id;
         Modal.openSafelyById("w-editListWin");
     },
+
+    update: function(data) {
+        document.getElementById("editListWinName").innerHTML = he.escape(data.name);
+        
+        for (let file of data.newAttachedFiles) {
+            FileAttachment.uploadBoxAddFile("editListFileUploadBox", file[0], null);
+        }
+
+        for (let file_name of data.removedAttachedFiles) {
+            FileAttachment.uploadBoxRemoveFile(null, document.querySelector('#editListFileUploadBox .file[data-name="'+file_name+'"]'));
+        }
+    },
     
     close: function(open_listWin=false) {
         Modal.closeById("w-editListWin");
@@ -216,9 +335,9 @@ const editCardWin = {
 
     cardId: null,
 
-    newAddedUsers: [],
+    newMembers: [],
 
-    removedAddedUsers: [],
+    removedMembers: [],
 
     submit: function() {
         var invalid = false;
@@ -267,8 +386,8 @@ const editCardWin = {
             newAttachedFiles: newAttachedFiles,
             replacedAttachedFiles: replacedAttachedFiles,
             removedAttachedFiles: removedAttachedFiles,
-            newAddedUsers: editCardWin.newAddedUsers,
-            removedAddedUsers: editCardWin.removedAddedUsers
+            newMembers: editCardWin.newMembers,
+            removedMembers: editCardWin.removedMembers
         });
         this.startLoadingAnim();
     },
@@ -286,30 +405,38 @@ const editCardWin = {
             FileAttachment.uploadBoxAddFile("editCardFileUploadBox", file_name, null);
         }
 
-        const editCardWinAddUserSelect = document.getElementById("editCardWinAddUserSelect");
-        const editCardWinAddUserSelectList = editCardWinAddUserSelect.getElementsByTagName("ul")[0];
-        
-        editCardWinAddUserSelectList.innerHTML = "";
+        const editCardWinMembersList = document.getElementById("editCardWinMembersList");
+        editCardWinMembersList.innerHTML = "";
 
-        const editCardWinAddedUsersList = document.getElementById("editCardWinAddedUsersList");
-        editCardWinAddedUsersList.innerHTML = "";
-
-        editCardWin.newAddedUsers = [];
-        editCardWin.removedAddedUsers = [];
+        editCardWin.newMembers = [];
+        editCardWin.removedMembers = [];
         
+        var options = [];
         for (let user_id in project.members) {
-            var html = '<li class="user-'+user_id;
+            var selected = false;
             if (project.lists[listId].cards[id].members[user_id]) {
-                document.getElementById("editCardWinAddedUsersList").innerHTML += '<div class="addedUser user-'+user_id+'" id="'+"edit-card-win-added-user-"+user_id+'"><img src="'+project.members[user_id].picUrl+'"></div>';
-                html += ' active" data-checked="true"';
-            } else {
-                html += '"';
+                selected = true;
+                editCardWinMembersList.innerHTML += '<img class="member user-'+user_id+'" src="'+project.members[user_id].picUrl+'">';
             }
-            html += ' onclick="editCardWin.toggleAddUser('+user_id+');"><img src="'+project.members[user_id].picUrl+'"><p>'+project.members[user_id].name+'</p></li>';
-            editCardWinAddUserSelectList.innerHTML += html;
+            options.push({
+                id: user_id, 
+                selected: selected, 
+                content: '<img src="'+project.members[user_id].picUrl+'"><p>'+project.members[user_id].name+'</p>'
+            });
         }
 
-        Select.setup(editCardWinAddUserSelect);
+        if (Select.exists("editCardWinMembersSelect")) {
+            Select.set("editCardWinMembersSelect", options);
+        } else {
+            Select.create("editCardWinMembersSelect", 
+                document.getElementById("editCardWinMembersSelectBaseBox"), 
+                options, 
+                {
+                    optionSelectedCallback: editCardWin._addMember,
+                    optionUnSelectedCallback: editCardWin._removeMember 
+                }
+            );
+        }
 
         editCardWin.cardId = id;
         Modal.openSafelyById("w-editCardWin");
@@ -323,29 +450,74 @@ const editCardWin = {
         editCardWin.cardId = null;
     }, 
 
-    toggleAddUser: function(id) {
-        const listId = DomHelpers.getParent(document.getElementById("c-"+this.cardId), "list").id.substring(2);
-        const dom_el = document.getElementById("edit-card-win-added-user-"+id);
-        if (! dom_el) {
-            document.getElementById("editCardWinAddedUsersList").innerHTML += '<div class="addedUser user-'+id+'" id="'+"edit-card-win-added-user-"+id+'"><img src="'+project.members[id].picUrl+'"></div>';
-            if (!project.lists[listId].cards[this.cardId].members[id]) {
-                editCardWin.newAddedUsers.push(id);
-                let i = editCardWin.removedAddedUsers.indexOf(id);
-                if (i > -1) {
-                    editCardWin.removedAddedUsers.splice(i, 1);
-                } 
-            }
-            
-        } else {
-            dom_el.remove();
-            let i = editCardWin.newAddedUsers.indexOf(id);
-            if (i > -1) {
-                editCardWin.newAddedUsers.splice(i, 1);
-            } 
-            if (project.lists[listId].cards[this.cardId].members[id]) { 
-                editCardWin.removedAddedUsers.push(id);
-            }
+    update: function(data) {
+        document.getElementById("editCardWinName").innerHTML = he.escape(data.name);
+
+        for (let file of data.newAttachedFiles) {
+            FileAttachment.uploadBoxAddFile("editCardFileUploadBox", file[0], null);
         }
+
+        for (let file_name of data.removedAttachedFiles) {
+            FileAttachment.uploadBoxRemoveFile(null, document.querySelector('#editCardFileUploadBox .file[data-name="'+file_name+'"]'));
+        }
+
+        for (let member_id of data.newMembers) {
+            editCardWin._addMember({id: member_id}, true);
+        }
+        
+        for (let member_id of data.removedMembers) {
+            editCardWin._removeMember({id: member_id}, true);
+        }
+    },
+
+    _addMember: function(member_data, on_win_update=false) {
+        const listId = DomHelpers.getParent(document.getElementById("c-"+editCardWin.cardId), "list").id.substring(2);
+        document.getElementById("editCardWinMembersList").innerHTML += '<img class="member user-'+member_data.id+'" src="'+project.members[member_data.id].picUrl+'">';
+        if (!project.lists[listId].cards[editCardWin.cardId].members[member_data.id] && !on_win_update) {
+            editCardWin.newMembers.push(member_data.id);
+            let i = editCardWin.removedMembers.indexOf(member_data.id);
+            if (i >= 0) {
+                editCardWin.removedMembers.splice(i, 1);
+            } 
+        }
+        if (on_win_update) {
+            Select.selectOptionManually("editCardWinMembersSelect", 
+                {
+                    id: member_data.id, 
+                    selected: true, 
+                    content: '<img src="'+project.members[member_data.id].picUrl+'"><p>'+project.members[member_data.id].name+'</p>'
+                }
+            );
+        }
+    },
+
+    _removeMember: function(member_data, on_win_update=false) {
+        const listId = DomHelpers.getParent(document.getElementById("c-"+editCardWin.cardId), "list").id.substring(2);
+        document.querySelector("#editCardWinMembersList .user-"+member_data.id).remove();
+        if (on_win_update) {
+            Select.unselectOptionManually("editCardWinMembersSelect", member_data.id);
+        }
+        let i = editCardWin.newMembers.indexOf(member_data.id);
+        if (i >= 0) {
+            editCardWin.newMembers.splice(i, 1);
+        } 
+        if (project.lists[listId].cards[editCardWin.cardId].members[member_data.id]) { 
+            editCardWin.removedMembers.push(member_data.id);
+        }
+    },
+
+    newProjectCollab: function(data) {
+        Select.update("editCardWinMembersSelect", 
+            [{
+                id: data.id, 
+                selected: false, 
+                content: '<img src="'+project.members[data.id].picUrl+'"><p>'+project.members[data.id].name+'</p>'
+            }]
+        );
+    },
+
+    projectCollabRemoved: function(data) {
+        Select.update("editCardWinMembersSelect", [], [data.id]);
     },
 
     startLoadingAnim: function() {
@@ -356,7 +528,7 @@ const editCardWin = {
         LoadingAnim.stopAll();
     },
 
-    delete: function() {
+    _delete: function() {
         projectSocket.emit("delete_card", {
             projectId: project.id,
             id: this.cardId,
@@ -421,12 +593,13 @@ const newListWin = {
 
 const newCardWin = {
 
-    addedUsers: [],
+    members: [],
 
     addCardTo: null,
 
     submit: function() {
         var invalid = false;
+
         if (document.getElementById("newCardNameInput").value.length < 1 || document.getElementById("newCardNameInput").value.length > 32) {
             document.getElementById("newCardNameInputErrorText").innerHTML = lex["The card name must be 1 - 32 characters long."];
             document.getElementById("newCardNameInputErrorText").classList.add("active");
@@ -444,52 +617,79 @@ const newCardWin = {
         if (invalid) {
             return;
         }
+
         projectSocket.emit("create_card", {
             projectId: project.id,
             listId: newCardWin.addCardTo,
             name: document.getElementById("newCardNameInput").value,
             cardDesc: document.getElementById("newCardDescInput").value,
             attachedFiles: FileAttachment.uploadBoxes["newCardFileUploadBox"],
-            addedUsers: newCardWin.addedUsers
+            members: newCardWin.members
         });
-        this.startLoadingAnim();
+
+        newCardWin.startLoadingAnim();
     },
 
     open: function(e) {
-        newCardWin.addedUsers = [];
-        newCardWin.addCardTo = DomHelpers.getParent(e.target, "list").id.substring(2);
-
         document.getElementById("newCardNameInput").value = "";
         document.getElementById("newCardDescInput").value = "";
         document.getElementById("newCardNameInputErrorText").classList.remove("active");
         document.getElementById("newCardDescInputErrorText").classList.remove("active");
-        document.getElementById("newCardWinAddedUsersList").innerHTML = "";
+        document.getElementById("newCardWinMembersList").innerHTML = "";
         FileAttachment.clearUploadBox("newCardFileUploadBox");
-
-        const newCardWinAddUserSelect = document.getElementById("newCardWinAddUserSelect");
-        const newCardWinAddUserSelectList = newCardWinAddUserSelect.getElementsByTagName("ul")[0];
-        newCardWinAddUserSelectList.innerHTML = "";
+        newCardWin.members = [];
+        
+        var options = [];
         for (let user_id in project.members) {
-            newCardWinAddUserSelectList.innerHTML += '<li class="user-'+user_id+'" onclick="newCardWin.toggleAddUser('+user_id+');"><img src="'+project.members[user_id].picUrl+'"><p>'+project.members[user_id].name+'</p></li>';
+            options.push({
+                id: user_id, 
+                selected: false, 
+                content: '<img src="'+project.members[user_id].picUrl+'"><p>'+project.members[user_id].name+'</p>'
+            });
         }
 
-        Select.setup(newCardWinAddUserSelect);
+        if (Select.exists("newCardWinMembersSelect")) {
+            Select.set("newCardWinMembersSelect", options);
+        } else {
+            Select.create("newCardWinMembersSelect", 
+                document.getElementById("newCardWinMembersSelectBaseBox"), 
+                options, 
+                {
+                    optionSelectedCallback: newCardWin._addMember,
+                    optionUnSelectedCallback: newCardWin._removeMember 
+                }
+            );
+        }
 
+        newCardWin.addCardTo = DomHelpers.getParent(e.target, "list").id.substring(2);
         Modal.openSafelyById("w-newCardWin");
     },
 
-    toggleAddUser: function(id) {
-        const dom_el = document.getElementById("new-card-win-added-user-"+id);
-        if (! dom_el) {
-            document.getElementById("newCardWinAddedUsersList").innerHTML += '<a class="addedUser user-'+id+'" id="'+"new-card-win-added-user-"+id+'"><img src="'+project.members[id].picUrl+'"></a>';
-            newCardWin.addedUsers.push(id);
-        } else {
-            dom_el.remove();
-            const i = newCardWin.addedUsers.indexOf(id);
-            if (i > -1) {
-                newCardWin.addedUsers.splice(i, 1);
-            } 
+    _addMember: function(member_data) {
+        document.getElementById("newCardWinMembersList").innerHTML += '<img class="member user-'+member_data.id+'" src="'+project.members[member_data.id].picUrl+'">';
+        newCardWin.members.push(member_data.id);
+    },
+
+    _removeMember: function(member_data) {
+        document.querySelector("#newCardWinMembersList .user-"+member_data.id).remove();
+        let i = newCardWin.members.indexOf(member_data.id);
+        if (i >= 0) {
+            newCardWin.members.splice(i, 1);
         }
+    },
+
+    newProjectCollab: function(data) {
+        Select.update("newCardWinMembersSelect", 
+            [{
+                id: data.id, 
+                selected: false, 
+                content: '<img src="'+project.members[data.id].picUrl+'"><p>'+project.members[data.id].name+'</p>'
+            }]
+        );
+    },
+
+    projectCollabRemoved: function(data) {
+        Select.update("newCardWinMembersSelect", [], [data.id]);
     },
 
     close: function() {
@@ -868,8 +1068,7 @@ const leaveProjectWin = {
     }
 };
 
-
-const filterCardsWin = {
+/*const filterCardsWin = {
     
     open: function() {
         Modal.openSafelyById("w-filterCardsWin", {without_overlay: true, not_away_clickable: true});
@@ -878,4 +1077,4 @@ const filterCardsWin = {
     close: function() {
         Modal.closeById("w-filterCardsWin");
     }
-}
+}*/

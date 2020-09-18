@@ -3,19 +3,21 @@ var projectSocket;  // project namespace
 var dragging;  // list/ card dom element that is currently being dragged
 
 
-/* on document load
+/* -> DOMContentLoaded
 ============================================================================= */
 
-window.addEventListener("load", () => {
+window.addEventListener("DOMContentLoaded", () => {
     MenuBar.setup();
-    ListsAndCardsSetup.buildDomEls();
-    ListsAndCardsSetup.setupListCardsSectionResponsiveness();
+    buildListAndCardDomEls();
+    List.setupCardsSectionResponsiveness();
     if (currentUserIsOwner || currentUserIsCollaborator) {
         // installExtraGlobalSocketEventHandlersForProject is called from main.js
         projectSocket = io.connect("/project");
         installProjectSocketEventHandlers();
         if (currentUserRole == "owner" || currentUserRole == "admin") {
-            ListsAndCardsSetup.prepareDragging();
+            if (!Flag.onMobileDevice) {
+                List.setupListDraggingForAll();
+            }
             FileAttachment.setupUploading();
         }
     }
@@ -28,7 +30,7 @@ window.addEventListener("load", () => {
 
 function installExtraGlobalSocketEventHandlersForProject() {  // (called from main.js)
 
-    socket.on("disconnect", EventCallback.socketDisconnected);
+    socket.on("disconnect", () => EventCallback.socketDisconnected(socket));
 
     socket.on("removed_as_collab_of_project", (id) => {
         if (id == project.id) {
@@ -60,7 +62,7 @@ function installProjectSocketEventHandlers() {
 
     projectSocket.on("connect", () => projectSocket.emit("join_project_room", project.id));
 
-    projectSocket.on("disconnect", EventCallback.socketDisconnected);
+    projectSocket.on("disconnect", () => EventCallback.socketDisconnected(projectSocket));
 
     projectSocket.on("edit_project_name_and_desc_successful", () => {
         projectNameAndDescSettingWin.stopLoadingAnim();
@@ -85,10 +87,10 @@ function installProjectSocketEventHandlers() {
         for (let list_id in project.lists) {
             project.lists[list_id].pos += 1;
         }
-        List.build(data)
+        List.registerAndBuildDomEl(data)
     });
 
-    projectSocket.on("build_new_card", (data) => Card.build(data));
+    projectSocket.on("build_new_card", (data) => Card.registerAndBuildDomEl(data));
 
     projectSocket.on("create_list_successful", () => {
         newListWin.stopLoadingAnim();
@@ -114,13 +116,32 @@ function installProjectSocketEventHandlers() {
         editCardWin.close(true);
     });
 
-    projectSocket.on("update_list_pos", (data) => List.updatePositions(data));
+    projectSocket.on("update_list_pos", (data) => List.updateAllPositions(data));
 
-    projectSocket.on("update_card_pos", (data) => Card.updatePositions(data));
+    projectSocket.on("update_card_pos", (data) => Card.updateAllPositions(data));
 
-    projectSocket.on("remove_list", (data) => List.remove(data));
+    projectSocket.on("remove_list", (data) => {
+        if (listWin.listId == data.id) {
+            listWin.close();
+        }
+        if (editListWin.listId == data.id) {
+            editListWin.close();
+        }
+        if (newCardWin.addCardTo == data.id) {
+            newCardWin.close();
+        }
+        List.remove(data);
+    });
 
-    projectSocket.on("remove_card", (data) => Card.remove(data));
+    projectSocket.on("remove_card", (data) => {
+        if (cardWin.cardId == data.id) {
+            cardWin.close();
+        }
+        if (editCardWin.cardId == data.id) {
+            editCardWin.close();
+        }
+        Card.remove(data);
+    });
 
     projectSocket.on("delete_list_successful", () => {
         editListWin.stopLoadingAnim();
@@ -137,6 +158,12 @@ function installProjectSocketEventHandlers() {
         if (collabsWin.isInited) {
             collabsWin.newCollab(collab_data);
         }
+        if (newCardWin.addCardTo) {
+            newCardWin.newProjectCollab(collab_data);
+        }
+        if (editCardWin.cardId) {
+            editCardWin.newProjectCollab(collab_data);
+        }
     }); 
 
     projectSocket.on("successfully_added_friend_to_project", () => {
@@ -152,11 +179,19 @@ function installProjectSocketEventHandlers() {
 
     projectSocket.on("project_collab_removed", (data) => {
         delete project.members[data.id];
-        for (let list_id in project.lists) {
-            for (let card_id in project.lists[list_id].cards) {
-                delete project.lists[list_id].cards[card_id].members[data.id];
-            }
+
+        card.projectCollabRemoved(data);
+
+        if (newCardWin.addCardTo) {
+            newCardWin.projectCollabRemoved(data);
         }
+        if (cardWin.cardId) {
+            cardWin.projectCollabRemoved(data);
+        }
+        if (editCardWin.cardId) {
+            editCardWin.projectCollabRemoved(data);
+        }
+        
         for (let user_repr of document.getElementsByClassName("user-"+data.id)) {
             user_repr.remove();
         }
@@ -199,4 +234,44 @@ function installProjectSocketEventHandlers() {
     projectSocket.on("successfully_left_project", () => {
         leaveProjectWin.stopLoadingAnim();
     }); 
+}
+
+
+/* initial list and card dom elements building
+============================================================================= */
+
+function buildListAndCardDomEls() {
+    var lists = [];
+
+    for (let listId of Object.keys(project.lists)) {
+
+        var cards = [];
+
+        for (let cardId of Object.keys(project.lists[listId].cards)) {
+            cards.push([cardId, project.lists[listId].cards[cardId]]);
+        }
+
+        cards.sort((card1, card2) => card1[1].pos - card2[1].pos);
+
+        lists.push([listId, project.lists[listId], cards]);
+    }
+
+    lists.sort((list1, list2) => list1[1].pos - list2[1].pos);
+
+    for (let list of lists) {
+        List.buildDomEl({
+            id: list[0],
+            name: list[1].name,
+            pos: list[1].pos
+        });
+        for (let card of list[2]) {
+            Card.buildDomEl({
+                id: card[0],
+                listId: list[0],
+                name: card[1].name,
+                attachedFiles: card[1].attachedFiles,
+                members: card[1].members
+            });
+        }
+    }        
 }

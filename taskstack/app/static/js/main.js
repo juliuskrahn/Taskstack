@@ -1,10 +1,10 @@
 var socket;
 
 
-/* on document load
+/* -> DOMContentLoaded
 ============================================================================= */
 
-window.addEventListener("load", () => {
+window.addEventListener("DOMContentLoaded", () => {
 
   if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
     Flag.onMobileDevice = true;
@@ -38,8 +38,6 @@ window.addEventListener("load", () => {
   MainInit.setupSDropMenus();
 
   MainInit.setupExclusiveCheckboxGroups();
-
-  Select.setupAll();
 
   LoadingAnim.setupOverlays();
 
@@ -91,7 +89,7 @@ const MainInit = {
   },
 
   installDefaultGlobalSocketEventHandlers: function() {
-    socket.on("disconnect", EventCallback.socketDisconnected);
+    socket.on("disconnect", () => EventCallback.socketDisconnected(socket));
     socket.on("receive_msg", (_) => NotificationsCount.increment());
     socket.on("receive_friendship_request", (_) => NotificationsCount.increment());
   },
@@ -166,8 +164,11 @@ const MainInit = {
       allowHTML: true,
       appendTo: "parent",
       interactiveBorder: 2,
-      interactiveDebounce: 64,
-      zIndex: 2000
+      interactiveDebounce: 0,
+      duration: 200,
+      maxWidth: 512,
+      zIndex: 2000,
+      maxWidth: 280
     });
   }
 }
@@ -198,14 +199,14 @@ const Flag = {
 ============================================================================= */
 
 const EventCallback = {
-  socketDisconnected: function() {
+  socketDisconnected: function(_socket) {
     setTimeout(() => {
-      if (! Flag.pageIsUnloading && ! Flag.ignoreSocketDisconnect) {
+      if (_socket.disconnected && !Flag.ignoreSocketDisconnect || !Flag.pageIsUnloading) {
           LoadingAnim.stopAll();  
           Modal.closeAll();
           Modal.openSafelyById("disconnectModal", {not_away_clickable: true});
       }
-    }, 100);
+    }, 1500);
   }
 }
 
@@ -464,6 +465,7 @@ const Modal = {
     if ((e.target != modal) 
     && (! modal.contains(e.target)) 
     && (! document.getElementById("tippyContainer").contains(e.target)) 
+    && (! DomHelpers.getParent(e.target, "popUp")) 
     && (! e.target.classList.contains("modals"))) {
       Modal.close(modal);
     } 
@@ -508,32 +510,142 @@ const LoadingAnim = {
 ============================================================================= */
 
 const Select = {
-  setup: function(select) {
-    select.addEventListener("click", () => DomHelpers.activate(select), {once: true});
-    for (let option of select.getElementsByTagName("li")) {
-      option.addEventListener("click", () => {
-        if (option.dataset.checked == "true") {
-          option.dataset.checked = "false";
-          option.classList.remove("active");
-        } else {
-          option.dataset.checked = "true";
-          if (!select.classList.contains("multiple")) {
-            const actives = select.getElementsByClassName(".active");
-            if (actives) {
-              for (let active_option of actives) {
-                active_option.classList.remove("active");
-              }
-            }
+  instances: {},
+
+  create: function(id, selectBaseBox, selectOptions=[], callbacks={}) {
+    /*
+    id: unique id of the select,
+    selectBaseBox: dom element,
+    selectOptions: {id: unique id, content: html content, selected: boolean},
+    callbacks: {optionSelectedCallback: function (-> selectOptions entry), optionUnSelectedCallback: function (-> selectOptions entry)}
+    */
+
+    Select.instances[id] = {
+      tippyInstance: 
+        tippy(
+          selectBaseBox, 
+          {
+            content: "",
+            interactive: true,
+            appendTo: document.getElementById("tippyContainer"),
+            placement: 'bottom',
+            arrow: false,
+            trigger: "click",
+            theme: "select",
+            offset: [0, 2]
           }
-          option.classList.add("active");
-        }
-      })
-    }
+        ),
+      selectBaseBox: selectBaseBox,
+      options: selectOptions,
+      optionSelectedCallback: callbacks.optionSelectedCallback,
+      optionUnSelectedCallback: callbacks.optionUnSelectedCallback
+    };
+    Select._setTippyInstanceContent(id);
   },
 
-  setupAll: function() {
-    for (let select of document.getElementsByClassName("select")) {
-      Select.setup(select);
+  update: function(id, newOptions=[], removedOptions_id_list=[]) {
+    for (let removedOption_id of removedOptions_id_list) {
+      var i=0;
+      for (let option_entry of Select.instances[id].options) {
+        if (option_entry.id == removedOption_id) {
+          option_entry;
+          break;
+        }
+        i++;
+      }
+      Select.instances[id].options.splice(i, 1);
+    }
+    for (let newOption of newOptions) {
+      Select.instances[id].options.push(newOption);
+    }
+    Select._setTippyInstanceContent(id);
+  },
+
+  clear: function(id) {
+    Select.instances[id].options = [];
+    Select.instances[id].tippyInstance.setContent("");
+  },
+
+  set: function(id, selectOptions=[]) {
+    Select.instances[id].options = selectOptions;
+    Select._setTippyInstanceContent(id);
+  },
+
+  remove: function(id) {
+    Select.instances[id].tippyInstance.destroy();
+    delete Select.instances[id];
+  },
+
+  getOptions: function(id) {
+    return Select.instances[id].options;
+  },
+
+  exists: function(id) {
+    if (Select.instances[id]) {
+      return true;
+    }
+    return false;
+  },
+
+  _setTippyInstanceContent: function(id) {
+    var content = '<div class="select popUp" id="select-'+id+'">';
+    for (let selectOption of Select.instances[id].options) {
+      content += '<div class="option';
+      if (selectOption.selected) {
+        content += " selected";
+      }
+      content +='" id="option-'+selectOption.id+'" onclick="Select._optionClickedHandler(event, \''+id+'\');">'+selectOption.content+"</div>";
+    }
+    content += "</div>";
+    Select.instances[id].tippyInstance.setContent(content);
+  },
+
+  selectOptionManually: function(select_id, option_id) {
+    for (var option_entry of Select.instances[select_id].options) {
+      if (option_entry.id == option_id) {
+        option_entry.selected = true;
+        break;
+      }
+    }
+    Select._setTippyInstanceContent(select_id);
+  },
+
+  unselectOptionManually: function(select_id, option_id) {
+    for (var option_entry of Select.instances[select_id].options) {
+      if (option_entry.id == option_id) {
+        option_entry.selected = false;
+        break;
+      }
+    }
+    Select._setTippyInstanceContent(select_id);
+  },
+
+  _optionClickedHandler: function(e, id) {
+    var option_dom_el = e.target;
+    if (!option_dom_el.classList.contains("option")) {
+      option_dom_el = DomHelpers.getParent(e.target, "option");
+    }
+    if (!option_dom_el) {
+      return;
+    }
+
+    for (var option_entry of Select.instances[id].options) {
+      if (option_entry.id == option_dom_el.id.substring(7)) {
+        option_entry.selected = !option_entry.selected;
+        break;
+      }
+    }
+
+    Select._setTippyInstanceContent(id);
+
+    if (option_entry.selected == true) {
+      if (Select.instances[id].optionSelectedCallback) {
+        Select.instances[id].optionSelectedCallback(option_entry);
+      }
+    } else {
+      if (Select.instances[id].optionUnSelectedCallback) {
+        Select.instances[id].optionUnSelectedCallback(option_entry);
+      }
     }
   }
 }
@@ -588,6 +700,10 @@ pageUrl.getQueryVariable = function(variable) {
 ============================================================================= */
 
 const DomHelpers = {
+  /*onExist: function(selector) {
+
+  },*/
+
   getParent: function(el, parent_cls) {
     while ((el = el.parentElement) && !el.classList.contains(parent_cls));
     return el;

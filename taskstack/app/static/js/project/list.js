@@ -1,6 +1,6 @@
 const List = {
      
-    build: function(list_data) {
+    registerAndBuildDomEl: function(list_data) {
         project.lists[list_data.id] = {
             name: list_data.name,
             listDesc: list_data.listDesc,
@@ -14,81 +14,88 @@ const List = {
 
     buildDomEl: function(list_data) {
         var list_html = 
-        '<div id='+ "l-"+list_data.id +' class="list">'+
+        '<div id='+ "l-"+list_data.id+' class="list">'+
         '<section class="head">'+
         '<h2>'+ list_data.name +'</h2>'+
-        '<i class="fas fa-ellipsis-h ecclipseIcon" onclick="listWin.open(event);"></i>'+
-        '</section>'+
-        '<section class="cards">'+
-        '</section>'
+        '<div class="actions">'+
+        '<i class="fas fa-external-link-alt action" onclick="listWin.open(event);"></i>';
         if (currentUserRole == "owner" || currentUserRole == "admin") {
             list_html += 
-            '<div class="btnGroup centerH">'+
-            '<button class="new" onclick="newCardWin.open(event);">' + lex["Add card"] + '</button>'+
-            '</div>';
+            '<i class="fas fa-plus action" onclick="newCardWin.open(event);"></i>'+
+            '<i class="fas fa-grip-vertical action listDragHandle"></i>';
         }
-        list_html += '</div>';
-    
-        if (list_data.hasOwnProperty("pos") && list_data.pos >= 1) {
+        list_html += 
+        '</div></section>'+
+        '<section class="cards">'+
+        '</section><section class="listDynamicPopUps hide"></section></div>';
+        
+        if (list_data.pos >= 1) {
             document.getElementById("listsContainer").children[list_data.pos-1].insertAdjacentHTML("afterend", list_html);
         }
-        else if (list_data.hasOwnProperty("pos") && list_data.pos == 0) {
+        else if (list_data.pos == 0) {
             document.getElementById("listsContainer").insertAdjacentHTML("afterbegin", list_html);
         }
         else {
             document.getElementById("listsContainer").innerHTML += list_html;
         }
-    
-        if (!(currentUserRole == "owner" || currentUserRole == "admin")) {
-            return;
+
+        if (Flag.onMobileDevice) {
+            // TODO
         }
-        
-        document.getElementById("l-"+list_data.id).setAttribute("draggable", "true");        
+        else {
+            setTimeout(() => {
+                project.lists[list_data.id].cardsSortable = new Sortable(document.querySelector("#l-"+list_data.id+" .cards"), {
+                    group: "cardsSortables",
+                    handle: ".cardDragHandle",
+                    draggable: ".card",
+                    ghostClass: "draggingGhost",
+                    chosenClass: "chosen",
+                    dragClass: "dragging",
+                    direction: 'vertical',
+                    animation: 200,
+                    easing: "ease-in-out",
+                    scroll: true,
+                    scrollSensitivity: 50,
+                    scrollSpeed: 10,
+                    emptyInsertThreshold: 8,
+                
+                    onEnd: function (e) {
+                        const card_id = e.item.id.substring(2);
+                        const to_list_id = DomHelpers.getParent(e.to, "list").id.substring(2);
+                        const from_list_id = DomHelpers.getParent(e.from, "list").id.substring(2);
+                        if (to_list_id != from_list_id || project.lists[from_list_id].cards[card_id].pos != e.newDraggableIndex) {
+                            projectSocket.emit("move_card", {
+                                projectId: project.id,
+                                id: card_id,
+                                listId: to_list_id,
+                                pos: e.newDraggableIndex
+                            });                        
+                        }
+                    }
+                });
+            }, 500);
+        }
     },
 
     update: function(data) {
         project.lists[data.id].name = data.name;
         project.lists[data.id].listDesc = data.listDesc;
         document.getElementById("l-"+data.id).getElementsByTagName("h2")[0].innerHTML = he.escape(data.name);
-        if (listWin.listId == data.id) {
-            document.getElementById("listWinName").innerHTML = he.escape(data.name);
-            document.getElementById("listWinDesc").innerHTML = renderText(data.listDesc);
-        }
-        if (listWin.listId == data.id) {
-            document.getElementById("editListWinName").innerHTML = he.escape(data.name);
-            document.getElementById("editListNameInput").value = data.name;
-            document.getElementById("editListDescInput").value = data.listDesc;
-        }
+
         for (let file of data.newAttachedFiles) {
             project.lists[data.id].attachedFiles[file[0]] = file[1];
-            if (listWin.listId == data.id) {
-                let listWinFiles = document.getElementById("listWinFiles");
-                listWinFiles.classList.add("active");
-                listWinFiles.innerHTML += FileAttachment.getHTML(file[0], file[1]);
-            }
-            if (listWin.listId == data.id) {
-                FileAttachment.uploadBoxAddFile("editListFileUploadBox", file[0], null);
-            }
         }
+
         for (let file_name of data.removedAttachedFiles) {
             delete project.lists[data.id].attachedFiles[file_name];
-            if (listWin.listId == data.id) {
-                for (let _file of document.getElementById("listWinFiles").children) {
-                    if (_file.name == file_name) {
-                        _file.remove()
-                    }
-                }
-            }
-            if (document.getElementById("listWinFiles").children.length == 0) {
-                document.getElementById("listWinFiles").classList.remove("active");
-            }
-            if (listWin.listId == data.id) {
-                for (_file of document.getElementById("editListFileUploadBox").getElementsByClassName("file")) {
-                    if (_file.dataset.name == file_name) {
-                        FileAttachment.uploadBoxRemoveFile(null, _file);
-                    } 
-                }
-            }
+        }
+
+        if (listWin.listId == data.id) {
+            listWin.update(data);
+        }
+
+        if (editListWin.listId == data.id) {
+            editListWin.update(data);
         }
     },
 
@@ -127,7 +134,7 @@ const List = {
         }
     },
 
-    updatePositions: function(data) {
+    updateAllPositions: function(data) {
         const listsContainer = document.getElementById("listsContainer");
         const list_dom_el = document.getElementById("l-"+data.id);
         if (listsContainer.children[data.pos] != list_dom_el) {
@@ -148,28 +155,45 @@ const List = {
         }
     },
 
+    setupListDraggingForAll: function() {
+        project.listsSortable = new Sortable(document.getElementById("listsContainer"), {
+            handle: ".listDragHandle",
+            draggable: ".list",
+            ghostClass: "draggingGhost",
+            chosenClass: "chosen",
+            dragClass: "dragging",
+            filter: ".buffer",
+            direction: 'horizontal',
+            animation: 200,
+            easing: "ease-in-out",
+            scroll: true,
+            scrollSensitivity: 50,
+            scrollSpeed: 10,
+        
+            onEnd: function (e) {
+                const list_id = e.item.id.substring(2);
+                if (project.lists[list_id].pos != e.newDraggableIndex) {
+                    projectSocket.emit("move_list", {
+                        projectId: project.id,
+                        id: list_id,
+                        pos: e.newDraggableIndex
+                    });                    
+                }
+                
+            }
+        });
+    },
+
+    setupCardsSectionResponsiveness: function() {
+        List.Helpers.setCardsSectionMaxHeight();
+        addResizeListener(document.getElementById("content"), List.Helpers.setCardsSectionMaxHeight);
+    },
+
     Helpers: {
 
-        getInsertBeforePos: function(x) {
-            const lists = [...document.getElementsByClassName("list")];
-            var i = -1;
-            return lists.reduce((closest, child) => {
-                i++;
-                const box = child.getBoundingClientRect();
-                const offset = x - box.left - box.width / 2;
-                if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child, pos: i };
-                } else {
-                return closest;
-                }
-            }, { offset: Number.NEGATIVE_INFINITY, pos: Number.POSITIVE_INFINITY }).pos;            
-        },
-
         setCardsSectionMaxHeight: function() {
-            var subtrahend = 155;
-            if (currentUserIsOwner || currentUserRole == "admin") { subtrahend += 45; }
-            var max_height = document.getElementById("listsContainer").getBoundingClientRect().height - subtrahend;
-            if (max_height < 128) { max_height = 128; }
+            var max_height = document.getElementById("listsContainer").getBoundingClientRect().height - 120;
+            if (max_height < 120) { max_height = 120; }
             document.querySelectorAll(".list .cards").forEach((el) => {
                 el.style.maxHeight = String(max_height) + "px";
             });
