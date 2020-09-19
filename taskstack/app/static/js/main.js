@@ -464,7 +464,6 @@ const Modal = {
     
     if ((e.target != modal) 
     && (! modal.contains(e.target)) 
-    && (! document.getElementById("tippyContainer").contains(e.target)) 
     && (! DomHelpers.getParent(e.target, "popUp")) 
     && (! e.target.classList.contains("modals"))) {
       Modal.close(modal);
@@ -512,7 +511,7 @@ const LoadingAnim = {
 const Select = {
   instances: {},
 
-  create: function(id, selectBaseBox, selectOptions=[], callbacks={}) {
+  create: function(id, selectBaseBox, selectOptions=[], callbacks={}, configs={}) {
     /*
     id: unique id of the select,
     selectBaseBox: dom element,
@@ -538,7 +537,8 @@ const Select = {
       selectBaseBox: selectBaseBox,
       options: selectOptions,
       optionSelectedCallback: callbacks.optionSelectedCallback,
-      optionUnSelectedCallback: callbacks.optionUnSelectedCallback
+      optionUnSelectedCallback: callbacks.optionUnSelectedCallback,
+      configs: configs
     };
     Select._setTippyInstanceContent(id);
   },
@@ -629,10 +629,21 @@ const Select = {
       return;
     }
 
-    for (var option_entry of Select.instances[id].options) {
-      if (option_entry.id == option_dom_el.id.substring(7)) {
-        option_entry.selected = !option_entry.selected;
-        break;
+    if (Select.instances[id].configs.exclusive) {
+      for (var option_entry of Select.instances[id].options) {
+        if (option_entry.id == option_dom_el.id.substring(7)) {
+          option_entry.selected = !option_entry.selected;
+        } else {
+          option_entry.selected = false;
+        }
+      }
+    } 
+    else {
+      for (var option_entry of Select.instances[id].options) {
+        if (option_entry.id == option_dom_el.id.substring(7)) {
+          option_entry.selected = !option_entry.selected;
+          break;
+        }
       }
     }
 

@@ -116,9 +116,9 @@ function installProjectSocketEventHandlers() {
         editCardWin.close(true);
     });
 
-    projectSocket.on("update_list_pos", (data) => List.updateAllPositions(data));
+    projectSocket.on("update_list_pos", (data) => List.updatePositions(data));
 
-    projectSocket.on("update_card_pos", (data) => Card.updateAllPositions(data));
+    projectSocket.on("update_cards_pos", (data) => Card.updatePositions(data));
 
     projectSocket.on("remove_list", (data) => {
         if (listWin.listId == data.id) {
@@ -233,7 +233,15 @@ function installProjectSocketEventHandlers() {
 
     projectSocket.on("successfully_left_project", () => {
         leaveProjectWin.stopLoadingAnim();
-    }); 
+    });
+
+    projectSocket.on("move_list_successful", () => {
+        moveListWin.stopLoadingAnim();
+    });
+    
+    projectSocket.on("move_cards_successful", () => {
+        moveCardsWin.stopLoadingAnim();
+    });
 }
 
 

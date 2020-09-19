@@ -175,7 +175,7 @@ class SocketIOProjectNamespace(Namespace):
             resp = {"id": data["id"], "pos": data["pos"], "otherListsPosChanges": []}
 
             lists = List.query.filter_by(project_id=data["projectId"])
-            list_to_move = lists.filter_by(id=data["id"]).first()
+            list_to_move = lists.filter_by(id=data["id"], project_id=data["projectId"]).first()
             if list_to_move.pos > data["pos"]:
                 for _list in lists.all():
                     if data["pos"] <= _list.pos < list_to_move.pos:
@@ -190,6 +190,7 @@ class SocketIOProjectNamespace(Namespace):
 
             db.session.commit()
 
+            emit("move_list_successful", room=request.sid)
             emit("update_list_pos", resp, room=int(data["projectId"]))
 
     @staticmethod
@@ -328,44 +329,112 @@ class SocketIOProjectNamespace(Namespace):
         if data["projectId"] in rooms():
             card_to_move = Card.query.filter_by(id=data["id"]).first()
 
-            if card_to_move.list.project_id != data["projectId"]:
-                return
-
-            resp = {"id": data["id"],
-                    "pos": data["pos"],
-                    "listId": data["listId"],
-                    "prevListId": str(card_to_move.list_id),
+            resp = {"cards": [
+                        {"id": data["id"],
+                         "listId": data["listId"],
+                         "prevListId": card_to_move.list_id,
+                         "pos": data["pos"]}],
                     "otherCardsPosChanges": []}
 
+            prev_list = List.query.filter_by(id=card_to_move.list_id).first()
+
+            if prev_list.project_id != int(data["projectId"]) or card_to_move.list.project_id != int(data["projectId"]):
+                return
+
             if card_to_move.list_id == int(data["listId"]):
-                cards = Card.query.filter_by(list_id=card_to_move.list_id).all()
                 if card_to_move.pos > data["pos"]:
-                    for card in cards:
+                    for card in prev_list.cards:
                         if data["pos"] <= card.pos < card_to_move.pos:
                             card.pos += 1
-                            resp["otherCardsPosChanges"].append([str(card.id), str(card.list_id), 1])
+                            resp["otherCardsPosChanges"].append([card.id, card.list_id, 1])
                 else:
-                    for card in cards:
+                    for card in prev_list.cards:
                         if card_to_move.pos < card.pos <= data["pos"]:
                             card.pos -= 1
-                            resp["otherCardsPosChanges"].append([str(card.id), str(card.list_id), -1])
+                            resp["otherCardsPosChanges"].append([card.id, card.list_id, -1])
             else:
-                prev_list = List.query.filter_by(id=card_to_move.list_id).first()
                 list_to_move_to = List.query.filter_by(project_id=data["projectId"], id=data["listId"]).first()
+                if list_to_move_to.project_id != int(data["projectId"]):
+                    return
                 for card in prev_list.cards:
                     if card.pos > card_to_move.pos:
                         card.pos -= 1
-                        resp["otherCardsPosChanges"].append([str(card.id), str(card.list_id), -1])
+                        resp["otherCardsPosChanges"].append([card.id, card.list_id, -1])
                 for card in list_to_move_to.cards:
                     if card.pos >= data["pos"]:
                         card.pos += 1
-                        resp["otherCardsPosChanges"].append([str(card.id), str(card.list_id), 1])
+                        resp["otherCardsPosChanges"].append([card.id, card.list_id, 1])
                 card_to_move.list_id = data["listId"]
-            card_to_move.pos = data["pos"]
+            card_to_move.pos = int(data["pos"])
 
             db.session.commit()
 
-            emit("update_card_pos", resp, room=int(data["projectId"]))
+            emit("update_cards_pos", resp, room=int(data["projectId"]))
+
+    @staticmethod
+    def on_move_cards(data):
+        if data["projectId"] in rooms():
+            resp = {"cards": [],
+                    "otherCardsPosChanges": []}
+
+            cards = Card.query.filter(Card.id.in_(data["ids"])).order_by(Card.pos)
+
+            current_pos = int(data["pos"])
+
+            origin_lists = {}
+
+            cards_to_move_inside_target_list_that_where_before_insert_point = 0
+
+            for card in cards:
+                if card.list.project_id != int(data["projectId"]):
+                    return
+                origin_lists[card.list_id] = card.list
+                if card.list_id == int(data["listId"]) and card.pos <= int(data["pos"]):
+                    cards_to_move_inside_target_list_that_where_before_insert_point += 1
+
+                card.pos = current_pos
+                current_pos += 1
+
+                resp["cards"].append({"id": card.id,
+                                      "listId": data["listId"],
+                                      "prevListId": card.list_id,
+                                      "pos": card.pos})
+
+            try:
+                target_list = origin_lists[int(data["listId"])]
+            except KeyError:
+                target_list = List.query.filter_by(id=data["listId"]).first()
+
+            if target_list.project_id != int(data["projectId"]):
+                return
+
+            for card in cards:
+                card.list_id = int(data["listId"])
+
+            for card in target_list.cards:
+                if card in cards:
+                    continue
+                if card.pos < int(data["pos"]) or (card.pos == int(data["pos"])
+                                                   and cards_to_move_inside_target_list_that_where_before_insert_point):
+                    card.pos -= cards_to_move_inside_target_list_that_where_before_insert_point
+                else:
+                    resp["otherCardsPosChanges"].append([card.id, card.list_id, current_pos])
+                    card.pos += current_pos
+
+            db.session.commit()
+
+            for list_ in origin_lists.values():
+                pos = 0
+                for card in list_.cards.order_by(Card.pos):
+                    if card.pos != pos:
+                        resp["otherCardsPosChanges"].append([card.id, card.list_id, pos-card.pos])
+                        card.pos = pos
+                    pos += 1
+
+            db.session.commit()
+
+            emit("move_cards_successful", room=request.sid)
+            emit("update_cards_pos", resp, room=int(data["projectId"]))
 
     @staticmethod
     def on_edit_card(data):

@@ -37,7 +37,7 @@ header {
     }
 }
 
-body > section, #top section, #content > section {
+body > section, #top > section, #content > section {
     padding: 16px 24px 10px 24px;
 }
 
@@ -681,7 +681,7 @@ body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePage
     border-radius: 50%;
 }
 
-    /* warning section */
+/* warning section */
 
 .warning {
     border-radius: 6px; 
@@ -693,17 +693,30 @@ body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePage
 /* small modals
 ============================================================================= */
 
-section.smallModals {
-    padding: 0 !important;
-    margin: 0 !important;
+.modal.small {
+    min-width: 100px;
+    max-width: 300px;
+    min-height: 100px;
+    top: 20px;
+    right: 20px;
 }
 
-section.smallModals .modal.small {
-    min-width: 180px;
-    max-width: 320px;
-    min-height: 320px;
-    top: -4px;
-    right: 20px;
+/* moveCardsWin/ MoveListWin */
+
+.moveQuery section {
+    display: grid;
+    grid-template-columns: auto 120px;
+    align-items: center;
+    column-gap: 10px;
+    margin: 10px 0;
+}
+
+.moveQuery p {
+    white-space: nowrap;
+}
+
+.moveQuery section .inputContainer {
+    margin: 0;
 }
 
 
@@ -711,7 +724,7 @@ section.smallModals .modal.small {
 ============================================================================= */
 
 @media (max-width: 500px) {
-    body > section, #top section, #content > section {
+    body > section, #top > section, #content > section {
         padding: 12px;
     }
 

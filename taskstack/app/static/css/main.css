@@ -128,6 +128,7 @@ header #notificationsCount.active {
 
 header #account {
   position: relative;
+  width: 40px;
 }
 
 header #account img {
@@ -575,6 +576,16 @@ textarea {
   max-height: 512px;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 
 /* select (with tippy)
 ============================================================================= */
@@ -602,9 +613,17 @@ textarea {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
+  justify-content: space-between;
   column-gap: 8px;
   color: rgba(0,0,0,0.87);
   cursor: pointer;
+}
+
+.select .option > div {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  column-gap: 8px;
 }
 
 .select .option:hover {
@@ -906,6 +925,12 @@ li > .sDropMenu {
   z-index: 2000;
 }
 
+.smallModals {
+  padding: 0 !important;
+  margin: 0 !important;
+  z-index: 1000;
+}
+
 .modal {
   display: none;
   visibility: visible;
@@ -996,6 +1021,25 @@ li > .sDropMenu {
   position: absolute;
   box-shadow: 0 0 4px 2px rgba(0,0,0,.15);
   cursor: default;
+}
+
+.modal.small .head {
+  padding: 8px;
+  background-color: #f2f2f3;
+  outline: 1px solid rgba(0, 8, 16, 0.15);
+}
+
+.modal.small .head h2 {
+  font-size: 17px;
+  line-height: 18px;
+}
+
+.modal.small .content {
+  padding: 8px;
+}
+
+.modal.small .btnGroup {
+  margin-bottom: 4px;
 }
 
 
@@ -1171,7 +1215,7 @@ li > .sDropMenu {
   border-top-right-radius: 12px;
 }
 
-.modal .loadingBarBox {
+.modal:not(.small) .loadingBarBox {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }

@@ -421,7 +421,7 @@ const editCardWin = {
             options.push({
                 id: user_id, 
                 selected: selected, 
-                content: '<img src="'+project.members[user_id].picUrl+'"><p>'+project.members[user_id].name+'</p>'
+                content: '<div><img src="'+project.members[user_id].picUrl+'"><p>'+project.members[user_id].name+'</p></div>'
             });
         }
 
@@ -485,7 +485,7 @@ const editCardWin = {
                 {
                     id: member_data.id, 
                     selected: true, 
-                    content: '<img src="'+project.members[member_data.id].picUrl+'"><p>'+project.members[member_data.id].name+'</p>'
+                    content: '<div><img src="'+project.members[member_data.id].picUrl+'"><p>'+project.members[member_data.id].name+'</p></div>'
                 }
             );
         }
@@ -511,7 +511,7 @@ const editCardWin = {
             [{
                 id: data.id, 
                 selected: false, 
-                content: '<img src="'+project.members[data.id].picUrl+'"><p>'+project.members[data.id].name+'</p>'
+                content: '<div><img src="'+project.members[data.id].picUrl+'"><p>'+project.members[data.id].name+'</p></div>'
             }]
         );
     },
@@ -644,7 +644,7 @@ const newCardWin = {
             options.push({
                 id: user_id, 
                 selected: false, 
-                content: '<img src="'+project.members[user_id].picUrl+'"><p>'+project.members[user_id].name+'</p>'
+                content: '<div><img src="'+project.members[user_id].picUrl+'"><p>'+project.members[user_id].name+'</p></div>'
             });
         }
 
@@ -683,7 +683,7 @@ const newCardWin = {
             [{
                 id: data.id, 
                 selected: false, 
-                content: '<img src="'+project.members[data.id].picUrl+'"><p>'+project.members[data.id].name+'</p>'
+                content: '<div><img src="'+project.members[data.id].picUrl+'"><p>'+project.members[data.id].name+'</p></div>'
             }]
         );
     },
@@ -1071,10 +1071,257 @@ const leaveProjectWin = {
 /*const filterCardsWin = {
     
     open: function() {
-        Modal.openSafelyById("w-filterCardsWin", {without_overlay: true, not_away_clickable: true});
+        Modal.openSafelyById("w-filterCardsWin", {without_overlay: true});
     },
 
     close: function() {
         Modal.closeById("w-filterCardsWin");
     }
 }*/
+
+const moveListWin = {
+
+    submit: function() {
+        const list_options = Select.getOptions("moveListWinListSelect");
+
+        var insert_pos = Number(document.getElementById("insertListAtPosInput").value);
+        
+        var list_id;
+        for (let list_option of list_options) {
+            if (list_option.selected) {
+                list_id = list_option.id;
+                break;
+            }
+        }
+
+        if (isNaN(insert_pos) || list_id === undefined) {
+            return;
+        }
+
+        if (insert_pos > Object.keys(project.lists).length) {
+            insert_pos = Object.keys(project.lists).length-1;
+            document.getElementById("insertListAtPosInput").value = insert_pos;
+        } 
+        if (insert_pos < 0 || insert_pos == "") {
+            insert_pos = 0;
+            document.getElementById("insertListAtPosInput").value = insert_pos;
+        }
+        
+        moveListWin.startLoadingAnim();
+        projectSocket.emit("move_list", {projectId: project.id,
+            id: list_id, 
+            pos: insert_pos
+        });
+    },
+
+    open: function(init_selected_lists_ids=[], init_insert_pos=0) {
+        var list_select_options = [];
+
+        for (var [listId, list] of Object.entries(project.lists)) {
+            var selected = false;
+            if (init_selected_lists_ids.length >= 0 && init_selected_lists_ids.indexOf(listId) >= 0) {
+                selected = true;
+            }
+            list_select_options.push(
+                {
+                    id: listId,
+                    selected: selected,
+                    content: list.name
+                }
+            );
+        }
+
+        if (Select.exists("moveListWinListSelect")) {
+            Select.set("moveListWinListSelect", list_select_options);
+        } else {
+            Select.create("moveListWinListSelect", 
+                document.getElementById("moveListWinListSelectBaseBox"), 
+                list_select_options,
+                undefined,
+                {exclusive: true}
+            );
+        }
+
+        document.getElementById("insertListAtPosInput").value = init_insert_pos;
+
+        Modal.openById("w-moveListWin", {without_overlay: true});
+    },
+
+    newList: function(data) {
+        Select.update("moveListWinListSelect", [{id: data.id, content: data.name, selected: false}]);
+    },
+
+    listRemoved: function(data) {
+        Select.update("moveListWinListSelect", undefined, [data.id]);
+    },
+
+    close: function() {
+        Modal.closeById("w-moveListWin");
+    },
+
+    startLoadingAnim: function() {
+        LoadingAnim.start("moveListWinLoadingBarBox");
+    },
+
+    stopLoadingAnim: function() {
+        LoadingAnim.stopAll();
+    },
+
+    _open_by_list_click_event: function(e) {
+        const list_dom_el = DomHelpers.getParent(e.target, "list");
+        const list = project.lists[list_dom_el.id.substring(2)];
+        const listId = list_dom_el.id.substring(2);
+
+        setTimeout(() => {
+            if (!list_dom_el.classList.contains("draggingGhost")) {
+                moveListWin.open([listId], list.pos);
+            }
+        }, 200);
+    }
+}
+
+const moveCardsWin = {
+
+    submit: function() {
+        const cards_options = Select.getOptions("moveCardsWinCardsSelect");
+        const list_options = Select.getOptions("moveCardsWinListSelect");
+
+        var insert_pos = Number(document.getElementById("insertCardsAtPosInput").value);
+
+        const cards_to_move_ids = [];
+        for (let card_option of cards_options) {
+            if (card_option.selected) {
+                cards_to_move_ids.push(card_option.id);
+            }
+        }
+
+        var to_list_id;
+        for (let list_option of list_options) {
+            if (list_option.selected) {
+                to_list_id = list_option.id;
+                break;
+            }
+        }
+
+        if (isNaN(insert_pos) || cards_to_move_ids.length < 1 || to_list_id === undefined) {
+            return;
+        }
+
+        if (insert_pos > Object.keys(project.lists[to_list_id].cards).length) {
+            insert_pos = Object.keys(project.lists[to_list_id].cards).length-1;
+            document.getElementById("insertCardsAtPosInput").value = insert_pos;
+        } 
+        if (insert_pos < 0 || insert_pos == "") {
+            insert_pos = 0;
+            document.getElementById("insertCardsAtPosInput").value = insert_pos;
+        }
+
+        moveCardsWin.startLoadingAnim();
+        projectSocket.emit("move_cards", {projectId: project.id, 
+            ids: cards_to_move_ids, 
+            listId: to_list_id, 
+            pos: insert_pos
+        });
+    },
+
+    open: function(init_selected_cards_ids=[], init_selected_lists_ids=[], init_insert_pos=0) {
+        var cards_select_options = [];
+        var list_select_options = [];
+
+        for (var [listId, list] of Object.entries(project.lists)) {
+
+            for (let [cardId, card] of Object.entries(list.cards)) {
+                var selected = false;
+                if (init_selected_cards_ids.length >= 0 && init_selected_cards_ids.indexOf(cardId) >= 0) {
+                    selected = true;
+                }
+                cards_select_options.push(
+                    {
+                        id: cardId,
+                        selected: selected,
+                        content: card.name
+                    }
+                );
+            }
+
+            var selected = false;
+            if (init_selected_lists_ids.length >= 0 && init_selected_lists_ids.indexOf(listId) >= 0) {
+                selected = true;
+            }
+            list_select_options.push(
+                {
+                    id: listId,
+                    selected: selected,
+                    content: list.name
+                }
+            );
+        }
+
+        if (Select.exists("moveCardsWinCardsSelect")) {
+            Select.set("moveCardsWinCardsSelect", cards_select_options);
+        } else {
+            Select.create("moveCardsWinCardsSelect", 
+                document.getElementById("moveCardsWinCardsSelectBaseBox"), 
+                cards_select_options
+            );
+        }
+
+        if (Select.exists("moveCardsWinListSelect")) {
+            Select.set("moveCardsWinListSelect", list_select_options);
+        } else {
+            Select.create("moveCardsWinListSelect", 
+                document.getElementById("moveCardsWinListSelectBaseBox"), 
+                list_select_options,
+                undefined,
+                {exclusive: true}
+            );
+        }
+
+        document.getElementById("insertCardsAtPosInput").value = init_insert_pos;
+
+        Modal.openById("w-moveCardsWin", {without_overlay: true});
+    },
+
+    newList: function(data) {
+        Select.update("moveCardsWinListSelect", [{id: data.id, content: data.name, selected: false}]);
+    },
+
+    newCard: function(data) {
+        Select.update("moveCardsWinCardsSelect", [{id: data.id, content: data.name, selected: false}]);
+    },
+
+    listRemoved: function(data) {
+        Select.update("moveCardsWinListSelect", undefined, [data.id]);
+    },
+
+    cardRemoved: function(data) {
+        Select.update("moveCardsWinCardsSelect", undefined, [data.id]);
+    },
+
+    close: function() {
+        Modal.closeById("w-moveCardsWin");
+    },
+
+    startLoadingAnim: function() {
+        LoadingAnim.start("moveCardsWinLoadingBarBox");
+    },
+
+    stopLoadingAnim: function() {
+        LoadingAnim.stopAll();
+    },
+
+    _open_by_card_click_event: function(e) {
+        const card_dom_el = DomHelpers.getParent(e.target, "card");
+        const parent_list_dom_el = DomHelpers.getParent(card_dom_el, "list");
+        const parent_list_id = parent_list_dom_el.id.substring(2);
+        const parent_list = project.lists[parent_list_id];
+        const card = parent_list.cards[card_dom_el.id.substring(2)];
+        const cardId = card_dom_el.id.substring(2);
+
+        setTimeout(() => {
+            if (!card_dom_el.classList.contains("draggingGhost")) {
+                moveCardsWin.open([cardId], [parent_list_id], card.pos);
+            }
+        }, 200);
+    }
+}

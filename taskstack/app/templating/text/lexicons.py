@@ -422,6 +422,8 @@ project_html_j2 = get_extended_lexicon_dict({
         "Cancel": "Cancel",
 
         "New list": "New list",
+        "Move list": "Move list",
+        "Move card": "Move card",
         "Add a friend": "Add a friend",
         "Invite users with a link": "Invite users with a link",
         "Exit": "Exit",
@@ -437,7 +439,6 @@ project_html_j2 = get_extended_lexicon_dict({
                                                                      "permanently?",
 
         "New card": "New card",
-
         "List name": "List name",
         "List description (optional)": "List description (optional)",
         "Attach files by dropping them here or selecting them.": "Attach files by dropping them here or selecting "
@@ -446,6 +447,10 @@ project_html_j2 = get_extended_lexicon_dict({
         "Card description (optional)": "Card description (optional)",
         "Delete card": "Delete card",
         "Delete list": "Delete list",
+        "Insert List": "Insert List",
+        "at": "at",
+        "Insert Cards": "Insert Cards",
+        "in List": "in List",
 
         "Friend name/ email": "Friend name/ email",
         "Add with the \"Access Only\" role": "Add with the \"Access Only\" role",
@@ -525,6 +530,8 @@ project_html_j2 = get_extended_lexicon_dict({
         "Cancel": "Abbrechen",
 
         "New list": "Neue Liste",
+        "Move list": "Liste verschieben",
+        "Move card": "Karte verschieben",
         "Add a friend": "Freund zu Projekt hinzufügen",
         "Invite users with a link": "Benutzer mit einem Link zu diesem Projekt einladen",
         "Exit": "Schließen",
@@ -540,7 +547,6 @@ project_html_j2 = get_extended_lexicon_dict({
                                                                      "löschen möchten",
 
         "New card": "Neue Karte",
-
         "List name": "Name",
         "List description (optional)": "Beschreibung (optional)",
         "Attach files by dropping them here or selecting them.": "Hängen Sie Dateien an, indem Sie sie hier per Drag "
@@ -549,6 +555,10 @@ project_html_j2 = get_extended_lexicon_dict({
         "Card description (optional)": "Beschreibung (optional)",
         "Delete card": "Karte löschen",
         "Delete list": "Liste löschen",
+        "Insert List": "Liste",
+        "at": "einfügen an",
+        "Insert Cards": "Karten",
+        "in List": "in Liste",
         
         "Friend name/ email": "Benutzername oder Email-Adresse",
         "Add with the \"Access Only\" role": "Mit der \"Access Only\" Rolle hinzufügen",

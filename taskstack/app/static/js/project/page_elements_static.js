@@ -163,8 +163,12 @@ const MenuBar = {
         }
         if (currentUserRole == "owner" || currentUserRole == "admin") {
             document.getElementById("newListButton").onclick = newListWin.open;
+            document.getElementById("moveListButton").onclick = moveListWin.open;
+            document.getElementById("moveCardButton").onclick = moveCardsWin.open;
         } else {
             document.getElementById("newListButton").classList.add("disabled");
+            document.getElementById("moveListButton").classList.add("disabled");
+            document.getElementById("moveCardButton").classList.add("disabled");
         }
         if (currentUserIsCollaborator) {
             document.getElementById("leaveProjectButton").onclick = leaveProjectWin.open;

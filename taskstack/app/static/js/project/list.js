@@ -22,7 +22,7 @@ const List = {
         if (currentUserRole == "owner" || currentUserRole == "admin") {
             list_html += 
             '<i class="fas fa-plus action" onclick="newCardWin.open(event);"></i>'+
-            '<i class="fas fa-grip-vertical action listDragHandle"></i>';
+            '<i class="fas fa-grip-vertical action listDragHandle" onclick="moveListWin._open_by_list_click_event(event);"></i>';
         }
         list_html += 
         '</div></section>'+
@@ -38,11 +38,8 @@ const List = {
         else {
             document.getElementById("listsContainer").innerHTML += list_html;
         }
-
-        if (Flag.onMobileDevice) {
-            // TODO
-        }
-        else {
+        
+        if (!Flag.onMobileDevice) {
             setTimeout(() => {
                 project.lists[list_data.id].cardsSortable = new Sortable(document.querySelector("#l-"+list_data.id+" .cards"), {
                     group: "cardsSortables",
@@ -134,7 +131,7 @@ const List = {
         }
     },
 
-    updateAllPositions: function(data) {
+    updatePositions: function(data) {
         const listsContainer = document.getElementById("listsContainer");
         const list_dom_el = document.getElementById("l-"+data.id);
         if (listsContainer.children[data.pos] != list_dom_el) {

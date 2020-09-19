@@ -104,6 +104,8 @@
           {{ lex["project_menu_title"] }}
           <ul>
             <li id="newListButton">{{ lex["New list"] }}</li>
+            <li id="moveListButton">{{ lex["Move list"] }}</li>
+            <li id="moveCardButton">{{ lex["Move card"] }}</li>
             <li id="addFriendButton">{{ lex["Add a friend"] }}</li>
             <li id="invitePeopleWithLinkButton">{{ lex["Invite users with a link"] }}</li>
             <li id="collaboratorsButton">{{ lex["Collaborators"] }}</li>
@@ -145,19 +147,80 @@
             <li class="menu-linkBtn"><a href="/guide">{{ lex["Taskstack basics"] }}</a></li>
           </ul>
         </li>
+
+        <section class="smallModals">
+
+          <div id="w-filterCardsWin" class="modal small">
+
+          </div>
+
+          <div id="w-moveListWin" class="modal small">
+            <div class="loadingBarBox" id="moveListWinLoadingBarBox">
+                <div class="loadingBar"></div>
+            </div>
+            <div class="head">
+              <h2>{{ lex["Move list"] }}</h2>
+            </div>
+            <section class="content">
+              <section class="moveQuery">
+                <section>
+                  <p>{{ lex["Insert List"] }}</p>
+                  <div class="selectBaseBox" id="moveListWinListSelectBaseBox">{{ lex["Select"] }}</div>
+                </section>
+                <section>
+                  <p>{{ lex["at"] }}</p>
+                  <div class="inputContainer">
+                    <input id="insertListAtPosInput" type="number" name="insertListAtPos" value="" placeholder="&nbsp" autocomplete="off">
+                    <label for="insertListAtPos">Position</label>
+                  </div>
+                </section>
+              </section>
+            </section>
+            <section class="btnGroup centerH">
+              <button type="button" onclick="moveListWin.submit();">Ok</button>
+              <button type="button" class="secondary" onclick="moveListWin.close();">{{ lex["Cancel"] }}</button>
+            </section>
+          </div>
+
+          <div id="w-moveCardsWin" class="modal small">
+            <div class="loadingBarBox" id="moveCardsWinLoadingBarBox">
+                <div class="loadingBar"></div>
+            </div>
+            <div class="head">
+              <h2>{{ lex["Move card"] }}</h2>
+            </div>
+            <section class="content">
+              <section class="moveQuery">
+                <section>
+                  <p>{{ lex["Insert Cards"] }}</p>
+                  <div class="selectBaseBox" id="moveCardsWinCardsSelectBaseBox">{{ lex["Select"] }}</div>
+                </section>
+                <section>
+                  <p>at</p>
+                  <div class="inputContainer">
+                    <input id="insertCardsAtPosInput" type="number" name="insertCardsAtPos" value="" placeholder="&nbsp" autocomplete="off">
+                    <label for="insertCardsAtPos">Position</label>
+                  </div>
+                </section>
+                <section>
+                  <p>{{ lex["in List"] }}</p>
+                  <div class="selectBaseBox" id="moveCardsWinListSelectBaseBox">{{ lex["Select"] }}</div>
+                </section>
+              </section>
+            </section>
+            <section class="btnGroup centerH">
+              <button type="button" onclick="moveCardsWin.submit();">Ok</button>
+              <button type="button" class="secondary" onclick="moveCardsWin.close();">{{ lex["Cancel"] }}</button>
+            </section>
+          </div>
+
+        </section>
+
       </ul>
     </section>
 
     <section id="content">
-
         <section id="listsContainer"><div class="buffer"></div></section>
-
-        <section class="smallModals">
-          <div id="w-filterCardsWin" class="modal small">
-
-          </div>
-        </section>
-
     </section>
 
     <footer>

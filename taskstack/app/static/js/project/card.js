@@ -22,7 +22,7 @@ const Card = {
         '</section><div class="bottom"><div class="actions">';
         if (currentUserRole == "owner" || currentUserRole == "admin") {
             card_html += 
-            '<i class="fas fa-grip-vertical action cardDragHandle"></i>';
+            '<i class="fas fa-grip-vertical action cardDragHandle" onclick="moveCardsWin._open_by_card_click_event(event);"></i>';
         }
         card_html += 
         '<i class="action fas fa-external-link-alt" onclick="cardWin.open(event);"></i>'+
@@ -153,26 +153,30 @@ const Card = {
         }
     },
 
-    updateAllPositions: function(data) {
-        const card_list_cards = document.querySelector("#l-"+data.listId+" .cards");
-        const card_dom_el = document.getElementById("c-"+data.id);
-        if (card_list_cards.children[data.pos] != card_dom_el) {
-            if (0 < card_list_cards.children.length && data.pos < card_list_cards.children.length) {
-                if (project.lists[data.prevListId].cards[data.id].pos > data.pos || data.prevListId != data.listId) {
-                    card_list_cards.children[data.pos].insertAdjacentElement("beforebegin", card_dom_el);
+    updatePositions: function(data) {
+        for (let card_data of data.cards) {
+            const card_list_cards = document.querySelector("#l-"+card_data.listId+" .cards");
+            const card_dom_el = document.getElementById("c-"+card_data.id);
+            if (card_list_cards.children[card_data.pos] != card_dom_el) {
+                if (0 < card_list_cards.children.length && card_data.pos < card_list_cards.children.length) {
+                    if (project.lists[card_data.prevListId].cards[card_data.id].pos > card_data.pos || card_data.prevListId != card_data.listId) {
+                        card_list_cards.children[card_data.pos].insertAdjacentElement("beforebegin", card_dom_el);
+                    }
+                    else {
+                        card_list_cards.children[card_data.pos].insertAdjacentElement("afterend", card_dom_el);
+                    }
+                } else {
+                    card_list_cards.insertAdjacentElement("beforeend", card_dom_el);
                 }
-                else {
-                    card_list_cards.children[data.pos].insertAdjacentElement("afterend", card_dom_el);
-                }
-            } else {
-                card_list_cards.insertAdjacentElement("beforeend", card_dom_el);
             }
+
+            if (card_data.prevListId != card_data.listId) {
+                project.lists[card_data.listId].cards[card_data.id] = project.lists[card_data.prevListId].cards[card_data.id];
+                delete project.lists[card_data.prevListId].cards[card_data.id];
+            }
+            project.lists[card_data.listId].cards[card_data.id].pos = card_data.pos;
         }
-        if (data.prevListId != data.listId) {
-            project.lists[data.listId].cards[data.id] = project.lists[data.prevListId].cards[data.id];
-            delete project.lists[data.prevListId].cards[data.id];
-        }
-        project.lists[data.listId].cards[data.id].pos = data.pos;
+        
         for (let card of data.otherCardsPosChanges) {
             project.lists[card[1]].cards[card[0]].pos += card[2];
         }
