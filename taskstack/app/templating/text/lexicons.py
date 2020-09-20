@@ -75,6 +75,9 @@ base_html_j2 = {
         "Connection lost": "Connection lost",
         "Try reloading the page.": "Try reloading the page.",
 
+        "project": "Project",
+        "user": "User",
+
         # time
         "today": "today",
         "yesterday": "yesterday",
@@ -116,6 +119,9 @@ base_html_j2 = {
 
         "Connection lost": "Verbindung zum Server unterbrochen",
         "Try reloading the page.": "Versuchen Sie die Seite neu zu laden.",
+
+        "project": "Projekt",
+        "user": "Benutzer",
 
         # time
         "today": "Heute",

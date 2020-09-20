@@ -51,6 +51,8 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   MainInit.setupTippy();
+
+  search.setup();
 });
 
 
@@ -207,6 +209,98 @@ const EventCallback = {
           Modal.openSafelyById("disconnectModal", {not_away_clickable: true});
       }
     }, 1500);
+  }
+}
+
+
+/* search
+============================================================================= */
+
+const search = {
+
+  lastSearched: null,
+  searchAllowed: true,
+
+  search: async function() {
+    const to_search = document.getElementById("searchBarInput").value;
+
+    if (search.lastSearched == to_search) {
+      Modal.openById("searchResults",
+        {
+          without_overlay:true, 
+          on_open: () => document.getElementById("searchBar").classList.add("searchResultsOpen"),
+          on_close: () => document.getElementById("searchBar").classList.remove("searchResultsOpen"),
+        }
+      );
+      return;
+    }
+
+    if (!search.searchAllowed || to_search == "") {
+      return;
+    }
+
+    search.searchAllowed = false;
+
+    const results = await search.getSearchResults(to_search);
+
+    var results_html = "";
+
+    for (let result of results) {
+      results_html += '<a href="'+result.urlPath+'"><label>'+lex[result.type]+":</label>"+result.name+"</a>";
+    }
+
+    document.getElementById("searchResults").innerHTML = results_html;
+
+    Modal.openById("searchResults",
+      {
+        without_overlay:true, 
+        on_open: () => document.getElementById("searchBar").classList.add("searchResultsOpen"),
+        on_close: () => document.getElementById("searchBar").classList.remove("searchResultsOpen"),
+      }
+    );
+
+    search.lastSearched = to_search;
+
+    setTimeout(() => {
+      search.searchAllowed = true;
+    }, 200)
+  },
+
+  getSearchResults: async function(to_search) {
+    const response = await fetch("/search?q="+to_search, {
+      method: 'GET',
+      credentials: "include"
+    });
+    if (response.status == 200) {
+        return response.json().then(results => {
+            return results;
+        });
+    }
+    else {
+        window.alert("Error");
+        return undefined;
+    }    
+  },
+
+  setup: function() {
+    document.getElementById("searchBarInput").addEventListener("click", () => {
+      if (search.lastSearched == document.getElementById("searchBarInput").value) {
+        Modal.openById("searchResults",
+          {
+            without_overlay:true, 
+            on_open: () => document.getElementById("searchBar").classList.add("searchResultsOpen"),
+            on_close: () => document.getElementById("searchBar").classList.remove("searchResultsOpen"),
+          }
+        );
+      }
+    }); 
+
+    document.getElementById("searchBarInput").addEventListener("keyup", (e) => {
+      if (e.keyCode == 13) {
+        e.preventDefault();
+        search.search();
+      }
+    }); 
   }
 }
 

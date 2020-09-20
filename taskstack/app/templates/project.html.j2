@@ -55,18 +55,27 @@
     <title>Taskstack | {{project_name}}</title>
   </head>
 
-  <body>
+  <body class="{% if current_user.is_authenticated() %}loggedIn{% else %}notLoggedIn{% endif %}">
 
     <section id="top">
-      <header id="headerNotLoggedIn">
-        <a href="/" class="left">
-          <picture class="logo">
-            <source media="(min-width:500px)" srcset={{ static_url("img/logo.png") }} alt="Taskstack">
-            <img class="logo" src={{ static_url("img/small_logo.png") }} alt="Taskstack">
-          </picture>
-          <div id="notificationsCount" {% if request.endpoint != "home" and request.endpoint != "chat_home" and request.endpoint != "chat" and notifications_count >= 1 %}class="active"{% endif %}>{% if request.endpoint != "home" and request.endpoint != "chat_home" and request.endpoint != "chat" %}{{ notifications_count }}{% endif %}</div>
-        </a>
+      <header>
+        <div class="left">
+          <a href="/">
+            <picture class="logo">
+              <source media="(min-width:500px)" srcset={{ static_url("img/logo.png") }} alt="Taskstack">
+              <img class="logo" src={{ static_url("img/small_logo.png") }} alt="Taskstack">
+            </picture>
+            <div id="notificationsCount" {% if request.endpoint != "home" and request.endpoint != "chat_home" and request.endpoint != "chat" and notifications_count >= 1 %}class="active"{% endif %}>{% if request.endpoint != "home" and request.endpoint != "chat_home" and request.endpoint != "chat" %}{{ notifications_count }}{% endif %}</div>
+          </a>
+        </div>
+        <div class="middle">
         {% if current_user.is_authenticated() %}
+        <div id="searchBar" data-modal_click_away_listener_ignore="true">
+          <input id="searchBarInput" type="text" value="" placeholder="&nbsp" autocomplete="off" data-modal_click_away_listener_ignore="true">
+          <div class="searchBarSearchButton centerItems" onclick="search.search();" data-modal_click_away_listener_ignore="true"><i class="fas fa-search" data-modal_click_away_listener_ignore="true"></i></div>
+          <div id="searchResults" class="modal small"></div>
+        </div>
+        </div>
         <div class="right">
           <div id="account">
             <img id="currentUserProfilePic" src="{{ current_user.small_avatar_url }}" alt="{{ lex['Account'] }}">
@@ -82,9 +91,10 @@
             </div>
           </div>
         {% else %}
+        </div>
         <div class="right notLoggedIn">
           <a class="linkBtn secondary" href="{{ login_url }}">{{ lex["Login"] }}</a>
-        <a class="linkBtn" href="{{ signup_url }}">{{ lex["Signup"] }}</a>
+          <a class="linkBtn" href="{{ signup_url }}">{{ lex["Signup"] }}</a>
         {% endif %}
         </div>
       </header>

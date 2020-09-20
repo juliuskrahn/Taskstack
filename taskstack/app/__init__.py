@@ -99,6 +99,7 @@ from app.routes.invite import *
 from app.routes.chat import *
 from app.routes.chat_api import *
 from app.routes.logout import *
+from app.routes.search_api import *
 from app.routes.error_handlers import *
 
 
