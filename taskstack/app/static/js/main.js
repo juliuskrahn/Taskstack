@@ -168,7 +168,6 @@ const MainInit = {
       interactiveBorder: 2,
       interactiveDebounce: 0,
       duration: 200,
-      maxWidth: 512,
       zIndex: 2000,
       maxWidth: 280
     });
