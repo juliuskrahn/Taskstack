@@ -1325,3 +1325,154 @@ const moveCardsWin = {
         }, 200);
     }
 }
+
+const historyWin = {
+
+    isInited: false,
+
+    open: function() {
+        if (!historyWin.isInited) {
+            historyWin.init();
+        }
+
+        Modal.openById("w-historyWin");
+    },
+
+    init: async function() {
+        project.history = await historyWin.getHistory();
+
+        project.history.sort((event1, event2) => {
+            const event1_datetime = new Date(event1.datetime);
+            const event2_datetime = new Date(event2.datetime);
+            return event1_datetime.getTime() - event2_datetime.getTime();
+        });
+
+        var html = "";
+
+        for (let history_event of project.history) {
+            switch (history_event.type) {
+                case "historyListCreated_event":
+                    html += historyWin.html.forHistoryListCreated_event(history_event);
+                    break;
+                case "historyListDeleted_event":
+                    html += historyWin.html.forHistoryListDeleted_event(history_event);
+                    break;
+                case "historyCardCreated_event":
+                    html += historyWin.html.forHistoryCardCreated_event(history_event);
+                    break;
+                case "historyCardDeleted_event":
+                    html += historyWin.html.forHistoryCardDeleted_event(history_event);
+                    break;     
+                case "historyCardChangedList_event":
+                    html += historyWin.html.forHistoryCardChangedList_event(history_event);
+                    break;                       
+                default:
+                    break;
+            }
+        }
+
+        document.getElementById("historyWinHistory").innerHTML += html;
+
+        historyWin.isInited = true;
+    },
+
+    getHistory: async function() {
+        const response = await fetch(pageUrl+"/history", {
+            method: 'GET',
+            credentials: "include"
+        });
+        if (response.status == 200) {
+            return response.json().then(history => {
+                return history;
+            });
+        }
+        else {
+            window.alert("Error");
+            return undefined;
+        }
+    },
+
+    html: {
+
+        forHistoryListCreated_event: function(history_event) {
+            return '<tr>'+
+            '<td>'+DatetimeToLocalizedString.datetimeV1(new Date(history_event.datetime))+'</td>'+
+            '<td>'+lex["Created list"]+": "+history_event.name+
+             '<ul><li>'+lex["Description"]+": "+history_event.listDesc+'</li>'+
+                '<li>'+lex["Attached files"]+": "+history_event.attachedFilesNames+'</li>'+
+                '</ul></td>'+
+            '</tr>';
+        },
+
+        forHistoryListDeleted_event: function(history_event) {
+            return '<tr>'+
+            '<td>'+DatetimeToLocalizedString.datetimeV1(new Date(history_event.datetime))+'</td>'+
+            '<td>'+lex["Deleted list"]+": "+history_event.name+
+             '<ul><li>'+lex["Description"]+": "+history_event.listDesc+'</li>'+
+                '<li>'+lex["Attached files"]+": "+history_event.attachedFilesNames+'</li>'+
+                '</ul></td>'+
+            '</tr>';
+        },
+
+        forHistoryCardCreated_event: function(history_event) {
+            return '<tr>'+
+            '<td>'+DatetimeToLocalizedString.datetimeV1(new Date(history_event.datetime))+'</td>'+
+            '<td>'+lex["Created card"]+": "+history_event.name+
+             '<ul><li>'+lex["Description"]+": "+history_event.cardDesc+'</li>'+
+                '<li>'+lex["Attached files"]+": "+history_event.attachedFilesNames+'</li>'+
+                '<li>'+lex["Assigned members"]+": "+history_event.membersNames+'</li>'+
+                '<li>'+lex["In list"]+": "+history_event.listName+'</li>'+
+                '</ul></td>'+
+            '</tr>';
+        },
+
+        forHistoryCardDeleted_event: function(history_event) {
+            return '<tr>'+
+            '<td>'+DatetimeToLocalizedString.datetimeV1(new Date(history_event.datetime))+'</td>'+
+            '<td>'+lex["Deleted card"]+": "+history_event.name+
+             '<ul><li>'+lex["Description"]+": "+history_event.cardDesc+'</li>'+
+                '<li>'+lex["Attached files"]+": "+history_event.attachedFilesNames+'</li>'+
+                '<li>'+lex["Assigned members"]+": "+history_event.membersNames+'</li>'+
+                '<li>'+lex["In list"]+": "+history_event.listName+'</li>'+
+                '</ul></td>'+
+            '</tr>';
+        },
+
+        forHistoryCardChangedList_event: function(history_event) {
+            return '<tr>'+
+            '<td>'+DatetimeToLocalizedString.datetimeV1(new Date(history_event.datetime))+'</td>'+
+            '<td>'+lex["Moved card"]+": "+history_event.name+
+             '<ul><li>'+lex["Old list"]+": "+history_event.oldListName+'</li>'+
+                '<li>'+lex["New list"]+": "+history_event.newListName+'</li>'+
+                '</ul></td>'+
+            '</tr>';
+        }
+    },
+
+    update: {
+
+        historyListCreated_event: function(history_event) {
+            document.getElementById("historyWinHistory").innerHTML += historyWin.html.forHistoryListCreated_event(history_event);
+        },
+
+        historyListDeleted_event: function(history_event) {
+            document.getElementById("historyWinHistory").innerHTML += historyWin.html.forHistoryListDeleted_event(history_event);
+        },
+
+        historyCardCreated_event: function(history_event) {
+            document.getElementById("historyWinHistory").innerHTML += historyWin.html.forHistoryCardCreated_event(history_event);
+        },
+
+        historyCardDeleted_event: function(history_event) {
+            document.getElementById("historyWinHistory").innerHTML += historyWin.html.forHistoryCardDeleted_event(history_event);
+        },
+
+        historyCardChangedList_event: function(history_event) {
+            document.getElementById("historyWinHistory").innerHTML += historyWin.html.forHistoryCardChangedList_event(history_event);
+        }
+    },
+
+    close: function() {
+        Modal.closeById("w-historyWin");
+    }
+}

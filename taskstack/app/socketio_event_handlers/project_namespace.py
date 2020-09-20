@@ -5,7 +5,8 @@ import re
 import sys
 from app import app, db, s3_cli
 from app.db_models import User, Project, List, Card, ListAttachedFile, CardAttachedFile, ProjectCollaboratorLink, \
-    ProjectChatGroup, ProjectChatGroupMemberLink, ProjectChatGroupMsg, ProjectChatGroupMsgStatus, CardUserAssignment
+    ProjectChatGroup, ProjectChatGroupMemberLink, ProjectChatGroupMsg, ProjectChatGroupMsgStatus, CardUserAssignment, \
+    HistoryListCreated, HistoryCardCreated, HistoryListDeleted, HistoryCardDeleted, HistoryCardChangedList
 from app.helpers import split_s3_obj_url, invalid_names
 from uuid import uuid4
 
@@ -147,6 +148,7 @@ class SocketIOProjectNamespace(Namespace):
                 return
 
             attached_files = {}
+            attached_files_names = ""
             for file_name, binary in data["attachedFiles"].items():
                 if sys.getsizeof(binary) > 10485760:
                     return
@@ -156,6 +158,16 @@ class SocketIOProjectNamespace(Namespace):
                                   ContentDisposition=f'attachment; filename="{file_name}"')
                 db.session.add(ListAttachedFile(new_list.id, app.config["S3_BUCKET_URL"] + "/" + key, file_name))
                 attached_files[file_name] = app.config["S3_BUCKET_URL"] + "/" + key
+                attached_files_names += file_name+", "
+
+            if len(attached_files_names) > 2:
+                attached_files_names = attached_files_names[:-2]
+            db.session.add(HistoryListCreated(
+                new_list.id,
+                data["projectId"],
+                new_list.name,
+                new_list.list_desc,
+                attached_files_names))
 
             db.session.commit()
 
@@ -251,15 +263,19 @@ class SocketIOProjectNamespace(Namespace):
         if data["projectId"] in rooms():
             list_to_remove = List.query.filter_by(id=data["id"], project_id=data["projectId"]).first()
 
+            attached_files_names = ""
             for file in list_to_remove.attached_files:
                 _, key = split_s3_obj_url(file.url)
                 s3_cli.delete_object(Bucket=app.config["S3_BUCKET_NAME"], Key=key)
+                attached_files_names += file.name + ", "
                 db.session.delete(file)
 
+            cards_names = ""
             for card in list_to_remove.cards:
                 for file in card.attached_files:
                     _, key = split_s3_obj_url(file.url)
                     s3_cli.delete_object(Bucket=app.config["S3_BUCKET_NAME"], Key=key)
+                    cards_names += card.name + ", "
                     db.session.delete(file)
 
                 CardUserAssignment.query.filter_by(card_id=card.id).delete()
@@ -273,7 +289,20 @@ class SocketIOProjectNamespace(Namespace):
                     _list.pos -= 1
                     lists_pos_changes.append([_list.id, -1])
 
+            if len(attached_files_names) > 2:
+                attached_files_names = attached_files_names[:-2]
+            if len(cards_names) > 2:
+                cards_names = cards_names[:-2]
+            db.session.add(HistoryListDeleted(
+                list_to_remove.id,
+                data["projectId"],
+                list_to_remove.name,
+                list_to_remove.list_desc,
+                attached_files_names,
+                cards_names))
+
             db.session.delete(list_to_remove)
+
             db.session.commit()
 
             emit("delete_list_successful", room=request.sid)
@@ -282,8 +311,11 @@ class SocketIOProjectNamespace(Namespace):
 
     @staticmethod
     def on_create_card(data):
-        if data["projectId"] in rooms() and List.query.filter_by(id=data["listId"],
-                                                                 project_id=data["projectId"]).scalar():
+        if data["projectId"] in rooms():
+            card_list = List.query.filter_by(id=data["listId"], project_id=data["projectId"]).first()
+            if not card_list:
+                return
+
             new_card = Card(data["listId"],
                             data["name"],
                             data["cardDesc"],
@@ -295,6 +327,7 @@ class SocketIOProjectNamespace(Namespace):
                 return
 
             attached_files = {}
+            attached_files_names = ""
             for file_name, binary in data["attachedFiles"].items():
                 if sys.getsizeof(binary) > 10485760:
                     return
@@ -304,11 +337,27 @@ class SocketIOProjectNamespace(Namespace):
                                   ContentDisposition=f'attachment; filename="{file_name}"')
                 db.session.add(CardAttachedFile(new_card.id, app.config["S3_BUCKET_URL"] + "/" + key, file_name))
                 attached_files[file_name] = app.config["S3_BUCKET_URL"] + "/" + key
+                attached_files_names += file_name+", "
 
             card_members = {}
+            card_members_names = ""
             for user_id in data["members"]:
                 card_members[user_id] = 1
                 db.session.add(CardUserAssignment(new_card.id, user_id))
+                card_members_names += User.query.filter_by(id=user_id).first().name+", "
+
+            if len(attached_files_names) > 2:
+                attached_files_names = attached_files_names[:-2]
+            if len(card_members_names) > 2:
+                card_members_names = card_members_names[:-2]
+            db.session.add(HistoryCardCreated(
+                new_card.id,
+                data["projectId"],
+                new_card.name,
+                card_list.name,
+                new_card.card_desc,
+                attached_files_names,
+                card_members_names))
 
             db.session.commit()
 
@@ -365,6 +414,14 @@ class SocketIOProjectNamespace(Namespace):
                         card.pos += 1
                         resp["otherCardsPosChanges"].append([card.id, card.list_id, 1])
                 card_to_move.list_id = data["listId"]
+
+                db.session.add(HistoryCardChangedList(
+                    card_to_move.id,
+                    data["projectId"],
+                    card_to_move.name,
+                    prev_list.name,
+                    list_to_move_to.name))
+
             card_to_move.pos = int(data["pos"])
 
             db.session.commit()
@@ -409,7 +466,14 @@ class SocketIOProjectNamespace(Namespace):
                 return
 
             for card in cards:
-                card.list_id = int(data["listId"])
+                if card.list_id != int(data["listId"]):
+                    db.session.add(HistoryCardChangedList(
+                        card.id,
+                        data["projectId"],
+                        card.name,
+                        origin_lists[card.list_id].name,
+                        target_list.name))
+                    card.list_id = int(data["listId"])
 
             for card in target_list.cards:
                 if card in cards:
@@ -515,6 +579,7 @@ class SocketIOProjectNamespace(Namespace):
             if card_to_remove.list.project_id != data["projectId"]:
                 return
 
+            attached_files_names = ""
             for file in card_to_remove.attached_files:
                 _, key = split_s3_obj_url(file.url)
                 s3_cli.delete_object(Bucket=app.config["S3_BUCKET_NAME"], Key=key)
@@ -527,7 +592,23 @@ class SocketIOProjectNamespace(Namespace):
                     card.pos -= 1
                     cards_pos_changes.append([card.id, -1])
 
-            CardUserAssignment.query.filter_by(card_id=card_to_remove.id).delete()
+            card_members_names = ""
+            for member in card_to_remove.user_assignments:
+                card_members_names += User.query.filter_by(id=member.user_id).first().name + ", "
+                db.session.delete(member)
+
+            if len(attached_files_names) > 2:
+                attached_files_names = attached_files_names[:-2]
+            if len(card_members_names) > 2:
+                card_members_names = card_members_names[:-2]
+            db.session.add(HistoryCardDeleted(
+                card_to_remove.id,
+                data["projectId"],
+                card_to_remove.name,
+                card_to_remove.list.name,
+                card_to_remove.card_desc,
+                attached_files_names,
+                card_members_names))
 
             db.session.delete(card_to_remove)
 

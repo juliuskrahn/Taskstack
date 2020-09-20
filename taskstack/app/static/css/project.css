@@ -681,6 +681,54 @@ body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePage
     border-radius: 50%;
 }
 
+/* history win */
+
+#w-historyWin .tableWrapper {
+    max-height: 512px;
+    overflow: auto;
+    box-shadow: 0 0 3px 0px rgba(20, 20, 20, .1);
+}
+
+#w-historyWin table {
+    border: 1px solid #e1e4e8;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#w-historyWin thead tr th {
+    padding: 6px;
+    font-weight: 400;
+    font-size: 16px;
+    background-color: #fafbfc;
+}
+
+#w-historyWin tr {
+    transition: background-color .2s ease;
+}
+
+#w-historyWin tr:hover {
+    background-color: #f2f2f3;
+}
+
+#w-historyWin td, #w-historyWin th {
+    border: 1px solid #e1e4e8;
+    padding: 5px;
+    vertical-align: top;
+}
+
+#w-historyWin td:first-child, #w-historyWin th:first-child {
+    width: 30%;
+}
+
+#w-historyWin td:last-child, #w-historyWin th:last-child {
+    width: 70%;
+}
+
+#w-historyWin table ul li {
+    list-style: disc;
+    margin-left: 16px;
+}
+
 /* warning section */
 
 .warning {

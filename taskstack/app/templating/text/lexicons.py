@@ -438,6 +438,18 @@ project_html_j2 = get_extended_lexicon_dict({
         "Are you sure you want to delete this project permanently?": "Are you sure you want to delete this project "
                                                                      "permanently?",
 
+        "View project history": "View project history",
+        "Project history": "Project history",
+        "Created list": "Created list",
+        "Description": "Description",
+        "Deleted list": "Deleted list",
+        "Created card": "Created card",
+        "In list": "In list",
+        "Assigned members": "Assigned members",
+        "Deleted card": "Deleted card",
+        "Moved card": "Moved card",
+        "Old list": "Old list",
+
         "New card": "New card",
         "List name": "List name",
         "List description (optional)": "List description (optional)",
@@ -451,6 +463,7 @@ project_html_j2 = get_extended_lexicon_dict({
         "at": "at",
         "Insert Cards": "Insert Cards",
         "in List": "in List",
+        "Date": "Date",
 
         "Friend name/ email": "Friend name/ email",
         "Add with the \"Access Only\" role": "Add with the \"Access Only\" role",
@@ -545,6 +558,19 @@ project_html_j2 = get_extended_lexicon_dict({
         "Project description (optional)": "Projekt Beschreibung (optional)",
         "Are you sure you want to delete this project permanently?": "Sind Sie sicher, dass Sie dieses Projekt "
                                                                      "löschen möchten",
+
+        "View project history": "Projekt Verlauf öffnen",
+        "Project history": "Projekt Verlauf",
+        "Created list": "Liste erstellt",
+        "Description": "Beschreibung",
+        "Deleted list": "Liste gelöscht",
+        "Created card": "Karte erstellt",
+        "In list": "In Liste",
+        "Assigned members": "Zugewiesene Benutzer",
+        "Deleted card": "Karte gelöscht",
+        "Moved card": "Karte verschoben",
+        "Old list": "Alte Liste",
+        "Date": "Datum",
 
         "New card": "Neue Karte",
         "List name": "Name",

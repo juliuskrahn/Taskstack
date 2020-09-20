@@ -353,6 +353,46 @@ class List(db.Model):
         self.pos = pos
 
 
+class HistoryListCreated(db.Model):
+    __tablename__ = "history_list_created"
+    id = db.Column("id", db.Integer(), primary_key=True, unique=True)
+    project_id = db.Column("project_id", db.Integer(), nullable=False)
+    # data is not being updated
+    name = db.Column("name", db.String(16), nullable=False)
+    list_desc = db.Column("list_desc", db.String(1024), nullable=False)
+    attached_files = db.Column("attached_files", db.String(1024), nullable=False)  # "filename1, filename2"...
+    datetime = db.Column("datetime", db.DateTime(), nullable=False)
+
+    def __init__(self, id_, project_id, name, list_desc, attached_files):
+        self.id = id_
+        self.project_id = project_id
+        self.name = name
+        self.list_desc = list_desc
+        self.attached_files = attached_files
+        self.datetime = datetime.datetime.utcnow()
+
+
+class HistoryListDeleted(db.Model):
+    __tablename__ = "history_list_deleted"
+    id = db.Column("id", db.Integer(), primary_key=True, unique=True)
+    project_id = db.Column("project_id", db.Integer(), nullable=False)
+    # data is not being updated
+    name = db.Column("name", db.String(16), nullable=False)
+    list_desc = db.Column("list_desc", db.String(1024), nullable=False)
+    attached_files = db.Column("attached_files", db.String(1024), nullable=False)  # "filename1, filename2"...
+    deleted_cards = db.Column("deleted_cards", db.String(1024), nullable=False)  # "card1, card2"...
+    datetime = db.Column("datetime", db.DateTime(), nullable=False)
+
+    def __init__(self, id_, project_id, name, list_desc, attached_files, deleted_cards):
+        self.id = id_
+        self.project_id = project_id
+        self.name = name
+        self.list_desc = list_desc
+        self.attached_files = attached_files
+        self.deleted_cards = deleted_cards
+        self.datetime = datetime.datetime.utcnow()
+
+
 class ListAttachedFile(db.Model):
     __tablename__ = "list_attached_file"
     id = db.Column("id", db.Integer(), primary_key=True, autoincrement=True, unique=True)
@@ -383,6 +423,72 @@ class Card(db.Model):
         self.card_desc = card_desc
         self.img_url = None
         self.pos = pos
+
+
+class HistoryCardCreated(db.Model):
+    __tablename__ = "history_card_created"
+    id = db.Column("id", db.Integer(), primary_key=True, unique=True)
+    project_id = db.Column("project_id", db.Integer(), nullable=False)
+    # data is not being updated
+    name = db.Column("name", db.String(16), nullable=False)
+    list_name = db.Column("list_name", db.String(16), nullable=False)
+    card_desc = db.Column("card_desc", db.String(1024), nullable=False)
+    attached_files = db.Column("attached_files", db.String(1024), nullable=False)  # "filename1, filename2"...
+    assigned_users = db.Column("assigned_users", db.String(1024), nullable=False)  # "user1, user1"...
+    datetime = db.Column("datetime", db.DateTime(), nullable=False)
+
+    def __init__(self, id_, project_id, name, list_name, card_desc, attached_files, assigned_users):
+        self.id = id_
+        self.project_id = project_id
+        self.name = name
+        self.list_name = list_name
+        self.card_desc = card_desc
+        self.attached_files = attached_files
+        self.assigned_users = assigned_users
+        self.datetime = datetime.datetime.utcnow()
+
+
+class HistoryCardDeleted(db.Model):
+    __tablename__ = "history_card_deleted"
+    id = db.Column("id", db.Integer(), primary_key=True, unique=True)
+    project_id = db.Column("project_id", db.Integer(), nullable=False)
+    # data is not being updated
+    name = db.Column("name", db.String(16), nullable=False)
+    list_name = db.Column("list_name", db.String(16), nullable=False)
+    card_desc = db.Column("card_desc", db.String(1024), nullable=False)
+    attached_files = db.Column("attached_files", db.String(1024), nullable=False)  # "filename1, filename2"...
+    assigned_users = db.Column("assigned_users", db.String(1024), nullable=False)  # "user1, user1"...
+    datetime = db.Column("datetime", db.DateTime(), nullable=False)
+
+    def __init__(self, id_, project_id, name, list_name, card_desc, attached_files, assigned_users):
+        self.id = id_
+        self.project_id = project_id
+        self.name = name
+        self.list_name = list_name
+        self.card_desc = card_desc
+        self.attached_files = attached_files
+        self.assigned_users = assigned_users
+        self.datetime = datetime.datetime.utcnow()
+
+
+class HistoryCardChangedList(db.Model):
+    __tablename__ = "history_card_changed_list"
+    id = db.Column("id", db.Integer())
+    event_id = db.Column("event_id", db.Integer(), primary_key=True, autoincrement=True, unique=True)
+    project_id = db.Column("project_id", db.Integer(), nullable=False)
+    # data is not being updated
+    name = db.Column("name", db.String(16), nullable=False)
+    old_list_name = db.Column("old_list_name", db.String(16), nullable=False)
+    new_list_name = db.Column("new_list_name", db.String(16), nullable=False)
+    datetime = db.Column("datetime", db.DateTime(), nullable=False)
+
+    def __init__(self, id_, project_id, name, old_list_name, new_list_name):
+        self.id = id_
+        self.project_id = project_id
+        self.name = name
+        self.old_list_name = old_list_name
+        self.new_list_name = new_list_name
+        self.datetime = datetime.datetime.utcnow()
 
 
 class CardUserAssignment(db.Model):

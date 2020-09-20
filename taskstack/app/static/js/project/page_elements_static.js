@@ -152,7 +152,8 @@ const MenuBar = {
             document.getElementById("changeOwnerButton").onclick = changeOwnerWin.open;
             document.getElementById("visibilitySettingButton").onclick = visibilitySettingWin.open;
             document.getElementById("chatGroupSettingButton").onclick = chatGroupSettingWin.open;
-        } else {
+        } 
+        else {
             document.getElementById("addFriendButton").classList.add("disabled");
             document.getElementById("invitePeopleWithLinkButton").classList.add("disabled");
             document.getElementById("editProjectNameAndDescButton").classList.add("disabled");
@@ -161,20 +162,32 @@ const MenuBar = {
             document.getElementById("visibilitySettingButton").classList.add("disabled");
             document.getElementById("chatGroupSettingButton").classList.add("disabled");
         }
-        if (currentUserRole == "owner" || currentUserRole == "admin") {
+
+        if (currentUserIsOwner || currentUserRole == "admin") {
             document.getElementById("newListButton").onclick = newListWin.open;
             document.getElementById("moveListButton").onclick = moveListWin.open;
             document.getElementById("moveCardButton").onclick = moveCardsWin.open;
-        } else {
+        } 
+        else {
             document.getElementById("newListButton").classList.add("disabled");
             document.getElementById("moveListButton").classList.add("disabled");
             document.getElementById("moveCardButton").classList.add("disabled");
         }
+
+        if (currentUserIsOwner || currentUserIsCollaborator) {
+            document.getElementById("historyButton").onclick = historyWin.open;
+        } 
+        else {
+            document.getElementById("historyButton").classList.add("disabled");
+        }
+
         if (currentUserIsCollaborator) {
             document.getElementById("leaveProjectButton").onclick = leaveProjectWin.open;
-        } else {
+        } 
+        else {
             document.getElementById("leaveProjectButton").classList.add("disabled");
         }
+
         document.getElementById("collaboratorsButton").onclick = collabsWin.open;
         /*document.getElementById("filterCardsButton").onclick = filterCardsWin.open;*/
     },

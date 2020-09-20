@@ -138,7 +138,7 @@
         <li id="historyMenu" class="menu">
           {{ lex["history_menu_title"] }}
           <ul>
-            <li>-</li>
+            <li id="historyButton">{{ lex["View project history"] }}</li>
           </ul>
         </li>
         <li id="helpMenu" class="menu">
@@ -196,7 +196,7 @@
                   <div class="selectBaseBox" id="moveCardsWinCardsSelectBaseBox">{{ lex["Select"] }}</div>
                 </section>
                 <section>
-                  <p>at</p>
+                  <p>{{ lex["at"] }}</p>
                   <div class="inputContainer">
                     <input id="insertCardsAtPosInput" type="number" name="insertCardsAtPos" value="" placeholder="&nbsp" autocomplete="off">
                     <label for="insertCardsAtPos">Position</label>
@@ -292,6 +292,26 @@
         <section class="btnGroup centerH">
           <button type="button" onclick="cardWin.close();">{{ lex["Close"] }}</button>
           {% if current_user_role == "owner" or current_user_role == "admin" %}<button type="button" class="new" onclick="editCardWin.open(cardWin.cardId); cardWin.close();">{{ lex["Edit"] }}</button>{% endif %}
+        </section>
+      </div>
+
+      <div id="w-historyWin" class="modal">
+        <h2>{{ lex["Project history"] }}</h2>
+        <section class="tableWrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ lex["Date"] }}</th>
+                <th>Event</th>
+              </tr>
+            </thead>
+            <tbody id="historyWinHistory">
+  
+            </tbody>
+          </table>
+        </section>
+        <section class="btnGroup">
+          <button type="button" onclick="historyWin.close();">{{ lex["Close"] }}</button>
         </section>
       </div>
 

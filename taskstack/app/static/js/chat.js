@@ -296,22 +296,20 @@ function installGlobalSocketEventHandlersForChat() {
 /* fetching
 ============================================================================= */
 
-function getMsgsInChat(id, type) {
-    return fetch("/msgs?chat-type="+type+"&chat-id="+id, {
+async function getMsgsInChat(id, type) {
+    const response = await fetch("/msgs?chat-type=" + type + "&chat-id=" + id, {
         method: 'GET',
         credentials: "include"
-    })
-      .then(response => {
-        if (response.status == 200) {
-            return response.json().then(chat => {
-                return chat;
-            })
-        }
-        else {
-          window.alert("Error");
-          return undefined;
-        }
-      })
+    });
+    if (response.status == 200) {
+        return response.json().then(chat => {
+            return chat;
+        });
+    }
+    else {
+        window.alert("Error");
+        return undefined;
+    }
 }
 
 

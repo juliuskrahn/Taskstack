@@ -43,6 +43,10 @@ socketio = SocketIO(app,
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy(app)
 
+from app.db_models import *
+db.create_all()
+db.session.commit()
+
 
 import boto3
 
@@ -89,6 +93,7 @@ from app.routes.reset_password import *
 from app.routes.user_profile import *
 from app.routes.new_project import *
 from app.routes.project import *
+from app.routes.project_api import *
 from app.routes.new_friend import *
 from app.routes.invite import *
 from app.routes.chat import *

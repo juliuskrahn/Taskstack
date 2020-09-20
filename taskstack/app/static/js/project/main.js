@@ -87,10 +87,55 @@ function installProjectSocketEventHandlers() {
         for (let list_id in project.lists) {
             project.lists[list_id].pos += 1;
         }
-        List.registerAndBuildDomEl(data)
+        List.registerAndBuildDomEl(data);
+
+        if (historyWin.isInited) {
+            var attachedFilesNames = "";
+            for (let file_name in data.attachedFiles) {
+                attachedFilesNames += file_name+", ";
+            }
+            if (attachedFilesNames.length > 2) {
+                attachedFilesNames = attachedFilesNames.substring(0, attachedFilesNames.length-2);
+            }
+            historyWin.update.historyListCreated_event({
+                id: data.id,
+                name: data.name,
+                listDesc: data.listDesc,
+                attachedFilesNames: attachedFilesNames,
+                datetime: new Date()
+            });
+        }
     });
 
-    projectSocket.on("build_new_card", (data) => Card.registerAndBuildDomEl(data));
+    projectSocket.on("build_new_card", (data) => {
+        Card.registerAndBuildDomEl(data);
+
+        if (historyWin.isInited) {
+            var attachedFilesNames = "";
+            for (let file_name in data.attachedFiles) {
+                attachedFilesNames += file_name+", ";
+            }
+            var membersNames = "";
+            for (let member_id in data.members) {
+                membersNames += project.members[member_id].name+", ";
+            }
+            if (attachedFilesNames.length > 2) {
+                attachedFilesNames = attachedFilesNames.substring(0, attachedFilesNames.length-2);
+            }
+            if (membersNames.length > 2) {
+                membersNames = membersNames.substring(0, membersNames.length-2);
+            }
+            historyWin.update.historyCardCreated_event({
+                id: data.id,
+                name: data.name,
+                listName: project.lists[data.listId].name,
+                cardDesc: data.cardDesc,
+                attachedFilesNames: attachedFilesNames,
+                membersNames: membersNames,
+                datetime: new Date()
+            });
+        }
+    });
 
     projectSocket.on("create_list_successful", () => {
         newListWin.stopLoadingAnim();
@@ -118,7 +163,23 @@ function installProjectSocketEventHandlers() {
 
     projectSocket.on("update_list_pos", (data) => List.updatePositions(data));
 
-    projectSocket.on("update_cards_pos", (data) => Card.updatePositions(data));
+    projectSocket.on("update_cards_pos", (data) => {
+        Card.updatePositions(data);
+        
+        if (historyWin.isInited) {
+            for (let card_data of data.cards) {
+                if (card_data.listId != card_data.prevListId) {
+                    historyWin.update.historyCardChangedList_event({
+                        id: card_data.id,
+                        name: project.lists[card_data.listId].cards[card_data.id].name,
+                        oldListName: project.lists[card_data.prevListId].name,
+                        newListName: project.lists[card_data.listId].name,
+                        datetime: new Date()
+                    });
+                }
+            }
+        }
+    });
 
     projectSocket.on("remove_list", (data) => {
         if (listWin.listId == data.id) {
@@ -130,6 +191,24 @@ function installProjectSocketEventHandlers() {
         if (newCardWin.addCardTo == data.id) {
             newCardWin.close();
         }
+
+        if (historyWin.isInited) {
+            var attachedFilesNames = "";
+            for (let file_name in project.lists[data.id].attachedFiles) {
+                attachedFilesNames += file_name+", ";
+            }
+            if (attachedFilesNames.length > 2) {
+                attachedFilesNames = attachedFilesNames.substring(0, attachedFilesNames.length-2);
+            }
+            historyWin.update.historyListDeleted_event({
+                id: data.id,
+                name: project.lists[data.id].name,
+                listDesc: project.lists[data.id].listDesc,
+                attachedFilesNames: attachedFilesNames,
+                datetime: new Date()
+            });
+        }
+
         List.remove(data);
     });
 
@@ -140,6 +219,33 @@ function installProjectSocketEventHandlers() {
         if (editCardWin.cardId == data.id) {
             editCardWin.close();
         }
+
+        if (historyWin.isInited) {
+            var attachedFilesNames = "";
+            for (let file_name in project.lists[data.listId].cards[data.id].attachedFiles) {
+                attachedFilesNames += file_name+", ";
+            }
+            var membersNames = "";
+            for (let member_id in project.lists[data.listId].cards[data.id].members) {
+                membersNames += project.members[member_id].name+", ";
+            }
+            if (attachedFilesNames.length > 2) {
+                attachedFilesNames = attachedFilesNames.substring(0, attachedFilesNames.length-2);
+            }
+            if (membersNames.length > 2) {
+                membersNames = membersNames.substring(0, membersNames.length-2);
+            }
+            historyWin.update.historyCardDeleted_event({
+                id: data.id,
+                name: project.lists[data.listId].cards[data.id].name,
+                listName: project.lists[data.listId].name,
+                cardDesc: project.lists[data.listId].cards[data.id].cardDesc,
+                attachedFilesNames: attachedFilesNames,
+                membersNames: membersNames,
+                datetime: new Date()
+            });
+        }
+
         Card.remove(data);
     });
 

@@ -711,9 +711,6 @@ pageUrl.getQueryVariable = function(variable) {
 ============================================================================= */
 
 const DomHelpers = {
-  /*onExist: function(selector) {
-
-  },*/
 
   getParent: function(el, parent_cls) {
     while ((el = el.parentElement) && !el.classList.contains(parent_cls));
