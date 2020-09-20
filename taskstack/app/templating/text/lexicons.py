@@ -500,6 +500,7 @@ project_html_j2 = get_extended_lexicon_dict({
         "Edit": "Edit",
         "Apply": "Apply",
         "Filter cards": "Filter cards",
+        "Cards assigned to": "Cards assigned to",
 
         "Enter a name or an email address": "Enter a name or an email address",
         "Collaborators": "Collaborators",
@@ -625,6 +626,7 @@ project_html_j2 = get_extended_lexicon_dict({
         "Edit": "Bearbeiten",
         "Apply": "Bestätigen",
         "Filter cards": "Karten filtern",
+        "Cards assigned to": "Karten zugewiesen",
 
         "Enter a name or an email address": "Geben Sie einen Namen oder eine Email-Adresse ein",
         "Collaborators": "Mitglieder",

@@ -97,15 +97,15 @@ const List = {
     },
 
     remove: function(data) {
-        for (let [cardId, card] of Object.entries(project.lists[data.id])) {
-            if (card.filesPopUpTippyInstance) {
-                card.filesPopUpTippyInstance.destroy();
+        for (let cardId in project.lists[data.id]) {
+            if (project.lists[data.id].cards[cardId].filesPopUpTippyInstance) {
+                project.lists[data.id].cards[cardId].filesPopUpTippyInstance.destroy();
             }
-            if (card.memberPopUpsTippyInstances) {
-                for (let tippyInstance of card.memberPopUpsTippyInstances) {
+            if (project.lists[data.id].cards[cardId].memberPopUpsTippyInstances) {
+                for (let tippyInstance of project.lists[data.id].cards[cardId].memberPopUpsTippyInstances) {
                     tippyInstance.destroy();
                 }
-                card.memberPopUpsTippyInstancesSingleton.destroy();
+                project.lists[data.id].cards[cardId].memberPopUpsTippyInstancesSingleton.destroy();
             }
             if (cardWin.cardId == cardId) {
                 cardWin.close();

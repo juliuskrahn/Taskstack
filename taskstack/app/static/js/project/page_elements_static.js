@@ -188,6 +188,7 @@ const MenuBar = {
             document.getElementById("leaveProjectButton").classList.add("disabled");
         }
 
+        document.getElementById("filterCardsButton").onclick = filterCardsWin.open;
         document.getElementById("collaboratorsButton").onclick = collabsWin.open;
         /*document.getElementById("filterCardsButton").onclick = filterCardsWin.open;*/
     },
@@ -209,6 +210,14 @@ const MenuBar = {
 ============================================================================= */
 
 const PageHead = {
+
+    toggle: function() {
+        if (document.getElementById("pageHead").classList.contains("hidden")) {
+            PageHead.show();
+        } else {
+            PageHead.hide();
+        }
+    },
 
     show: function() {
         document.getElementById("pageHead").classList.remove("hidden");

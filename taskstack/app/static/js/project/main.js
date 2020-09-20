@@ -270,6 +270,7 @@ function installProjectSocketEventHandlers() {
         if (editCardWin.cardId) {
             editCardWin.newProjectCollab(collab_data);
         }
+        filterCardsWin.newProjectCollab(collab_data);
     }); 
 
     projectSocket.on("successfully_added_friend_to_project", () => {
@@ -297,6 +298,7 @@ function installProjectSocketEventHandlers() {
         if (editCardWin.cardId) {
             editCardWin.projectCollabRemoved(data);
         }
+        filterCardsWin.projectCollabRemoved(data);
         
         for (let user_repr of document.getElementsByClassName("user-"+data.id)) {
             user_repr.remove();

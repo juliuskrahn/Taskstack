@@ -116,8 +116,8 @@
         <li id="viewMenu" class="menu">
           {{ lex["view_menu_title"] }}
           <ul>
-            <!--<li id="filterCardsButton">{{ lex["Filter cards"] }}</li>-->
-            <li>-</li>
+            <li id="filterCardsButton">{{ lex["Filter cards"] }}</li>
+            <li onclick="PageHead.toggle();">Toggle Page-Head</li>
           </ul>
         </li>
         <li id="settingsMenu" class="menu">
@@ -149,9 +149,27 @@
         </li>
 
         <section class="smallModals">
-
+      
           <div id="w-filterCardsWin" class="modal small">
-
+            <div class="head">
+              <h2>{{ lex["Filter cards"] }}</h2>
+            </div>
+            <section class="content">
+              <section class="query">
+                <section>
+                  <p>{{ lex["Cards assigned to"] }}</p>
+                  <div class="selectBaseBox" id="filterCardsWinAssignedToSelectBaseBox">{{ lex["Select"] }}</div>
+                </section>
+                <div class="inputContainer">
+                  <input id="filterCardsWinNameInput" type="text" name="filterCardsWinNameInput" value="" placeholder="&nbsp" autocomplete="off">
+                  <label for="filterCardsWinNameInput">Name</label>
+                </div>
+              </section>
+            </section>
+            <section class="btnGroup centerH">
+              <button type="button" onclick="filterCardsWin.applyFilter();">Ok</button>
+              <button type="button" class="secondary" onclick="filterCardsWin.close();">{{ lex["Cancel"] }}</button>
+            </section>
           </div>
 
           <div id="w-moveListWin" class="modal small">
@@ -162,7 +180,7 @@
               <h2>{{ lex["Move list"] }}</h2>
             </div>
             <section class="content">
-              <section class="moveQuery">
+              <section class="query">
                 <section>
                   <p>{{ lex["Insert List"] }}</p>
                   <div class="selectBaseBox" id="moveListWinListSelectBaseBox">{{ lex["Select"] }}</div>
@@ -190,7 +208,7 @@
               <h2>{{ lex["Move card"] }}</h2>
             </div>
             <section class="content">
-              <section class="moveQuery">
+              <section class="query">
                 <section>
                   <p>{{ lex["Insert Cards"] }}</p>
                   <div class="selectBaseBox" id="moveCardsWinCardsSelectBaseBox">{{ lex["Select"] }}</div>

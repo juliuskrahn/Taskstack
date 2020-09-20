@@ -465,6 +465,7 @@ const Modal = {
     if ((e.target != modal) 
     && (! modal.contains(e.target)) 
     && (! DomHelpers.getParent(e.target, "popUp")) 
+    && (e.target != document.body) 
     && (! e.target.classList.contains("modals"))) {
       Modal.close(modal);
     } 
@@ -544,6 +545,10 @@ const Select = {
   },
 
   update: function(id, newOptions=[], removedOptions_id_list=[]) {
+    if (!Select.exists(id)) {
+      return;
+    }
+
     for (let removedOption_id of removedOptions_id_list) {
       var i=0;
       for (let option_entry of Select.instances[id].options) {
@@ -558,6 +563,7 @@ const Select = {
     for (let newOption of newOptions) {
       Select.instances[id].options.push(newOption);
     }
+    
     Select._setTippyInstanceContent(id);
   },
 

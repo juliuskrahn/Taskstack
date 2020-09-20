@@ -749,9 +749,7 @@ body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePage
     right: 20px;
 }
 
-/* moveCardsWin/ MoveListWin */
-
-.moveQuery section {
+.modal.small .query section {
     display: grid;
     grid-template-columns: auto 120px;
     align-items: center;
@@ -759,11 +757,15 @@ body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePage
     margin: 10px 0;
 }
 
-.moveQuery p {
+.modal.small .query p {
     white-space: nowrap;
 }
 
-.moveQuery section .inputContainer {
+.modal.small .query .inputContainer {
+    margin: 10px 0;
+}
+
+.modal.small .query section .inputContainer {
     margin: 0;
 }
 

@@ -1068,16 +1068,99 @@ const leaveProjectWin = {
     }
 };
 
-/*const filterCardsWin = {
+const filterCardsWin = {
     
     open: function() {
+
+        var assigned_to_select_options = [{id:"*", content: "*", selected: true}];
+        for (let user_id in project.members) {
+            assigned_to_select_options.push({
+                id: user_id,
+                content: '<div><img src="'+project.members[user_id].picUrl+'"><p>'+project.members[user_id].name+'</p></div>',
+                selected: false
+            });
+        }
+
+        if (Select.exists("filterCardsWinAssignedToSelect")) {
+            Select.set("filterCardsWinAssignedToSelect", assigned_to_select_options);
+        } else {
+            Select.create("filterCardsWinAssignedToSelect", 
+                document.getElementById("filterCardsWinAssignedToSelectBaseBox"), 
+                assigned_to_select_options
+            );
+        }
+
+        document.getElementById("filterCardsWinNameInput").value = "";
+
         Modal.openSafelyById("w-filterCardsWin", {without_overlay: true});
+    },
+
+    applyFilter: function() {
+        const assigned_to_select_options = Select.getOptions("filterCardsWinAssignedToSelect");
+        var assigned_to_catch_all = false;
+        for (let assigned_to_select_option of assigned_to_select_options) {
+            if (assigned_to_select_option.id == "*") {
+                if (assigned_to_select_option.selected) {
+                    assigned_to_catch_all = true;
+                }
+                break;
+            }
+        }
+        var name = document.getElementById("filterCardsWinNameInput").value;
+
+        for (var list_id in project.lists) {
+            for (var card_id in project.lists[list_id].cards) {
+
+                var filter_out = false;
+
+                if (!assigned_to_catch_all) {
+                    for (let assigned_to_select_option of assigned_to_select_options) {
+                        if (assigned_to_select_option.selected 
+                                && !project.lists[list_id].cards[card_id].members[assigned_to_select_option.id]) {
+                            filter_out = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (name != "") {
+                    if (!project.lists[list_id].cards[card_id].name.includes(name)) {
+                        filter_out = true;
+                    }
+                }
+                
+                const card_dom_el = document.getElementById("c-"+card_id);
+                if (filter_out) {
+                    card_dom_el.classList.add("hide");
+                } else {
+                    card_dom_el.classList.remove("hide");
+                }
+            }
+        }
+    },
+
+    reset: function() {
+
+    },
+
+    newProjectCollab: function(data) {
+        Select.update("filterCardsWinAssignedToSelect", 
+            [{
+                id: data.id, 
+                selected: false, 
+                content: '<div><img src="'+project.members[data.id].picUrl+'"><p>'+project.members[data.id].name+'</p></div>'
+            }]
+        );
+    },
+
+    projectCollabRemoved: function(data) {
+        Select.update("filterCardsWinAssignedToSelect", [], [data.id]);
     },
 
     close: function() {
         Modal.closeById("w-filterCardsWin");
     }
-}*/
+}
 
 const moveListWin = {
 
@@ -1117,7 +1200,7 @@ const moveListWin = {
     open: function(init_selected_lists_ids=[], init_insert_pos=0) {
         var list_select_options = [];
 
-        for (var [listId, list] of Object.entries(project.lists)) {
+        for (var listId in project.lists) {
             var selected = false;
             if (init_selected_lists_ids.length >= 0 && init_selected_lists_ids.indexOf(listId) >= 0) {
                 selected = true;
@@ -1126,7 +1209,7 @@ const moveListWin = {
                 {
                     id: listId,
                     selected: selected,
-                    content: list.name
+                    content: project.lists[listId].name
                 }
             );
         }
@@ -1228,9 +1311,9 @@ const moveCardsWin = {
         var cards_select_options = [];
         var list_select_options = [];
 
-        for (var [listId, list] of Object.entries(project.lists)) {
+        for (var listId in project.lists) {
 
-            for (let [cardId, card] of Object.entries(list.cards)) {
+            for (let cardId in project.lists[listId].cards) {
                 var selected = false;
                 if (init_selected_cards_ids.length >= 0 && init_selected_cards_ids.indexOf(cardId) >= 0) {
                     selected = true;
@@ -1239,7 +1322,7 @@ const moveCardsWin = {
                     {
                         id: cardId,
                         selected: selected,
-                        content: card.name
+                        content: project.lists[listId].cards[cardId].name
                     }
                 );
             }
@@ -1252,7 +1335,7 @@ const moveCardsWin = {
                 {
                     id: listId,
                     selected: selected,
-                    content: list.name
+                    content: project.lists[listId].name
                 }
             );
         }
