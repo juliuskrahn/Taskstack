@@ -867,7 +867,7 @@ const collabsWin = {
                 html += '<li onclick="collabsWin.changeUserRole(\''+ member.id + '\', \'admin\');">' + lex["Make admin"] + '</li>';
             }
         }
-        html += '</ul></div><a href="' + member.goToUrl + '"><img src="' + member.picUrl + '"  alt="img"></img><p>' + member.name + '</p></a></div>'
+        html += '</ul></div><a href="' + member.goToUrl + '"><img src="' + member.picUrl + '"  alt="img"></img><div><p>' + member.name + '</p><label class="'+member.role+'">'+lex[member.role]+'</label></div></a></div>'
 
         document.getElementById("collabsSection").insertAdjacentHTML("afterbegin", html);
     },
@@ -885,12 +885,19 @@ const collabsWin = {
         this.startLoadingAnim();
 
         var html = '<li onclick="collabsWin.removeUserFromProject(\''+ id + '\');">' + lex["Remove from project"] + '</li>';
+        const role_label = document.querySelector(".collab.user-"+id+" label");
         if (new_role == "admin") {
             html += '<li onclick="collabsWin.changeUserRole(\''+ id + '\', \'access-only\');">' + lex["Dismiss as admin"] + '</li>';
+            role_label.innerHTML = lex["admin"];
+            role_label.classList.remove("access-only");
+            role_label.classList.add("admin");
         } else if (new_role == "access-only") {
             html += '<li onclick="collabsWin.changeUserRole(\''+ id + '\', \'admin\');">' + lex["Make admin"] + '</li>';
+            role_label.innerHTML = lex["access-only"];
+            role_label.classList.remove("admin");
+            role_label.classList.add("access-only");
         }
-        document.getElementsByClassName("collab user-"+id)[0].getElementsByTagName("ul")[0].innerHTML = html;
+        document.querySelector(".collab.user-"+id+" ul").innerHTML = html;
     },
 
     close: function()  {

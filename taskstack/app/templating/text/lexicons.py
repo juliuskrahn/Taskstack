@@ -530,7 +530,11 @@ project_html_j2 = get_extended_lexicon_dict({
         "Leave project": "Leave project",
         "Are you sure you want to leave this project?": "Are you sure you want to leave this project?",
         "Leave": "Leave",
-        "files": "files"
+        "files": "files",
+
+        "owner": "Owner",
+        "admin": "Admin",
+        "access-only": "Access Only"
     },
     "de": {
         "project_menu_title": "<span>P</span>rojekt",
@@ -658,7 +662,11 @@ project_html_j2 = get_extended_lexicon_dict({
         "Are you sure you want to leave this project?": "Sind Sie sicher, dass Sie dieses Projekt verlassen "
                                                         "möchten?",
         "Leave": "Verlassen",
-        "files": "Dateien"
+        "files": "Dateien",
+
+        "owner": "Besitzer",
+        "admin": "Admin",
+        "access-only": "Access Only"
     }
 }, base_html_j2)
 

@@ -190,7 +190,6 @@ const MenuBar = {
 
         document.getElementById("filterCardsButton").onclick = filterCardsWin.open;
         document.getElementById("collaboratorsButton").onclick = collabsWin.open;
-        /*document.getElementById("filterCardsButton").onclick = filterCardsWin.open;*/
     },
 
     deactivate: function() {

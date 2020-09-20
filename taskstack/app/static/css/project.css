@@ -666,6 +666,7 @@ body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePage
     padding: 8px 4px;
     transition: background-color .2s ease, opacity .2s ease;
     border-bottom: 1px solid #f5f5f5;
+    overflow: auto;
 }
 
 #collabsSection .collab:first-child a {
@@ -679,6 +680,30 @@ body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePage
 #collabsSection .collab a img {
     width: 28px;
     border-radius: 50%;
+}
+
+#collabsSection .collab a div {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    column-gap: 8px;
+}
+
+#collabsSection .collab label {
+    padding: 3px 5px;
+    background-color: var(--red);
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#collabsSection .collab label.admin {
+    background-color: var(--yellow);
+}
+
+#collabsSection .collab label.access-only {
+    background-color: var(--green);
 }
 
 /* history win */

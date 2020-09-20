@@ -1,5 +1,4 @@
-import os
-import pathlib
+import re
 from flask import request
 from app import app, s3_cli
 
@@ -23,14 +22,9 @@ def get_lang():
 def invalid_names():
     names = []
     for rule in app.url_map.iter_rules():
-        route_str = str(rule)
-        start = 1
-        while start:
-            end = route_str[start:].find("/")
-            name = route_str[start:] if end == -1 else route_str[start:end + 1]
-            if len(name) > 0 and name[0] != "<":
-                names.append(name)
-            start = 0 if end == -1 else end + 2
+        for string in re.split("[/ |< |> ]", str(rule)):
+            if string != "":
+                names.append(string)
     return names
 
 
