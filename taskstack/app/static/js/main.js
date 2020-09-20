@@ -466,7 +466,8 @@ const Modal = {
     && (! modal.contains(e.target)) 
     && (! DomHelpers.getParent(e.target, "popUp")) 
     && (e.target != document.body) 
-    && (! e.target.classList.contains("modals"))) {
+    && (! e.target.classList.contains("modals"))
+    && (! e.target.dataset.modal_click_away_listener_ignore == true)) {
       Modal.close(modal);
     } 
     else {

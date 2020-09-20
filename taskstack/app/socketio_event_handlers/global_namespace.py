@@ -284,7 +284,8 @@ class SocketIOGlobalNamespace(Namespace):
         friend = User.get_by_name_or_email(data["friendNameOrEmail"])
 
         if not friend \
-                or ChatGroupMemberLink.query.filter_by(user_id=friend.id, chat_group_id=data["chatGroupId"]).scalar():
+                or ChatGroupMemberLink.query.filter_by(user_id=friend.id, chat_group_id=data["chatGroupId"]).scalar()\
+                or not current_user.is_friend_with(friend.id):
             emit("add_friend_to_chat_group_error_invalid_target", room=current_user.id)
             return
 

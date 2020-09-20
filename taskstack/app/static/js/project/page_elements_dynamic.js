@@ -858,16 +858,16 @@ const collabsWin = {
     },
 
     newCollab: function(member) {
-        var html = '<div class="collab user-'+member.id+'"><div class="ellipsisOptions"><i class="fas fa-ellipsis-v" onclick="DomHelpers.activate(this.parentElement);"></i><ul>';
+        var html = '<div class="collab user-'+member.id+'"><div class="ellipsisOptions"><i class="fas fa-ellipsis-v" onclick="DomHelpers.activate(this.parentElement);"></i><div class="popUp">';
         if (currentUserIsOwner && member.id != currentUserId) {
-            html += '<li onclick="collabsWin.removeUserFromProject(\''+ member.id + '\');">' + lex["Remove from project"] + '</li>';
+            html += '<div onclick="collabsWin.removeUserFromProject(\''+ member.id + '\');" data-modal_click_away_listener_ignore="true">' + lex["Remove from project"] + '</div>';
             if (member.role == "admin") {
-                html += '<li onclick="collabsWin.changeUserRole(\''+ member.id + '\', \'access-only\');">' + lex["Dismiss as admin"] + '</li>';
+                html += '<div onclick="collabsWin.changeUserRole(\''+ member.id + '\', \'access-only\');" data-modal_click_away_listener_ignore="true">' + lex["Dismiss as admin"] + '</div>';
             } else if (member.role == "access-only") {
-                html += '<li onclick="collabsWin.changeUserRole(\''+ member.id + '\', \'admin\');">' + lex["Make admin"] + '</li>';
+                html += '<div onclick="collabsWin.changeUserRole(\''+ member.id + '\', \'admin\');" data-modal_click_away_listener_ignore="true">' + lex["Make admin"] + '</div>';
             }
         }
-        html += '</ul></div><a href="' + member.goToUrl + '"><img src="' + member.picUrl + '"  alt="img"></img><div><p>' + member.name + '</p><label class="'+member.role+'">'+lex[member.role]+'</label></div></a></div>'
+        html += '</div></div><a href="' + member.goToUrl + '"><img src="' + member.picUrl + '"  alt="img"></img><div><p>' + member.name + '</p><label class="'+member.role+'">'+lex[member.role]+'</label></div></a></div>'
 
         document.getElementById("collabsSection").insertAdjacentHTML("afterbegin", html);
     },
@@ -884,20 +884,20 @@ const collabsWin = {
 
         this.startLoadingAnim();
 
-        var html = '<li onclick="collabsWin.removeUserFromProject(\''+ id + '\');">' + lex["Remove from project"] + '</li>';
+        var html = '<div onclick="collabsWin.removeUserFromProject(\''+ id + '\');">' + lex["Remove from project"] + '</div>';
         const role_label = document.querySelector(".collab.user-"+id+" label");
         if (new_role == "admin") {
-            html += '<li onclick="collabsWin.changeUserRole(\''+ id + '\', \'access-only\');">' + lex["Dismiss as admin"] + '</li>';
+            html += '<div onclick="collabsWin.changeUserRole(\''+ id + '\', \'access-only\');" data-modal_click_away_listener_ignore="true">' + lex["Dismiss as admin"] + '</div>';
             role_label.innerHTML = lex["admin"];
             role_label.classList.remove("access-only");
             role_label.classList.add("admin");
         } else if (new_role == "access-only") {
-            html += '<li onclick="collabsWin.changeUserRole(\''+ id + '\', \'admin\');">' + lex["Make admin"] + '</li>';
+            html += '<div onclick="collabsWin.changeUserRole(\''+ id + '\', \'admin\');" data-modal_click_away_listener_ignore="true">' + lex["Make admin"] + '</div>';
             role_label.innerHTML = lex["access-only"];
             role_label.classList.remove("admin");
             role_label.classList.add("access-only");
         }
-        document.querySelector(".collab.user-"+id+" ul").innerHTML = html;
+        document.querySelector(".collab.user-"+id+" .ellipsisOptions .popUp").innerHTML = html;
     },
 
     close: function()  {

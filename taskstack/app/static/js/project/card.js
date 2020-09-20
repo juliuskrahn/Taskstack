@@ -185,17 +185,8 @@ const Card = {
     projectCollabRemoved: function(data) {
         for (var list of Object.values(project.lists)) {
             for (var card of Object.values(list.cards)) {
-                var i = 0;
-                var member_found = false;
-                for (let member_id of Object.keys(card.members)) {
-                    if (member_id == data.id) {
-                        member_found = true;
-                        break;
-                    }
-                    i++;
-                }
-                if (member_found) {
-                    card.members.splice(i);
+                if (card.members[data.id]) {
+                    delete card.members[data.id];
                     Card.MembersPopUps.removePopUpForMember(card, data.id);
                     Card.MembersPopUps.update(card);
                 }

@@ -1285,7 +1285,7 @@ li > .sDropMenu {
   opacity: .8;
 }
 
-.ellipsisOptions ul {
+.ellipsisOptions .popUp {
   position: absolute;
   top: 100%;
   left: 0;
@@ -1300,12 +1300,12 @@ li > .sDropMenu {
   z-index: 10;
 }
 
-.ellipsisOptions.active ul {
+.ellipsisOptions.active .popUp {
   display: block;
   cursor: default;
 }
 
-.ellipsisOptions ul li {
+.ellipsisOptions .popUp > div {
   cursor: pointer;
   color: #616163;
   padding: 4px;
@@ -1313,12 +1313,12 @@ li > .sDropMenu {
   transition: background-color .2s ease;
 }
 
-.ellipsisOptions ul li:hover {
+.ellipsisOptions .popUp > div:hover {
   background-color: #eee;
 }
 
-.ellipsisOptions ul li a {
+.ellipsisOptions .popUp > div a {
   color: #616163;
 }
 
-.ellipsisOptions ul li a:hover, .ellipsisOptions ul li a:focus { opacity: 1; }
+.ellipsisOptions .popUp > div a:hover, .ellipsisOptions .popUp > div a:focus { opacity: 1; }

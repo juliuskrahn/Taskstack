@@ -32,16 +32,16 @@
             <h1 id="profileName">{{ username }}</h1>
             <div class="ellipsisOptions userInteractions">
               <i class="fas fa-ellipsis-h" onclick="DomHelpers.activate(this.parentElement);"></i>
-              <ul>
+              <div class="popUp">
                 {% if current_user.is_authenticated() %}
                   {% if current_user_is_friend_with_user %}
-                  <li><a href="/chat?with={{username}}">{{ lex["Go to chat"] }}</a></li>
-                  <li onclick="Modal.openSafelyById('removeFriendModal');">{{ lex["Remove friend"] }}</li>
+                  <div><a href="/chat?with={{username}}">{{ lex["Go to chat"] }}</a></div>
+                  <div onclick="Modal.openSafelyById('removeFriendModal');">{{ lex["Remove friend"] }}</div>
                   {% elif current_user.id != user_id %}
-                  <li><a href="/new-friend?name={{username}}&continue=%2F{{username}}">{{ lex["Send friendship request"] }}</a></li>
+                  <div><a href="/new-friend?name={{username}}&continue=%2F{{username}}">{{ lex["Send friendship request"] }}</a></div>
                   {% endif %}
                 {% endif %}
-              </ul>
+              </div>
             </div>
             <hr>
             <p id="profileEmail"><a href="mailto:{{useremail}}">{{ useremail }}</a></p>

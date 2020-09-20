@@ -287,7 +287,7 @@ function installProjectSocketEventHandlers() {
     projectSocket.on("project_collab_removed", (data) => {
         delete project.members[data.id];
 
-        card.projectCollabRemoved(data);
+        Card.projectCollabRemoved(data);
 
         if (newCardWin.addCardTo) {
             newCardWin.projectCollabRemoved(data);

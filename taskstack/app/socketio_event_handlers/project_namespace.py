@@ -629,8 +629,8 @@ class SocketIOProjectNamespace(Namespace):
 
             friend = User.get_by_name_or_email(data["friendNameOrEmail"])
 
-            if not friend or not current_user.is_friend_with(friend.id) or \
-                    friend.is_project_collaborator_of(project.id):
+            if not friend or not current_user.is_friend_with(friend.id) \
+                    or friend.is_project_collaborator_of(project.id):
                 emit("add_friend_to_project_error_invalid_target", room=request.sid)
                 return
 

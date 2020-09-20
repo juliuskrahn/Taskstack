@@ -721,16 +721,16 @@ const groupWin = {
     },
 
     newMember: function(member) {
-        var html = '<div class="member" id="member-' + member.id + '"><div class="ellipsisOptions"><i class="fas fa-ellipsis-v" onclick="DomHelpers.activate(this.parentElement);"></i><ul>';
+        var html = '<div class="member" id="member-' + member.id + '"><div class="ellipsisOptions"><i class="fas fa-ellipsis-v" onclick="DomHelpers.activate(this.parentElement);"></i><div class="popUp">';
         if (chats[groupWin.chatGroupType][groupWin.chatGroupId].roleOfCurrentUser == "admin" && member.id != currentUserId) {
-            html += '<li onclick=groupWin.removeUserFromGroup(\''+ member.id + '\');>' + lex["Remove from group"] + '</li>';
+            html += '<div onclick="groupWin.removeUserFromGroup(\''+ member.id + '\');" data-modal_click_away_listener_ignore="true">' + lex["Remove from group"] + '</div>';
             if (member.role == "admin") {
-                html += '<li onclick=groupWin.dismissUserAsAdmin(\''+ member.id + '\');>' + lex["Dismiss as admin"] + '</li>';
+                html += '<div onclick="groupWin.dismissUserAsAdmin(\''+ member.id + '\');" data-modal_click_away_listener_ignore="true">' + lex["Dismiss as admin"] + '</div>';
             } else {
-                html += '<li onclick=groupWin.makeUserAdmin(\''+ member.id + '\');>' + lex["Make admin"] + '</li>';
+                html += '<div onclick="groupWin.makeUserAdmin(\''+ member.id + '\');" data-modal_click_away_listener_ignore="true">' + lex["Make admin"] + '</div>';
             }
         }
-        html += '</ul></div><a href="' + member.goToUrl + '"><img src="' + member.picUrl + '"  alt="img"></img><p>' + member.name + '</p></a></div>'
+        html += '</div></div><a href="' + member.goToUrl + '"><img src="' + member.picUrl + '"  alt="img"></img><p>' + member.name + '</p></a></div>'
 
         document.getElementById("groupWinMembersSection").insertAdjacentHTML("afterbegin", html);
     },
