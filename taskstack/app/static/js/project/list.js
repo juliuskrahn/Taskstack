@@ -97,7 +97,7 @@ const List = {
     },
 
     remove: function(data) {
-        for (let cardId in project.lists[data.id]) {
+        for (let cardId in project.lists[data.id].cards) {
             if (project.lists[data.id].cards[cardId].filesPopUpTippyInstance) {
                 project.lists[data.id].cards[cardId].filesPopUpTippyInstance.destroy();
             }

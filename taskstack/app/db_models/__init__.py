@@ -340,8 +340,8 @@ class List(db.Model):
     __tablename__ = "list"
     id = db.Column("id", db.Integer(), primary_key=True, autoincrement=True, unique=True)
     project_id = db.Column("project_id", db.Integer(), db.ForeignKey("project.id"), nullable=False)
-    name = db.Column("name", db.String(16), nullable=False)
-    list_desc = db.Column("list_desc", db.String(1024), nullable=False)
+    name = db.Column("name", db.String(64), nullable=False)
+    list_desc = db.Column("list_desc", db.String(2048), nullable=False)
     pos = db.Column("pos", db.Integer(), nullable=False)
     cards = db.relationship("Card", backref="list", lazy="dynamic")
     attached_files = db.relationship("ListAttachedFile", backref="list", lazy="dynamic")
@@ -358,8 +358,8 @@ class HistoryListCreated(db.Model):
     id = db.Column("id", db.Integer(), primary_key=True, unique=True)
     project_id = db.Column("project_id", db.Integer(), nullable=False)
     # data is not being updated
-    name = db.Column("name", db.String(16), nullable=False)
-    list_desc = db.Column("list_desc", db.String(1024), nullable=False)
+    name = db.Column("name", db.String(64), nullable=False)
+    list_desc = db.Column("list_desc", db.String(2048), nullable=False)
     attached_files = db.Column("attached_files", db.String(1024), nullable=False)  # "filename1, filename2"...
     datetime = db.Column("datetime", db.DateTime(), nullable=False)
 
@@ -377,8 +377,8 @@ class HistoryListDeleted(db.Model):
     id = db.Column("id", db.Integer(), primary_key=True, unique=True)
     project_id = db.Column("project_id", db.Integer(), nullable=False)
     # data is not being updated
-    name = db.Column("name", db.String(16), nullable=False)
-    list_desc = db.Column("list_desc", db.String(1024), nullable=False)
+    name = db.Column("name", db.String(64), nullable=False)
+    list_desc = db.Column("list_desc", db.String(2048), nullable=False)
     attached_files = db.Column("attached_files", db.String(1024), nullable=False)  # "filename1, filename2"...
     deleted_cards = db.Column("deleted_cards", db.String(1024), nullable=False)  # "card1, card2"...
     datetime = db.Column("datetime", db.DateTime(), nullable=False)
@@ -410,8 +410,8 @@ class Card(db.Model):
     __tablename__ = "card"
     id = db.Column("id", db.Integer(), primary_key=True, autoincrement=True, unique=True)
     list_id = db.Column("list_id", db.Integer(), db.ForeignKey("list.id"), nullable=False)
-    name = db.Column("name", db.String(16), nullable=False)
-    card_desc = db.Column("card_desc", db.String(1024), nullable=False)
+    name = db.Column("name", db.String(64), nullable=False)
+    card_desc = db.Column("card_desc", db.String(2048), nullable=False)
     img_url = db.Column("img_url", db.String(256))
     pos = db.Column("pos", db.Integer(), nullable=False)
     attached_files = db.relationship("CardAttachedFile", backref="card", lazy="dynamic")
@@ -430,9 +430,9 @@ class HistoryCardCreated(db.Model):
     id = db.Column("id", db.Integer(), primary_key=True, unique=True)
     project_id = db.Column("project_id", db.Integer(), nullable=False)
     # data is not being updated
-    name = db.Column("name", db.String(16), nullable=False)
-    list_name = db.Column("list_name", db.String(16), nullable=False)
-    card_desc = db.Column("card_desc", db.String(1024), nullable=False)
+    name = db.Column("name", db.String(64), nullable=False)
+    list_name = db.Column("list_name", db.String(64), nullable=False)
+    card_desc = db.Column("card_desc", db.String(2048), nullable=False)
     attached_files = db.Column("attached_files", db.String(1024), nullable=False)  # "filename1, filename2"...
     assigned_users = db.Column("assigned_users", db.String(1024), nullable=False)  # "user1, user1"...
     datetime = db.Column("datetime", db.DateTime(), nullable=False)
@@ -453,9 +453,9 @@ class HistoryCardDeleted(db.Model):
     id = db.Column("id", db.Integer(), primary_key=True, unique=True)
     project_id = db.Column("project_id", db.Integer(), nullable=False)
     # data is not being updated
-    name = db.Column("name", db.String(16), nullable=False)
-    list_name = db.Column("list_name", db.String(16), nullable=False)
-    card_desc = db.Column("card_desc", db.String(1024), nullable=False)
+    name = db.Column("name", db.String(64), nullable=False)
+    list_name = db.Column("list_name", db.String(64), nullable=False)
+    card_desc = db.Column("card_desc", db.String(2048), nullable=False)
     attached_files = db.Column("attached_files", db.String(1024), nullable=False)  # "filename1, filename2"...
     assigned_users = db.Column("assigned_users", db.String(1024), nullable=False)  # "user1, user1"...
     datetime = db.Column("datetime", db.DateTime(), nullable=False)
@@ -477,9 +477,9 @@ class HistoryCardChangedList(db.Model):
     event_id = db.Column("event_id", db.Integer(), primary_key=True, autoincrement=True, unique=True)
     project_id = db.Column("project_id", db.Integer(), nullable=False)
     # data is not being updated
-    name = db.Column("name", db.String(16), nullable=False)
-    old_list_name = db.Column("old_list_name", db.String(16), nullable=False)
-    new_list_name = db.Column("new_list_name", db.String(16), nullable=False)
+    name = db.Column("name", db.String(64), nullable=False)
+    old_list_name = db.Column("old_list_name", db.String(64), nullable=False)
+    new_list_name = db.Column("new_list_name", db.String(64), nullable=False)
     datetime = db.Column("datetime", db.DateTime(), nullable=False)
 
     def __init__(self, id_, project_id, name, old_list_name, new_list_name):

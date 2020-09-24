@@ -75,6 +75,12 @@ footer {
     color: #616163;
 }
 
+#pageHead p, #pageHead h1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 
 /* toggle page head
 ============================================================================= */

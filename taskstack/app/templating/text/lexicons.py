@@ -489,11 +489,11 @@ project_html_j2 = get_extended_lexicon_dict({
 
         "This project has been deleted.": "This project has been deleted.",
         "Take me home": "Take me home",
-        "The list name must be 1 - 32 characters long.": "The list name must be 1 - 32 characters long.",
-        "The list description may only be 1024 characters long.": "The list description may only be 1024 characters "
+        "The list name must be 1 - 64 characters long.": "The list name must be 1 - 64 characters long.",
+        "The list description may only be 2048 characters long.": "The list description may only be 2048 characters "
                                                                  "long.",
-        "The card name must be 1 - 32 characters long.": "The card name must be 1 - 32 characters long.",
-        "The card description may only be 1024 characters long.": "The card description may only be 1024 characters "
+        "The card name must be 1 - 64 characters long.": "The card name must be 1 - 64 characters long.",
+        "The card description may only be 2048 characters long.": "The card description may only be 2048 characters "
                                                                  "long.",
         "The project name must be 3 - 32 characters long": "The project name must be 3 - 32 characters long",
         "The project description may only be 128 characters long": "The project description may only be 128 characters "
@@ -618,11 +618,11 @@ project_html_j2 = get_extended_lexicon_dict({
 
         "This project has been deleted.": "Dieses Projekt wurde gelöscht.",
         "Take me home": "nach Hause",
-        "The list name must be 1 - 32 characters long.": "Der Name muss 1 - 32 Zeichen lang sein.",
-        "The list description may only be 1024 characters long.": "Die Beschreibung darf maximal 1024 Zeichen lang "
+        "The list name must be 1 - 64 characters long.": "Der Name muss 1 - 64 Zeichen lang sein.",
+        "The list description may only be 2048 characters long.": "Die Beschreibung darf maximal 2048 Zeichen lang "
                                                                  "sein.",
-        "The card name must be 1 - 32 characters long.": "Der Name muss 1 - 32 Zeichen lang sein.",
-        "The card description may only be 1024 characters long.": "Die Beschreibung darf maximal 1024 Zeichen lang "
+        "The card name must be 1 - 64 characters long.": "Der Name muss 1 - 64 Zeichen lang sein.",
+        "The card description may only be 2048 characters long.": "Die Beschreibung darf maximal 2048 Zeichen lang "
                                                                  "sein.",
         "The project name must be 3 - 32 characters long": "Der Projekt Name muss 3 - 32 Zeichen lang sein.",
         "The project description may only be 128 characters long": "Die Projekt Beschreibung darf maximal 128 Zeichen "

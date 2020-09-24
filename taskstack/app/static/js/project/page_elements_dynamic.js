@@ -231,15 +231,15 @@ const editListWin = {
 
     submit: function() {
         var invalid = false;
-        if (document.getElementById("editListNameInput").value.length < 1 || document.getElementById("editListNameInput").value.length > 32) {
-            document.getElementById("editListNameInputErrorText").innerHTML = lex["The list name must be 1 - 32 characters long."];
+        if (document.getElementById("editListNameInput").value.length < 1 || document.getElementById("editListNameInput").value.length > 64) {
+            document.getElementById("editListNameInputErrorText").innerHTML = lex["The list name must be 1 - 64 characters long."];
             document.getElementById("editListNameInputErrorText").classList.add("active");
             invalid = true;
         } else {
             document.getElementById("editListNameInputErrorText").classList.remove("active");
         }
-        if (document.getElementById("editListDescInput").value.length > 1024) {
-            document.getElementById("editListDescInputErrorText").innerHTML = lex["The list description may only be 1024 characters long."];
+        if (document.getElementById("editListDescInput").value.length > 2048) {
+            document.getElementById("editListDescInputErrorText").innerHTML = lex["The list description may only be 2048 characters long."];
             document.getElementById("editListNameInputErrorText").classList.add("active");
             invalid = true;
         } else {
@@ -341,15 +341,15 @@ const editCardWin = {
 
     submit: function() {
         var invalid = false;
-        if (document.getElementById("editCardNameInput").value.length < 1 || document.getElementById("editCardNameInput").value.length > 32) {
-            document.getElementById("editCardNameInputErrorText").innerHTML = lex["The card name must be 1 - 32 characters long."];
+        if (document.getElementById("editCardNameInput").value.length < 1 || document.getElementById("editCardNameInput").value.length > 64) {
+            document.getElementById("editCardNameInputErrorText").innerHTML = lex["The card name must be 1 - 64 characters long."];
             document.getElementById("editCardNameInputErrorText").classList.add("active");
             invalid = true;
         } else {
             document.getElementById("editCardNameInputErrorText").classList.remove("active");
         }
-        if (document.getElementById("editCardDescInput").value.length > 1024) {
-            document.getElementById("editCardDescInputErrorText").innerHTML = lex["The card description may only be 1024 characters long."];
+        if (document.getElementById("editCardDescInput").value.length > 2048) {
+            document.getElementById("editCardDescInputErrorText").innerHTML = lex["The card description may only be 2048 characters long."];
             document.getElementById("editCardNameInputErrorText").classList.add("active");
             invalid = true;
         } else {
@@ -542,15 +542,15 @@ const newListWin = {
 
     submit: function() {
         var invalid = false;
-        if (document.getElementById("newListNameInput").value.length < 1 || document.getElementById("newListNameInput").value.length > 32) {
-            document.getElementById("newListNameInputErrorText").innerHTML = lex["The list name must be 1 - 32 characters long."];
+        if (document.getElementById("newListNameInput").value.length < 1 || document.getElementById("newListNameInput").value.length > 64) {
+            document.getElementById("newListNameInputErrorText").innerHTML = lex["The list name must be 1 - 64 characters long."];
             document.getElementById("newListNameInputErrorText").classList.add("active");
             invalid = true;
         } else {
             document.getElementById("newListNameInputErrorText").classList.remove("active");
         }
-        if (document.getElementById("newListDescInput").value.length > 1024) {
-            document.getElementById("newListDescInputErrorText").innerHTML = lex["The list description may only be 1024 characters long."];
+        if (document.getElementById("newListDescInput").value.length > 2048) {
+            document.getElementById("newListDescInputErrorText").innerHTML = lex["The list description may only be 2048 characters long."];
             document.getElementById("newListNameInputErrorText").classList.add("active");
             invalid = true;
         } else {
@@ -600,15 +600,15 @@ const newCardWin = {
     submit: function() {
         var invalid = false;
 
-        if (document.getElementById("newCardNameInput").value.length < 1 || document.getElementById("newCardNameInput").value.length > 32) {
-            document.getElementById("newCardNameInputErrorText").innerHTML = lex["The card name must be 1 - 32 characters long."];
+        if (document.getElementById("newCardNameInput").value.length < 1 || document.getElementById("newCardNameInput").value.length > 64) {
+            document.getElementById("newCardNameInputErrorText").innerHTML = lex["The card name must be 1 - 64 characters long."];
             document.getElementById("newCardNameInputErrorText").classList.add("active");
             invalid = true;
         } else {
             document.getElementById("newCardNameInputErrorText").classList.remove("active");
         }
-        if (document.getElementById("newCardDescInput").value.length > 1024) {
-            document.getElementById("newCardDescInputErrorText").innerHTML = lex["The card description may only be 1024 characters long."];
+        if (document.getElementById("newCardDescInput").value.length > 2048) {
+            document.getElementById("newCardDescInputErrorText").innerHTML = lex["The card description may only be 2048 characters long."];
             document.getElementById("newCardNameInputErrorText").classList.add("active");
             invalid = true;
         } else {
