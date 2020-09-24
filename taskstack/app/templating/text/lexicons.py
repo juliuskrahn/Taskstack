@@ -75,6 +75,7 @@ base_html_j2 = {
         "Connection lost": "Connection lost",
         "Try reloading the page.": "Try reloading the page.",
 
+        "Search": "Search",
         "project": "Project",
         "user": "User",
 
@@ -120,6 +121,7 @@ base_html_j2 = {
         "Connection lost": "Verbindung zum Server unterbrochen",
         "Try reloading the page.": "Versuchen Sie die Seite neu zu laden.",
 
+        "Search": "Suchen",
         "project": "Projekt",
         "user": "Benutzer",
 

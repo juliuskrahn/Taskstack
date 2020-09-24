@@ -6,6 +6,7 @@
   text-decoration: none;
   list-style: none;
   overflow-wrap: break-word;
+  word-break: break-all;
 
   --blue: #1A73E8; 
   --green: #4ED069; 
@@ -226,14 +227,13 @@ header .left a #notificationsCount.active {
   box-shadow: 0 1px 3px 1px rgba(15,15,15,.15);
   max-width: 1000px;
   min-height: 16px;
+  overflow: auto;
 }
 
 #searchResults a {
   display: block;
   padding: 5px 4px;
-  overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
   color: rgba(0,0,0,0.87);
   opacity: 1 !important;
   transition: background-color .2s ease;
@@ -658,6 +658,7 @@ input:not(.switchInput):not(.checkBoxInput), textarea {
   padding: 10px 6px;
   width: 100%;
   font-family: 'Roboto', sans-serif;
+  background-color: white;
 }
 
 input:not(.switchInput):not(.checkBoxInput) + label, textarea + label {

@@ -301,7 +301,7 @@ body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePage
     color: #b7b7b7 !important;
 }
 
- .list .cards {
+.list .cards {
     overflow-y: auto;
     margin: -4px -12px;
     padding: 4px 12px;
@@ -510,29 +510,16 @@ body.onMobileDevice #togglePageHead .halfCircle, body.onMobileDevice #togglePage
     box-shadow: 0 2px 3px 1px rgba(0,0,0,.1);
 }
 
-#w-listWin h2, #w-cardWin h2, #w-editListWin h2, #w-editCardWin h2 {
-    display: inline-block;
-}
-
-#w-listWin h2, #w-cardWin h2 {
-    display: inline-block;
-    margin-bottom: 8px;
+#w-listWin .listIcon, #w-cardWin .cardIcon, #w-editListWin .listIcon, #w-editCardWin .cardIcon {
+    color: #616163;
+    font-size: 16px;
+    padding-right: 8px;
+    float: left;
+    line-height: 24px;
 }
 
 #w-listWin #listWinDesc, #w-cardWin #cardWinDesc {
     line-height: 20px;
-}
-
-#w-listWin .listIcon, #w-cardWin .cardIcon, #w-editListWin .listIcon, #w-editCardWin .cardIcon {
-    color: #616163;
-    display: inline-block;
-    font-size: 16px;
-    line-height: 24px;
-    margin-right: 10px;
-}
-
-#listWinDesc, #cardWinDesc {
-    max-width: 360px;
 }
 
 #listWinFilesSection, #cardWinFilesSection, #cardWinMembersSection {

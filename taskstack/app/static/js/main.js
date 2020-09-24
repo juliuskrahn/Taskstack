@@ -52,7 +52,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
   MainInit.setupTippy();
 
-  search.setup();
+  if (!document.getElementById("content").classList.contains("light")) {
+    search.setup();
+  }
 });
 
 
@@ -300,6 +302,17 @@ const search = {
         search.search();
       }
     }); 
+
+    tippy("#searchBar .searchBarSearchButton", {
+      content: lex["Search"],
+      appendTo: document.getElementById("tippyContainer"),
+      placement: 'bottom',
+      trigger: "mouseenter",
+      delay: 100,
+      theme: null,
+      arrow: false,
+      offset: [0, 4]
+    });
   }
 }
 
