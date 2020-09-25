@@ -125,6 +125,12 @@ class SocketIOProjectNamespace(Namespace):
                          room=user.id,
                          namspace="/")
 
+            db.session.query(HistoryListCreated).filter_by(project_id=data["id"]).delete()
+            db.session.query(HistoryListDeleted).filter_by(project_id=data["id"]).delete()
+            db.session.query(HistoryCardCreated).filter_by(project_id=data["id"]).delete()
+            db.session.query(HistoryCardDeleted).filter_by(project_id=data["id"]).delete()
+            db.session.query(HistoryCardChangedList).filter_by(project_id=data["id"]).delete()
+
             db.session.delete(project)
 
             db.session.commit()

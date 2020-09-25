@@ -5,8 +5,7 @@
   outline: 0;
   text-decoration: none;
   list-style: none;
-  overflow-wrap: break-word;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 
   --blue: #1A73E8; 
   --green: #4ED069; 

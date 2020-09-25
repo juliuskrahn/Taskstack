@@ -871,10 +871,14 @@ const DomHelpers = {
 
   preventScrolling: function(el) {
     el.addEventListener("wheel", (e) => {
-      e.preventDefault();
+      if (e.target.id != "searchResults" && !document.getElementById("searchResults").contains(e.target)) {
+        e.preventDefault();
+      }
     }, {passive: false});
     el.addEventListener("touchmove", (e) => {
+      if (e.target.id != "searchResults" && !document.getElementById("searchResults").contains(e.target)) {
         e.preventDefault();
+      }
     }, {passive: false});
   }
 }

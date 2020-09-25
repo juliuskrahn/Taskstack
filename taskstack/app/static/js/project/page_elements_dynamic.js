@@ -1487,9 +1487,9 @@ const historyWin = {
         forHistoryListCreated_event: function(history_event) {
             return '<tr>'+
             '<td>'+DatetimeToLocalizedString.datetimeV1(new Date(history_event.datetime))+'</td>'+
-            '<td>'+lex["Created list"]+": "+history_event.name+
-             '<ul><li>'+lex["Description"]+": "+history_event.listDesc+'</li>'+
-                '<li>'+lex["Attached files"]+": "+history_event.attachedFilesNames+'</li>'+
+            '<td>'+lex["Created list"]+": "+he.escape(history_event.name)+
+             '<ul><li>'+lex["Description"]+": "+he.escape(history_event.listDesc)+'</li>'+
+                '<li>'+lex["Attached files"]+": "+he.escape(history_event.attachedFilesNames)+'</li>'+
                 '</ul></td>'+
             '</tr>';
         },
@@ -1497,9 +1497,9 @@ const historyWin = {
         forHistoryListDeleted_event: function(history_event) {
             return '<tr>'+
             '<td>'+DatetimeToLocalizedString.datetimeV1(new Date(history_event.datetime))+'</td>'+
-            '<td>'+lex["Deleted list"]+": "+history_event.name+
-             '<ul><li>'+lex["Description"]+": "+history_event.listDesc+'</li>'+
-                '<li>'+lex["Attached files"]+": "+history_event.attachedFilesNames+'</li>'+
+            '<td>'+lex["Deleted list"]+": "+he.escape(history_event.name)+
+             '<ul><li>'+lex["Description"]+": "+he.escape(history_event.listDesc)+'</li>'+
+                '<li>'+lex["Attached files"]+": "+he.escape(history_event.attachedFilesNames)+'</li>'+
                 '</ul></td>'+
             '</tr>';
         },
@@ -1507,11 +1507,11 @@ const historyWin = {
         forHistoryCardCreated_event: function(history_event) {
             return '<tr>'+
             '<td>'+DatetimeToLocalizedString.datetimeV1(new Date(history_event.datetime))+'</td>'+
-            '<td>'+lex["Created card"]+": "+history_event.name+
-             '<ul><li>'+lex["Description"]+": "+history_event.cardDesc+'</li>'+
-                '<li>'+lex["Attached files"]+": "+history_event.attachedFilesNames+'</li>'+
+            '<td>'+lex["Created card"]+": "+he.escape(history_event.name)+
+             '<ul><li>'+lex["Description"]+": "+he.escape(history_event.cardDesc)+'</li>'+
+                '<li>'+lex["Attached files"]+": "+he.escape(history_event.attachedFilesNames)+'</li>'+
                 '<li>'+lex["Assigned members"]+": "+history_event.membersNames+'</li>'+
-                '<li>'+lex["In list"]+": "+history_event.listName+'</li>'+
+                '<li>'+lex["In list"]+": "+he.escape(history_event.listName)+'</li>'+
                 '</ul></td>'+
             '</tr>';
         },
@@ -1519,11 +1519,11 @@ const historyWin = {
         forHistoryCardDeleted_event: function(history_event) {
             return '<tr>'+
             '<td>'+DatetimeToLocalizedString.datetimeV1(new Date(history_event.datetime))+'</td>'+
-            '<td>'+lex["Deleted card"]+": "+history_event.name+
-             '<ul><li>'+lex["Description"]+": "+history_event.cardDesc+'</li>'+
-                '<li>'+lex["Attached files"]+": "+history_event.attachedFilesNames+'</li>'+
+            '<td>'+lex["Deleted card"]+": "+he.escape(history_event.name)+
+             '<ul><li>'+lex["Description"]+": "+he.escape(history_event.cardDesc)+'</li>'+
+                '<li>'+lex["Attached files"]+": "+he.escape(history_event.attachedFilesNames)+'</li>'+
                 '<li>'+lex["Assigned members"]+": "+history_event.membersNames+'</li>'+
-                '<li>'+lex["In list"]+": "+history_event.listName+'</li>'+
+                '<li>'+lex["In list"]+": "+he.escape(history_event.listName)+'</li>'+
                 '</ul></td>'+
             '</tr>';
         },
@@ -1531,9 +1531,9 @@ const historyWin = {
         forHistoryCardChangedList_event: function(history_event) {
             return '<tr>'+
             '<td>'+DatetimeToLocalizedString.datetimeV1(new Date(history_event.datetime))+'</td>'+
-            '<td>'+lex["Moved card"]+": "+history_event.name+
-             '<ul><li>'+lex["Old list"]+": "+history_event.oldListName+'</li>'+
-                '<li>'+lex["New list"]+": "+history_event.newListName+'</li>'+
+            '<td>'+lex["Moved card"]+": "+he.escape(history_event.name)+
+             '<ul><li>'+lex["Old list"]+": "+he.escape(history_event.oldListName)+'</li>'+
+                '<li>'+lex["New list"]+": "+he.escape(history_event.newListName)+'</li>'+
                 '</ul></td>'+
             '</tr>';
         }
