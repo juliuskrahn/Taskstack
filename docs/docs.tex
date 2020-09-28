@@ -1,0 +1,124 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.25cm, right=2.25cm]{geometry}
+
+\usepackage{mathptmx}
+\usepackage[scaled=0.9]{helvet}
+\usepackage{courier}
+\usepackage[T1]{fontenc}
+
+\begin{document}
+
+\title{Taskstack Documentation\\
+\large (Work in progress)}
+\author{Julius Krahn}
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Tech Stack}
+
+\subsection{Backend}
+
+\begin{itemize}
+	\item Web Server: NGINX
+	\item Application Server: uWSGI
+	\item Database: MySQL
+    \item Application Framework: (Python:) Flask
+    \begin{itemize}
+        \item SQLAlchemy
+        \item Flask-SocketIO
+        \item \dots (for all used packages see /taskstack/requirements.txt)
+    \end{itemize}
+    \item Hosting: AWS EC2 (server), AWS RDS (db), AWS S3 (static and uploaded files)
+    \item Email Sending: AWS SES
+    \item Docker (+ Docker-Compose)
+\end{itemize}
+
+\subsection{Frontend}
+
+\begin{itemize}
+    \item Client and Serverside Rendering
+	\item No Framework/ big library
+	\item socket.io
+	\item tippy.js for Tooltips
+	\item fontawesome for Icons
+	\item he.js for Escaping
+	\item anchorme.js for URL to Link
+	\item cropper.js for Image Cropping
+	\item sortable.js for Drag and Drop + Sort
+\end{itemize}
+
+\subsection{Misc}
+
+\begin{itemize}
+    \item Domain Name: Namecheap
+\end{itemize}
+
+\newpage
+
+\section{Running Taskstack for development}
+
+\subsection{Requirements}
+
+\begin{itemize}
+    \item Python 3.7 
+    \item Python modules: /taskstack/requirements.txt (except uwsgi, gevent, redis)
+    \item Local MySQL database
+    \item AWS CLI
+    \item Port 5000 open
+\end{itemize}
+
+\subsection{Run}
+
+\begin{itemize}
+    \item set environment variables: /taskstack/.env
+    \item run /taskstack/wsgi.py
+    \item access the server: http://localhost:5000
+\end{itemize}
+
+\section{Deployment}
+
+\subsection{Server Requirements}
+
+\begin{itemize}
+    \item OS: Ubuntu
+    \item Docker (+ Docker-Compose)
+    \item Git
+    \item Port 80 and 443 open for all incoming and outgoing connections
+\end{itemize}
+
+\subsection{Initial}
+
+\begin{itemize}
+    \item Get the code \newline git clone https://github.com/juliuskrahn/taskstack
+    \item Set environment variables: /taskstack/.env
+    \item Disable THP \newline echo never /sys/kernel/mm/transparent\_hugepage/enabled \newline
+    (needs to be done again if the server is shut down)
+    \item Build and Start \newline docker-compose build \newline
+    docker-compose up -d
+    \item Enable https \newline
+    docker exec -it nginx bash \newline
+    sudo certbot –nginx
+\end{itemize}
+
+\subsection{Updating}
+
+\begin{itemize}
+    \item Stop affected service (taskstack |nginx |redis) \newline
+    docker-compose stop [service]
+    \item Get the code \newline
+    git pull
+    \item Re-build and start affected service (taskstack |nginx |redis) \newline
+    docker-compose build [service] \newline
+    docker-compose up -d [service] \newline
+    (If you need to rebuild the nginx service, make sure to enable https again!)
+\end{itemize}
+
+\newpage
+
+\end{document}

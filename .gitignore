@@ -9,3 +9,11 @@ __pycache__
 temp
 output
 templates_production
+
+*.log
+
+*.gz
+*.toc
+*.fls
+*.fdb_latexmk
+*.aux
